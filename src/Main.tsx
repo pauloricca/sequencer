@@ -9,6 +9,6 @@ export interface MainProps
 
 export const Main: React.FC<MainProps> = ({ app }) => {
   return (
-    <Sequencer nSteps={16} nChannels={6} />
+    <Sequencer nSteps={16} nChannels={5} />
   );
 };
