@@ -1,0 +1,15 @@
+.sequencer-channel-step {
+    background-color: white;
+    border: 1px solid black;
+    width: 15px;
+    height: 15px;
+
+    &--is-checked {
+        background-color: #32d9ff;;
+    }
+
+    &--is-active {
+        border-color: blue;
+        box-shadow: 0 0 4px 0 #00ffcd;
+    }
+}
