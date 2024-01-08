@@ -1,21 +1,20 @@
 import classnames from "classnames";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { StateSequenceStep } from "../../../../State";
 require("./_SequencerChannelStep.scss");
 
 export interface SequencerChannelStepProps {
+  step?: StateSequenceStep;
   isActive: boolean;
-  triggerCallback: () => void;
+  onClick: () => void;
 }
 
 export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = ({
+  step,
   isActive,
-  triggerCallback,
+  onClick,
 }) => {
-  const [isChecked, setIsChecked] = useState(false);
-
-  useEffect(() => {
-    if (isActive && isChecked) triggerCallback();
-  }, [isActive]);
+  const isChecked = !!step;
 
   return (
     <div
@@ -23,7 +22,10 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = ({
         "sequencer-channel-step--is-checked": isChecked,
         "sequencer-channel-step--is-active": isActive,
       })}
-      onClick={() => setIsChecked(!isChecked)}
+      onClick={() => onClick()}
+      onDragEnter={() => console.log('paulo drag enter')}
+      onDragOver={() => console.log('paulo drag over')}
+      onDragStart={() => console.log('paulo drag start')}
     ></div>
   );
 };
