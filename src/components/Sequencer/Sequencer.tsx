@@ -1,17 +1,19 @@
 import React, { useEffect } from "react";
 import { SequencerChannel } from "./SequencerChannel/SequencerChannel";
-import { StateSequence } from "../../state/state.types";
+import { StateSequence, StateSequenceChannelConfig } from "../../state/state.types";
 import { registerMidiOutputDevice } from "../../utils/midi";
 require("./_Sequencer.scss");
 
 export interface SequencerProps {
   sequence: StateSequence;
+  channelsConfig: StateSequenceChannelConfig[];
   tick: number;
   triggerCallback: (channel: number) => void;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
   sequence,
+  channelsConfig,
   tick,
   triggerCallback,
 }) => {
@@ -30,7 +32,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
 
   return (
     <div className="sequencer">
-      {sequence.channelsConfig.map((channelConfig, channelIndex) => (
+      {channelsConfig.map((channelConfig, channelIndex) => (
         <SequencerChannel
           channelIndex={channelIndex}
           channelConfig={channelConfig}

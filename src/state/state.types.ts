@@ -1,7 +1,7 @@
-export interface StateSequence {
-  type: "drum-machine" | "synth";
+export type StateSequence = StateSequenceCommon & (StateSequenceDrumMachine | StateSequenceSynth);
+
+export type StateSequenceCommon = {
   name: string;
-  channelsConfig: StateSequenceChannelConfig[];
   nSteps: number;
   steps: StateSequenceStep[];
   /**
@@ -10,6 +10,17 @@ export interface StateSequence {
   stepLength: number;
   midiOutDeviceName?: string;
 }
+
+export type StateSequenceDrumMachine = {
+  type: "drum-machine";
+  channelsConfig: StateSequenceChannelConfig[];
+};
+
+export type StateSequenceSynth = {
+  type: "synth";
+  middleNote: number;
+  range: number;
+};
 
 export type StateSequenceChannelConfig = {
     name?: string;

@@ -1,7 +1,6 @@
 import { IMIDIAccess, MIDIVal, MIDIValOutput } from "@midival/core";
 
-const MIDI_SEND_QUEUE_INTERVAL = 30;
-const MIDI_NOTE_OFF_ON_INTERVAL = 10;
+const MIDI_SEND_QUEUE_INTERVAL = 10;
 
 interface MidiMessage {
   channel: number;
@@ -67,13 +66,7 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
             message.note,
             message.channel
           );
-          setTimeout(() => {
-            (midiDevices[deviceName].output as MIDIValOutput).sendNoteOn(
-              message.note,
-              message.velocity,
-              message.channel
-            );
-          }, MIDI_NOTE_OFF_ON_INTERVAL);
+          midiDevices[deviceName].messageQueue.push(message);
         } else {
           (midiDevices[deviceName].output as MIDIValOutput).sendNoteOn(
             message.note,
@@ -92,7 +85,7 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
           midiDevices[deviceName].currentNotes = midiDevices[
             deviceName
           ].currentNotes.filter((note) => note !== message.note);
-        }, 500);
+        }, 10);
       } else {
         clearInterval(midiDevices[deviceName].queueInterval as number);
         midiDevices[deviceName].queueInterval = null;

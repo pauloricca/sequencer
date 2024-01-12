@@ -3,13 +3,14 @@ import { Howl } from "howler";
 import { Sequencer } from "../Sequencer/Sequencer";
 import { DrumMachineChannelConfig, DrumMachineProps } from "./DrumMachine.types";
 import { sendMidiMessage } from "../../utils/midi";
+import { StateSequenceDrumMachine } from "src/state/state.types";
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({
   ...sequencerProps
 }) => {
   const samples = useRef<Howl[]>([]);
 
-  const drumMachineChannels = sequencerProps.sequence
+  const drumMachineChannels = (sequencerProps.sequence as StateSequenceDrumMachine)
     .channelsConfig as DrumMachineChannelConfig[];
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
     <div className="drum-machine">
       <Sequencer
         {...sequencerProps}
+        channelsConfig={drumMachineChannels}
         triggerCallback={triggerSample}
       />
     </div>

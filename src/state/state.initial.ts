@@ -172,5 +172,15 @@ export const INITIAL_STATE: State = {
       channelsConfig: DRUM_MACHINE_CHANNELS,
       midiOutDeviceName: DRUM_MIDI_OUTPUT,
     },
+    {
+      type: "synth",
+      name: "lead",
+      nSteps: 16,
+      stepLength: 4,
+      middleNote: 64,
+      range: 11,
+      steps: [],
+      midiOutDeviceName: SYNTH_MIDI_OUTPUT,
+    },
   ],
 };

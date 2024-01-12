@@ -33,6 +33,12 @@ html,body
     font-size: 2rem;
 }
 
+.instruments {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 .instrument {
     display: block;
 }
