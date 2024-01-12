@@ -1,53 +1,49 @@
 import React, { useEffect, useRef } from "react";
 import { Howl } from "howler";
-import { Sequencer, SequencerProps } from "../Sequencer/Sequencer";
-import { MIDIVal, MIDIValOutput } from "@midival/core";
+import { Sequencer } from "../Sequencer/Sequencer";
+import { DrumMachineChannelConfig, DrumMachineProps } from "./DrumMachine.types";
+import { sendMidiMessage } from "../../utils/midi";
 
-export interface DrumMachineProps extends Omit<SequencerProps, 'triggerCallback'> {}
-
-const SAMPLES = [
-  "SS_TCN_Kick_Solo_01.wav",
-  "SS_TCN_Kick_Solo_31.wav",
-  "SS_TCN_Clap_Snare_15.wav",
-  "SS_TCN_HH_03.wav",
-  "SS_TCN_HH_05.wav",
-  "SS_TCN_Clap_Snare_04.wav",
-];
-
-export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, clock }) => {
+export const DrumMachine: React.FC<DrumMachineProps> = ({
+  ...sequencerProps
+}) => {
   const samples = useRef<Howl[]>([]);
-  const midiOutput = useRef<MIDIValOutput>();
+
+  const drumMachineChannels = sequencerProps.sequence
+    .channelsConfig as DrumMachineChannelConfig[];
 
   useEffect(() => {
-    samples.current = SAMPLES.map((sample) => new Howl({
-      src: [`/sounds/${sample}`]
-    }));
-
-    MIDIVal.connect()
-    .then(access => {
-        console.log('paulo midi', access.outputs);
-        midiOutput.current = new MIDIValOutput(access.outputs[1]);
-        // output.sendControlChange(5, 50);
+    drumMachineChannels.forEach((channel, channelIndex) => {
+      if (channel.type === "sample") {
+        samples.current[channelIndex] = new Howl({
+          src: [`/sounds/${channel.soundFile}`],
+        });
+      }
     });
   }, []);
 
   const triggerSample = (sampleIndex: number) => {
-    samples.current[sampleIndex]?.play();
+    const channel = drumMachineChannels[sampleIndex];
 
-    const notes = [36, 38, 43, 50, 42, 46, 39, 75, 67, 49];
+    if (!channel) return;
 
-    if (midiOutput.current) {
-      midiOutput.current.sendNoteOn(notes[sampleIndex], 127, 10);
+    if (channel.type === "sample") {
+      samples.current[sampleIndex]?.play();
+    } else if (channel.type === "midi" && sequencerProps.sequence.midiOutDeviceName) {
+      sendMidiMessage(sequencerProps.sequence.midiOutDeviceName, {
+        note: channel.note,
+        velocity: 127,
+        channel: channel.channel,
+      });
     }
   };
 
   return (
-    <div className="drum-machine instrument">
-        <Sequencer
-          sequence={sequence}
-          clock={clock}
-          triggerCallback={triggerSample}
-        />
+    <div className="drum-machine">
+      <Sequencer
+        {...sequencerProps}
+        triggerCallback={triggerSample}
+      />
     </div>
   );
 };

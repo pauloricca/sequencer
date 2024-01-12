@@ -1,20 +1,25 @@
 import React, { useEffect } from "react";
 import { SequencerChannel } from "./SequencerChannel/SequencerChannel";
-import { StateSequence } from "../../State";
+import { StateSequence } from "../../state/state.types";
+import { registerMidiOutputDevice } from "../../utils/midi";
 require("./_Sequencer.scss");
 
 export interface SequencerProps {
   sequence: StateSequence;
-  clock: number;
+  tick: number;
   triggerCallback: (channel: number) => void;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
   sequence,
-  clock,
+  tick,
   triggerCallback,
 }) => {
-  const activeStepIndex = clock % sequence.nSteps;
+  const activeStepIndex = tick % sequence.nSteps;
+
+  useEffect(() => {
+    if (sequence.midiOutDeviceName) registerMidiOutputDevice(sequence.midiOutDeviceName);
+  }, [sequence.midiOutDeviceName]);
 
   useEffect(() => {
     const stepsToTrigger = sequence.steps.filter(
@@ -25,9 +30,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
 
   return (
     <div className="sequencer">
-      {[...Array(sequence.nChannels).keys()].map((channelIndex) => (
+      {sequence.channelsConfig.map((channelConfig, channelIndex) => (
         <SequencerChannel
           channelIndex={channelIndex}
+          channelConfig={channelConfig}
           sequence={sequence}
           key={channelIndex}
           nSteps={sequence.nSteps}

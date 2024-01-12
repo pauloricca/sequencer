@@ -1,6 +1,6 @@
 import classnames from "classnames";
 import React from "react";
-import { StateSequenceStep } from "../../../../State";
+import { StateSequenceStep } from "src/state/state.types";
 require("./_SequencerChannelStep.scss");
 
 export interface SequencerChannelStepProps {

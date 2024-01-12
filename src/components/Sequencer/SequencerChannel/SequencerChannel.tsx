@@ -1,10 +1,12 @@
 import React from "react";
 import { SequencerChannelStep } from "./SequencerChannelStep/SequencerChannelStep";
-import { StateSequence, StateSequenceStep, useSequencersState } from "../../../State";
+import { StateSequence, StateSequenceChannelConfig, StateSequenceStep } from "src/state/state.types";
+import { useSequencersState } from "../../../state/state";
 require("./_SequencerChannel.scss");
 
 export interface SequencerChannelProps {
   sequence: StateSequence;
+  channelConfig: StateSequenceChannelConfig;
   channelIndex: number;
   nSteps: number;
   activeStepIndex: number;
@@ -12,6 +14,7 @@ export interface SequencerChannelProps {
 
 export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   sequence,
+  channelConfig,
   channelIndex,
   nSteps,
   activeStepIndex,
@@ -36,6 +39,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
 
   return (
     <div className="sequencer-channel">
+      <div className="sequencer-channel__name">{channelConfig.name}</div>
       {[...Array(nSteps).keys()].map((stepIndex) => {
         const step = steps.find((step) => step.stepIndex === stepIndex);
         return (

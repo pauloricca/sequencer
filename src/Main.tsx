@@ -1,28 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { App } from "./App";
 import { DrumMachine } from "./components/DrumMachine/DrumMachine";
-import { useSequencersState } from "./State";
+import { useSequencersState } from "./state/state";
 
 export interface MainProps {
   app: App;
 }
 
 export const Main: React.FC<MainProps> = ({ app }) => {
-  const [bpm, setBpm] = useState(120);
   const [clock, setClock] = useState(0);
-  const [stepsPerBeat, setStepsPerBeat] = useState(4);
   const sequences = useSequencersState((state) => state.sequences);
+  const clockSpeed = useSequencersState((state) => state.clockSpeed);
+  const resetState = useSequencersState((state) => state.reset);
 
   useEffect(() => {
     setInterval(() => {
       setClock((prev) => prev + 1);
-    }, 60000 / stepsPerBeat / bpm);
-  }, [bpm]);
+    }, 60000 / clockSpeed);
+  }, [clockSpeed]);
 
   return (
     <div>
+      <button onClick={resetState}>reset</button>
       {sequences.map((sequence) => (
-        <DrumMachine sequence={sequence} key={sequence.name} clock={clock} />
+        <div className="instrument" key={sequence.name}>
+          {sequence.type === "drum-machine" && (
+            <DrumMachine
+              sequence={sequence}
+              tick={Math.floor(clock / sequence.stepLength)}
+            />
+          )}
+        </div>
       ))}
     </div>
   );
