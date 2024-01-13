@@ -4,28 +4,31 @@ import { StateSequenceStep } from "src/state/state.types";
 require("./_SequencerChannelStep.scss");
 
 export interface SequencerChannelStepProps {
-  step?: StateSequenceStep;
+  isToggled: boolean;
   isActive: boolean;
-  onClick: () => void;
+  onToggle: () => void;
+  onDragStart: () => void;
+  isDraggingAlongChannel: boolean;
 }
 
 export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = ({
-  step,
+  isToggled,
   isActive,
-  onClick,
+  onToggle,
+  onDragStart,
+  isDraggingAlongChannel,
 }) => {
-  const isChecked = !!step;
-
   return (
     <div
       className={classnames("sequencer-channel-step", {
-        "sequencer-channel-step--is-checked": isChecked,
+        "sequencer-channel-step--is-toggled": isToggled,
         "sequencer-channel-step--is-active": isActive,
       })}
-      onClick={() => onClick()}
-      onDragEnter={() => console.log('paulo drag enter')}
-      onDragOver={() => console.log('paulo drag over')}
-      onDragStart={() => console.log('paulo drag start')}
+      onMouseDown={() => {
+        onToggle();
+        onDragStart();
+      }}
+      onMouseEnter={() => isDraggingAlongChannel && onToggle()}
     ></div>
   );
 };

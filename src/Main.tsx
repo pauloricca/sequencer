@@ -25,6 +25,7 @@ export const Main: React.FC<MainProps> = ({ app }) => {
       <button onClick={resetState}>reset</button>
       {sequences.map((sequence) => (
         <div className="instrument" key={sequence.name}>
+          <p className="intrument__name">{sequence.name}</p>
           {sequence.type === "drum-machine" && (
             <DrumMachine
               sequence={sequence}

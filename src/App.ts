@@ -1,6 +1,7 @@
 import React from "react";
 import { Main } from "./Main";
 import { createRoot } from "react-dom/client";
+require("./_App.scss");
 
 export class App
 {

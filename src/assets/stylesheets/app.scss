@@ -11,34 +11,16 @@ html,body
     display: flex;
     flex-grow: 1;
     width: 100%;
-    height: 100%;
     min-height: 100vh;
-    font-size: 16px;
+    font-size: 14px;
     text-align: center;
     color: var(--color-example);
     margin: 0;
+    user-select: none;
 }
 
-#app 
+p
 {
-    background-color: #4158D0;
-    background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
-    color: var(--color-example);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    font-size: 2rem;
-}
-
-.instruments {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.instrument {
-    display: block;
+    margin-block-start: 0.5em;
+    margin-block-end: 0.5em;
 }

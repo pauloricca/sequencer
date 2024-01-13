@@ -9,14 +9,14 @@ export const Synth: React.FC<SynthProps> = ({
 }) => {
   const synthSequenceAttributes = (sequencerProps.sequence as StateSequenceSynth);
   const initialNote = synthSequenceAttributes.middleNote - Math.floor(synthSequenceAttributes.range / 2);
-  const synthChannels: SynthChannelConfig[] = [];
-  for (let note = initialNote; note < initialNote + synthSequenceAttributes.range; note++) {
-    synthChannels.push({
-      type: "midi",
-      name: `${note}`,
-      note,
-    });
-  }
+
+  const synthChannels: SynthChannelConfig[] = [
+    ...Array(synthSequenceAttributes.range).keys(),
+  ].map((i) => ({
+    type: "midi",
+    name: `${initialNote + i}`,
+    note: initialNote + i,
+  }));
 
   const triggerSample = (channelIndex: number) => {
     const channel = synthChannels[channelIndex];

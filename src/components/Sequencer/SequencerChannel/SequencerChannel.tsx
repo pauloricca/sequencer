@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SequencerChannelStep } from "./SequencerChannelStep/SequencerChannelStep";
 import { StateSequence, StateSequenceChannelConfig, StateSequenceStep } from "src/state/state.types";
 import { useSequencersState } from "../../../state/state";
@@ -21,6 +21,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
 }) => {
   const setStep = useSequencersState((state) => state.setStep(sequence.name));
   const removeStep = useSequencersState((state) => state.removeStep(sequence.name));
+  const [isDraggingAlongChannel, setIsDraggingAlongChannel] = useState(false);
 
   const steps = sequence.steps.filter(
     ({ channel }) => channel === channelIndex
@@ -37,6 +38,15 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
     }
   };
 
+  const onDragStartHandler = () => {
+    setIsDraggingAlongChannel(true);
+    const mouseUpHandler = () => {
+      setIsDraggingAlongChannel(false);
+      document.body.removeEventListener("mouseup", mouseUpHandler);
+    };
+    document.body.addEventListener("mouseup", mouseUpHandler);
+  };
+
   return (
     <div className="sequencer-channel">
       <div className="sequencer-channel__name">{channelConfig.name}</div>
@@ -44,10 +54,12 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
         const step = steps.find((step) => step.stepIndex === stepIndex);
         return (
           <SequencerChannelStep
-            step={step}
             key={stepIndex}
+            isToggled={!!step}
             isActive={activeStepIndex === stepIndex}
-            onClick={() => onStepClickHandler(stepIndex, step)}
+            onToggle={() => onStepClickHandler(stepIndex, step)}
+            onDragStart={onDragStartHandler}
+            isDraggingAlongChannel={isDraggingAlongChannel}
           />
         );
       })}
