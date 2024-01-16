@@ -1,15 +1,24 @@
-export type StateSequence = StateSequenceCommon & (StateSequenceDrumMachine | StateSequenceSynth);
+export type StateSequence = StateSequenceCommon &
+  (StateSequenceDrumMachine | StateSequenceSynth);
+
+export type StateSequencePattern = {
+  steps: StateSequenceStep[];
+}
 
 export type StateSequenceCommon = {
   name: string;
   nSteps: number;
-  steps: StateSequenceStep[];
+  currentPattern: number;
+  /**
+   * Steps by pattern (parent array holds patterns and child arrays hold steps on that pattern)
+   */
+  patterns: StateSequencePattern[];
   /**
    * How many clock ticks take to advance one tick in this sequence
    */
   stepLength: number;
   midiOutDeviceName?: string;
-}
+};
 
 export type StateSequenceDrumMachine = {
   type: "drum-machine";
@@ -18,14 +27,15 @@ export type StateSequenceDrumMachine = {
 
 export type StateSequenceSynth = {
   type: "synth";
-  middleNote: number;
+  rootNote: number;
+  scale: string;
   range: number;
 };
 
 export type StateSequenceChannelConfig = {
-    name?: string;
-    isHidden?: boolean;
-  }
+  name?: string;
+  isHidden?: boolean;
+};
 
 export interface StateSequenceStep {
   channel: number;
@@ -43,6 +53,9 @@ export type State = {
 export type Actions = {
   setStep: (sequenceName: string) => (step: StateSequenceStep) => void;
   removeStep: (sequenceName: string) => (stepIndex: StateSequenceStep) => void;
+  updateSequence: (
+    sequenceName: string
+  ) => (newSequenceSettings: Partial<StateSequence>) => void;
   getSequence: (sequenceName: string) => StateSequence | undefined;
   reset: () => void;
 };

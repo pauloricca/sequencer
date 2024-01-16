@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from "zustand/middleware";
 import { Actions, State, StateSequence } from "./state.types";
 import { INITIAL_STATE } from "./state.initial";
+import { unregisterMidiOutputDevice } from "../utils/midi";
 
 export const useSequencersState = create<State & Actions>()(
   persist(
@@ -11,9 +12,9 @@ export const useSequencersState = create<State & Actions>()(
       setStep: (sequenceName) => (step) =>
         set((state) => {
           const sequence = getSequenceByName(state.sequences, sequenceName);
-          if (sequence) {
-            sequence.steps = [
-              ...sequence.steps.filter(
+          if (sequence && sequence.patterns[sequence.currentPattern]) {
+            sequence.patterns[sequence.currentPattern].steps = [
+              ...sequence.patterns[sequence.currentPattern].steps.filter(
                 ({ channel, stepIndex }) =>
                   channel !== step.channel || stepIndex !== step.stepIndex
               ),
@@ -24,21 +25,51 @@ export const useSequencersState = create<State & Actions>()(
       removeStep: (sequenceName) => (step) =>
         set((state) => {
           const sequence = getSequenceByName(state.sequences, sequenceName);
-          if (sequence) {
-            sequence.steps = sequence.steps.filter(
+          if (sequence && sequence.patterns[sequence.currentPattern]) {
+            sequence.patterns[sequence.currentPattern].steps = sequence.patterns[
+              sequence.currentPattern
+            ].steps.filter(
               ({ channel, stepIndex }) =>
                 channel != step.channel || step.stepIndex != stepIndex
             );
           }
         }),
+      updateSequence: (sequenceName) => (newSequenceSettings) =>
+        set((state) => {
+          const sequence = getSequenceByName(state.sequences, sequenceName);
+          if (sequence) {
+            // Check if we need to unregister midi devices
+            if (
+              sequence.midiOutDeviceName &&
+              newSequenceSettings.midiOutDeviceName !==
+                sequence.midiOutDeviceName
+            ) {
+              // No other sequence using the midi device that was being used on this sequence?
+              if (
+                !state.sequences.filter(
+                  (otherSequence) =>
+                    otherSequence !== sequence &&
+                    otherSequence.midiOutDeviceName ===
+                      sequence.midiOutDeviceName
+                ).length
+              ) {
+                unregisterMidiOutputDevice(sequence.midiOutDeviceName);
+              }
+            }
+            Object.keys(newSequenceSettings).forEach(
+              (key) =>
+                ((sequence as any)[key] = (newSequenceSettings as any)[key])
+            );
+          }
+        }),
       getSequence: (sequenceName: string) =>
         getSequenceByName(get().sequences, sequenceName),
-      reset: () => set(() => INITIAL_STATE)
+      reset: () => set(() => INITIAL_STATE),
     })),
     {
-        name: 'sequencers', // name of the item in the storage (must be unique)
-        storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
-      },
+      name: "sequencers", // name of the item in the storage (must be unique)
+      // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+    }
   )
 );
 

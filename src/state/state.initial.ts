@@ -1,4 +1,4 @@
-import { DrumMachineChannelConfig } from "src/components/DrumMachine/DrumMachine.types";
+import { DrumMachineChannelConfig } from "components/DrumMachine/DrumMachine.types";
 import { State } from "./state.types";
 
 export const DRUM_MACHINE_CHANNELS: DrumMachineChannelConfig[] = [
@@ -168,7 +168,8 @@ export const INITIAL_STATE: State = {
       name: "drums",
       nSteps: 16,
       stepLength: 4,
-      steps: [],
+      currentPattern: 0,
+      patterns: [{ steps: [] }],
       channelsConfig: DRUM_MACHINE_CHANNELS,
       midiOutDeviceName: DRUM_MIDI_OUTPUT,
     },
@@ -177,9 +178,11 @@ export const INITIAL_STATE: State = {
       name: "lead",
       nSteps: 16,
       stepLength: 4,
-      middleNote: 64,
+      rootNote: 60,
+      scale: "major",
       range: 11,
-      steps: [],
+      currentPattern: 0,
+      patterns: [{ steps: [] }],
       midiOutDeviceName: SYNTH_MIDI_OUTPUT,
     },
   ],

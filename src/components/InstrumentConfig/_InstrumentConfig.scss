@@ -1,0 +1,19 @@
+.instrument-config {
+	border: 1px solid white;
+	padding: 4px 8px;
+	border-radius: 8px;
+
+	&__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		cursor: pointer;
+	}
+
+	&__controls {
+		display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-row-gap: 8px;
+    grid-column-gap: 8px;
+	}
+}

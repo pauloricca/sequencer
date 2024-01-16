@@ -1,5 +1,16 @@
 .sequencer {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
+    gap: 8px;
+
+    &__channels {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__patterns {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
 }

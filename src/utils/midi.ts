@@ -8,14 +8,16 @@ interface MidiMessage {
   velocity: number;
 }
 
+interface MidiDevice {
+  type: "input" | "output";
+  messageQueue: MidiMessage[];
+  output: MIDIValOutput | null;
+  queueInterval: number | null;
+  currentNotes: number[];
+}
+
 interface MidiDevices {
-  [name: string]: {
-    type: "input" | "output";
-    messageQueue: MidiMessage[];
-    output: MIDIValOutput | null;
-    queueInterval: number | null;
-    currentNotes: number[];
-  };
+  [name: string]: MidiDevice;
 }
 
 let midiAccess: IMIDIAccess | null = null;
@@ -25,35 +27,22 @@ export const registerMidiOutputDevice = (deviceName: string) => {
   // Already registered?
   if (midiDevices[deviceName]) return;
 
+  console.log('REGISTERING ', deviceName);
   setupMidiOutputDevice(deviceName);
 };
 
-const setupMidiOutputDevice = (deviceName: string) => {
-  if (midiAccess) {
-    const midiOutputToUse = midiAccess.outputs.find(
-      ({ name }) => name === deviceName
-    );
-
-    if (midiOutputToUse) {
-      midiDevices[deviceName].output = new MIDIValOutput(midiOutputToUse);
-    }
-  } else {
-    midiDevices[deviceName] = {
-      type: "output",
-      messageQueue: [],
-      output: null,
-      queueInterval: null,
-      currentNotes: [],
-    };
-  }
+export const unregisterMidiOutputDevice = (deviceName: string) => {
+  console.log('UNREGISTERING ', deviceName, !!midiDevices[deviceName]);
+  delete midiDevices[deviceName];
 };
+
+export const getMidiOutputDeviceNames = () =>
+  midiAccess ? midiAccess.outputs.map(({ name }) => name) : [];
 
 export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
   if (!midiDevices[deviceName]) return;
 
   midiDevices[deviceName].messageQueue.push(message);
-
-  console.log(midiDevices[deviceName].currentNotes);
 
   if (midiDevices[deviceName].queueInterval === null) {
     midiDevices[deviceName].queueInterval = setInterval(() => {
@@ -93,6 +82,32 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
     }, MIDI_SEND_QUEUE_INTERVAL) as unknown as number;
   }
 };
+
+const setupMidiOutputDevice = (deviceName: string) => {
+  if (midiAccess) {
+    const midiOutputToUse = midiAccess.outputs.find(
+      ({ name }) => name === deviceName
+    );
+
+    if (midiOutputToUse) {
+      if (!midiDevices[deviceName]) {
+        midiDevices[deviceName] = getMidiDevideDefaults();
+      }
+
+      midiDevices[deviceName].output = new MIDIValOutput(midiOutputToUse);
+    }
+  } else {
+    midiDevices[deviceName] = getMidiDevideDefaults();
+  }
+};
+
+const getMidiDevideDefaults = (): MidiDevice => ({
+  type: "output",
+  messageQueue: [],
+  output: null,
+  queueInterval: null,
+  currentNotes: [],
+});
 
 MIDIVal.connect().then((access) => {
   midiAccess = access;

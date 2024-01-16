@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { SequencerChannelStep } from "./SequencerChannelStep/SequencerChannelStep";
-import { StateSequence, StateSequenceChannelConfig, StateSequenceStep } from "src/state/state.types";
+import {
+  StateSequence,
+  StateSequenceChannelConfig,
+  StateSequenceStep,
+} from "../../../state/state.types";
 import { useSequencersState } from "../../../state/state";
 require("./_SequencerChannel.scss");
 
@@ -8,32 +12,40 @@ export interface SequencerChannelProps {
   sequence: StateSequence;
   channelConfig: StateSequenceChannelConfig;
   channelIndex: number;
-  nSteps: number;
   activeStepIndex: number;
+  triggerCallback?: (channel: number) => void;
 }
 
 export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   sequence,
   channelConfig,
   channelIndex,
-  nSteps,
   activeStepIndex,
+  triggerCallback = () => {},
 }) => {
   const setStep = useSequencersState((state) => state.setStep(sequence.name));
-  const removeStep = useSequencersState((state) => state.removeStep(sequence.name));
+  const removeStep = useSequencersState((state) =>
+    state.removeStep(sequence.name)
+  );
   const [isDraggingAlongChannel, setIsDraggingAlongChannel] = useState(false);
 
-  const steps = sequence.steps.filter(
-    ({ channel }) => channel === channelIndex
-  )
+  const channelStepsByIndex = [...Array(sequence.nSteps).keys()].map(
+    (stepIndex) =>
+      sequence.patterns[sequence.currentPattern].steps.find(
+        (step) => step.stepIndex === stepIndex && step.channel === channelIndex
+      )
+  );
 
-  const onStepClickHandler = (stepIndex: number, currentStep?: StateSequenceStep) => {
+  const onStepClickHandler = (
+    stepIndex: number,
+    currentStep?: StateSequenceStep
+  ) => {
     if (currentStep) {
       removeStep(currentStep);
     } else {
       setStep({
         channel: channelIndex,
-        stepIndex
+        stepIndex,
       });
     }
   };
@@ -49,20 +61,22 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
 
   return (
     <div className="sequencer-channel">
-      <div className="sequencer-channel__name">{channelConfig.name}</div>
-      {[...Array(nSteps).keys()].map((stepIndex) => {
-        const step = steps.find((step) => step.stepIndex === stepIndex);
-        return (
-          <SequencerChannelStep
-            key={stepIndex}
-            isToggled={!!step}
-            isActive={activeStepIndex === stepIndex}
-            onToggle={() => onStepClickHandler(stepIndex, step)}
-            onDragStart={onDragStartHandler}
-            isDraggingAlongChannel={isDraggingAlongChannel}
-          />
-        );
-      })}
+      <div
+        className="sequencer-channel__name"
+        onClick={() => triggerCallback(channelIndex)}
+      >
+        {channelConfig.name}
+      </div>
+      {channelStepsByIndex.map((step, stepIndex) => (
+        <SequencerChannelStep
+          key={stepIndex}
+          isToggled={!!step}
+          isActive={activeStepIndex === stepIndex}
+          onToggle={() => onStepClickHandler(stepIndex, step)}
+          onDragStart={onDragStartHandler}
+          isDraggingAlongChannel={isDraggingAlongChannel}
+        />
+      ))}
     </div>
   );
 };

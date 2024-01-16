@@ -1,13 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+@import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
 
-:root
-{
+:root {
     --color-example: #fff;
 }
 
-html,body 
-{
-    font-family: "Roboto", sans-serif;
+html,
+body {
     display: flex;
     flex-grow: 1;
     width: 100%;
@@ -19,8 +18,13 @@ html,body
     user-select: none;
 }
 
-p
-{
-    margin-block-start: 0.5em;
-    margin-block-end: 0.5em;
+p {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+
+.bp5-icon {
+    svg {
+        fill: currentColor;
+    }
 }

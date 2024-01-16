@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { App } from "./App";
 import { DrumMachine } from "./components/DrumMachine/DrumMachine";
 import { useSequencersState } from "./state/state";
 import { Synth } from "./components/Synth/Synth";
+import { Button } from "@blueprintjs/core";
 
 export interface MainProps {
   app: App;
@@ -10,22 +11,51 @@ export interface MainProps {
 
 export const Main: React.FC<MainProps> = ({ app }) => {
   const [clock, setClock] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const isPlayingRef = useRef(isPlaying);
   const sequences = useSequencersState((state) => state.sequences);
   const clockSpeed = useSequencersState((state) => state.clockSpeed);
   const resetState = useSequencersState((state) => state.reset);
 
   useEffect(() => {
     setInterval(() => {
-      setClock((prev) => prev + 1);
+      setClock((prev) => isPlayingRef.current ? prev + 1 : -1);
     }, 60000 / clockSpeed);
   }, [clockSpeed]);
 
+  // Update ref to be used inside the clock interval
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
   return (
     <div className="instruments">
-      <button onClick={resetState}>reset</button>
+      <div className="instruments__controls">
+        <Button
+          text="reset"
+          rightIcon="delete"
+          fill={true}
+          onClick={resetState}
+        />
+        {isPlaying && (
+          <Button
+            text="stop"
+            rightIcon="symbol-square"
+            fill={true}
+            onClick={() => setIsPlaying(false)}
+          />
+        )}
+        {!isPlaying && (
+          <Button
+            text="play"
+            rightIcon="play"
+            fill={true}
+            onClick={() => setIsPlaying(true)}
+          />
+        )}
+      </div>
       {sequences.map((sequence) => (
-        <div className="instrument" key={sequence.name}>
-          <p className="intrument__name">{sequence.name}</p>
+        <div key={sequence.name}>
           {sequence.type === "drum-machine" && (
             <DrumMachine
               sequence={sequence}

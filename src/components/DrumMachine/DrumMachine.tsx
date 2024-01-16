@@ -3,7 +3,8 @@ import { Howl } from "howler";
 import { Sequencer } from "../Sequencer/Sequencer";
 import { DrumMachineChannelConfig, DrumMachineProps } from "./DrumMachine.types";
 import { sendMidiMessage } from "../../utils/midi";
-import { StateSequenceDrumMachine } from "src/state/state.types";
+import { StateSequenceDrumMachine } from "state/state.types";
+import { InstrumentConfig } from "../InstrumentConfig/InstrumentConfig";
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({
   ...sequencerProps
@@ -40,7 +41,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
   };
 
   return (
-    <div className="drum-machine">
+    <div className="drum-machine instrument">
+      <InstrumentConfig sequence={sequencerProps.sequence} />
       <Sequencer
         {...sequencerProps}
         channelsConfig={drumMachineChannels}

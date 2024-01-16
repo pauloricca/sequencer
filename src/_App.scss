@@ -1,27 +1,34 @@
-#app 
-{
-    background-color: #4158D0;
-    background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
-    color: var(--color-example);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    padding: 20px;
+#app {
+	background-color: #4158D0;
+	background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+	color: var(--color-example);
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	align-items: center;
+	justify-content: center;
+	flex-grow: 1;
+	padding: 24px;
 }
 
 .instruments {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+
+	&__controls {
+		display: flex;
+		gap: 8px;
+	}
 }
 
 .instrument {
-    display: block;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 
-    &__name {
-        text-align: center;
-    }
+	&__name {
+		text-align: center;
+		font-size: 1.4rem;
+	}
 }

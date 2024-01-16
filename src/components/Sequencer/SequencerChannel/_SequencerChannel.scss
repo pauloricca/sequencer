@@ -1,13 +1,14 @@
 .sequencer-channel {
     display: flex;
     flex-direction: row;
-    gap: 3px;
+    gap: 4px;
 
     &__name {
         font-size: 0.7rem;
-        padding-top: 3px;
-        padding-right: 5px;
+        padding-top: 2px;
+        padding-right: 8px;
         text-align: right;
         width: 150px;
+        cursor: pointer;
     }
 }
