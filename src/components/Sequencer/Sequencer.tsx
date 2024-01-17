@@ -15,6 +15,7 @@ export interface SequencerProps {
   channelsConfig: StateSequenceChannelConfig[];
   tick: number;
   triggerCallback: (channel: number) => void;
+  showChannelControls?: boolean;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -22,6 +23,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   channelsConfig,
   tick,
   triggerCallback,
+  showChannelControls = false,
 }) => {
   const updateSequence = useSequencersState((state) =>
     state.updateSequence(sequence.name)
@@ -38,7 +40,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
     const stepsToTrigger = sequence.patterns[
       sequence.currentPattern
     ].steps.filter(({ stepIndex }) => stepIndex === activeStepIndex);
-    stepsToTrigger.forEach((step) => triggerCallback(step.channel));
+    stepsToTrigger.forEach(
+      (step) =>
+        !channelsConfig[step.channel]?.isMuted && triggerCallback(step.channel)
+    );
   }, [activeStepIndex]);
 
   return (
@@ -52,6 +57,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
             key={channelIndex}
             activeStepIndex={activeStepIndex}
             triggerCallback={triggerCallback}
+            showChannelControls={showChannelControls}
           />
         ))}
       </div>
@@ -59,6 +65,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
         {sequence.patterns.map((_, patternIndex) => (
           <Button
             text={`pattern ${patternIndex}`}
+            key={patternIndex}
             onClick={() => updateSequence({ currentPattern: patternIndex })}
             active={sequence.currentPattern === patternIndex}
           />

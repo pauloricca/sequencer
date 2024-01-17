@@ -27,12 +27,10 @@ export const registerMidiOutputDevice = (deviceName: string) => {
   // Already registered?
   if (midiDevices[deviceName]) return;
 
-  console.log('REGISTERING ', deviceName);
   setupMidiOutputDevice(deviceName);
 };
 
 export const unregisterMidiOutputDevice = (deviceName: string) => {
-  console.log('UNREGISTERING ', deviceName, !!midiDevices[deviceName]);
   delete midiDevices[deviceName];
 };
 
@@ -65,7 +63,7 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
           midiDevices[deviceName].currentNotes.push(message.note);
         }
 
-        // TODO: Add note length instead of 500
+        // TODO: Add note length instead of fixed
         setTimeout(() => {
           (midiDevices[deviceName].output as MIDIValOutput).sendNoteOff(
             message.note,

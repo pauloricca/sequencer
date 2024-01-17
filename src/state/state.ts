@@ -1,7 +1,12 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { Actions, State, StateSequence } from "./state.types";
+import {
+  Actions,
+  State,
+  StateSequence,
+  StateSequenceDrumMachine,
+} from "./state.types";
 import { INITIAL_STATE } from "./state.initial";
 import { unregisterMidiOutputDevice } from "../utils/midi";
 
@@ -26,11 +31,25 @@ export const useSequencersState = create<State & Actions>()(
         set((state) => {
           const sequence = getSequenceByName(state.sequences, sequenceName);
           if (sequence && sequence.patterns[sequence.currentPattern]) {
-            sequence.patterns[sequence.currentPattern].steps = sequence.patterns[
-              sequence.currentPattern
-            ].steps.filter(
-              ({ channel, stepIndex }) =>
-                channel != step.channel || step.stepIndex != stepIndex
+            sequence.patterns[sequence.currentPattern].steps =
+              sequence.patterns[sequence.currentPattern].steps.filter(
+                ({ channel, stepIndex }) =>
+                  channel != step.channel || step.stepIndex != stepIndex
+              );
+          }
+        }),
+      updateChannelConfig: (sequenceName, channelIndex) => (newChannelConfig) =>
+        set((state) => {
+          const channelConfig = (
+            getSequenceByName(
+              state.sequences,
+              sequenceName
+            ) as StateSequenceDrumMachine
+          )?.channelsConfig[channelIndex];
+          if (channelConfig) {
+            Object.keys(newChannelConfig).forEach(
+              (key) =>
+                ((channelConfig as any)[key] = (newChannelConfig as any)[key])
             );
           }
         }),
@@ -64,7 +83,7 @@ export const useSequencersState = create<State & Actions>()(
         }),
       getSequence: (sequenceName: string) =>
         getSequenceByName(get().sequences, sequenceName),
-      reset: () => set(() => INITIAL_STATE),
+      reset: (state = INITIAL_STATE) => set(() => state),
     })),
     {
       name: "sequencers", // name of the item in the storage (must be unique)

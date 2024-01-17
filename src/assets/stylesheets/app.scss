@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'Pixelify Sans';
+    src: url('../fonts/Pixelify_Sans/static/PixelifySans-Regular.ttf') format('truetype');
+}
+
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
 
@@ -7,6 +12,7 @@
 
 html,
 body {
+    font-family: 'Pixelify Sans', sans-serif;
     display: flex;
     flex-grow: 1;
     width: 100%;
@@ -26,5 +32,31 @@ p {
 .bp5-icon {
     svg {
         fill: currentColor;
+    }
+}
+
+.bp5-button {
+    border-radius: 8px;
+
+    &:not([class*=bp5-intent-]) {
+        background-color: transparent;
+        box-shadow: none;
+        border: 1px solid white;
+        color: white;
+
+        &.bp5-active {
+            background-color: rgb(116 195 0);
+            box-shadow: none;
+        }
+
+        &:hover {
+            background-clip: padding-box;
+            background-color: #0000002b;
+            box-shadow: none;
+        }
+    }
+
+    .bp5-icon {
+        color: white;
     }
 }

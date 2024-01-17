@@ -1,11 +1,27 @@
-export type StateSequence = StateSequenceCommon &
-  (StateSequenceDrumMachine | StateSequenceSynth);
+export type State = {
+  /**
+   * Typically BPM x 4 (on an x/4 time signature)
+   */
+  clockSpeed: number;
+  sequences: StateSequence[];
+};
 
-export type StateSequencePattern = {
-  steps: StateSequenceStep[];
-}
+export type Actions = {
+  setStep: (sequenceName: string) => (step: StateSequenceStep) => void;
+  removeStep: (sequenceName: string) => (stepIndex: StateSequenceStep) => void;
+  updateChannelConfig: (
+    sequenceName: string, channelIndex: number
+  ) => (newChannelConfig: Partial<StateSequenceChannelConfig>) => void;
+  updateSequence: (
+    sequenceName: string
+  ) => (newSequenceSettings: Partial<StateSequence>) => void;
+  getSequence: (sequenceName: string) => StateSequence | undefined;
+  reset: (state?: State) => void;
+};
 
-export type StateSequenceCommon = {
+export type StateSequence = StateSequenceDrumMachine | StateSequenceSynth;
+
+export interface StateSequenceCommon {
   name: string;
   nSteps: number;
   currentPattern: number;
@@ -20,42 +36,29 @@ export type StateSequenceCommon = {
   midiOutDeviceName?: string;
 };
 
-export type StateSequenceDrumMachine = {
+export interface StateSequenceDrumMachine extends StateSequenceCommon {
   type: "drum-machine";
   channelsConfig: StateSequenceChannelConfig[];
 };
 
-export type StateSequenceSynth = {
+export interface StateSequenceSynth extends StateSequenceCommon {
   type: "synth";
   rootNote: number;
   scale: string;
   range: number;
 };
 
+export type StateSequencePattern = {
+  steps: StateSequenceStep[];
+}
+
 export type StateSequenceChannelConfig = {
   name?: string;
   isHidden?: boolean;
+  isMuted?: boolean;
 };
 
 export interface StateSequenceStep {
   channel: number;
   stepIndex: number;
 }
-
-export type State = {
-  /**
-   * Typically BPM x 4
-   */
-  clockSpeed: number;
-  sequences: StateSequence[];
-};
-
-export type Actions = {
-  setStep: (sequenceName: string) => (step: StateSequenceStep) => void;
-  removeStep: (sequenceName: string) => (stepIndex: StateSequenceStep) => void;
-  updateSequence: (
-    sequenceName: string
-  ) => (newSequenceSettings: Partial<StateSequence>) => void;
-  getSequence: (sequenceName: string) => StateSequence | undefined;
-  reset: () => void;
-};

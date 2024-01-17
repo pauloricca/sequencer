@@ -74,11 +74,6 @@ export const DRUM_MACHINE_CHANNELS: DrumMachineChannelConfig[] = [
   },
   {
     type: "sample",
-    name: "SS_TCN_Clap_Snare_15",
-    soundFile: "SS_TCN_Clap_Snare_15.wav",
-  },
-  {
-    type: "sample",
     name: "SS_TCN_HH_03",
     soundFile: "SS_TCN_HH_03.wav",
   },
@@ -89,8 +84,28 @@ export const DRUM_MACHINE_CHANNELS: DrumMachineChannelConfig[] = [
   },
   {
     type: "sample",
+    name: "SS_TCN_Clap_Snare_15",
+    soundFile: "SS_TCN_Clap_Snare_15.wav",
+  },
+  {
+    type: "sample",
     name: "SS_TCN_Clap_Snare_04",
     soundFile: "SS_TCN_Clap_Snare_04.wav",
+  },
+  {
+    type: "sample",
+    name: "GS_FREE2_Prc_01",
+    soundFile: "GS_FREE2_Prc_01.wav",
+  },
+  {
+    type: "sample",
+    name: "GS_FREE2_172_ATMO_02_Am_b",
+    soundFile: "GS_FREE2_172_ATMO_02_Am_b.wav",
+  },
+  {
+    type: "sample",
+    name: "GS_FREE2_172_ATMO_01_Cm",
+    soundFile: "GS_FREE2_172_ATMO_01_Cm.wav",
   },
 ];
 

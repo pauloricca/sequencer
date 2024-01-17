@@ -1,17 +1,29 @@
 .sequencer-channel-step {
-    background-color: white;
+    border: 1px solid white;
     width: 15px;
     height: 15px;
 
+    &:not(:last-of-type) {
+        border-right-width: 0;
+    }
+
     &--is-toggled {
-        background-color: #32d9ff;;
+        background-color: white;
     }
 
     &--is-active {
-        box-shadow: 0 0 4px 0 #00ffcd;
+        background-color: rgba(117, 195, 0, 0.31);
 
-        &.sequencer-channel-step--is-checked {
-            background-color: #b3fff9;
+        &.sequencer-channel-step--is-toggled {
+            background-color: rgb(116 195 0);
+        }
+    }
+}
+
+.sequencer-channel {
+    &:not(:last-of-type) {
+        .sequencer-channel-step {
+            border-bottom-width: 0;
         }
     }
 }

@@ -6,6 +6,7 @@ import {
   StateSequenceStep,
 } from "../../../state/state.types";
 import { useSequencersState } from "../../../state/state";
+import { Icon } from "@blueprintjs/core";
 require("./_SequencerChannel.scss");
 
 export interface SequencerChannelProps {
@@ -14,6 +15,7 @@ export interface SequencerChannelProps {
   channelIndex: number;
   activeStepIndex: number;
   triggerCallback?: (channel: number) => void;
+  showChannelControls?: boolean;
 }
 
 export const SequencerChannel: React.FC<SequencerChannelProps> = ({
@@ -22,12 +24,18 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   channelIndex,
   activeStepIndex,
   triggerCallback = () => {},
+  showChannelControls = false,
 }) => {
   const setStep = useSequencersState((state) => state.setStep(sequence.name));
   const removeStep = useSequencersState((state) =>
     state.removeStep(sequence.name)
   );
+  const updateChannelConfig = useSequencersState((state) =>
+    state.updateChannelConfig(sequence.name, channelIndex)
+  );
   const [isDraggingAlongChannel, setIsDraggingAlongChannel] = useState(false);
+
+  if (channelConfig.isHidden) return null;
 
   const channelStepsByIndex = [...Array(sequence.nSteps).keys()].map(
     (stepIndex) =>
@@ -67,16 +75,34 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
       >
         {channelConfig.name}
       </div>
-      {channelStepsByIndex.map((step, stepIndex) => (
-        <SequencerChannelStep
-          key={stepIndex}
-          isToggled={!!step}
-          isActive={activeStepIndex === stepIndex}
-          onToggle={() => onStepClickHandler(stepIndex, step)}
-          onDragStart={onDragStartHandler}
-          isDraggingAlongChannel={isDraggingAlongChannel}
-        />
-      ))}
+      {showChannelControls && (
+        <div className="sequencer-channel__controls">
+          {!channelConfig.isMuted && (
+            <Icon
+              icon="volume-up"
+              onClick={() => updateChannelConfig({ isMuted: true })}
+            />
+          )}
+          {channelConfig.isMuted && (
+            <Icon
+              icon="volume-off"
+              onClick={() => updateChannelConfig({ isMuted: false })}
+            />
+          )}
+        </div>
+      )}
+      <div className="sequencer-channel__steps">
+        {channelStepsByIndex.map((step, stepIndex) => (
+          <SequencerChannelStep
+            key={stepIndex}
+            isToggled={!!step}
+            isActive={activeStepIndex === stepIndex}
+            onToggle={() => onStepClickHandler(stepIndex, step)}
+            onDragStart={onDragStartHandler}
+            isDraggingAlongChannel={isDraggingAlongChannel}
+          />
+        ))}
+      </div>
     </div>
   );
 };

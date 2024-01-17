@@ -4,6 +4,8 @@ import { DrumMachine } from "./components/DrumMachine/DrumMachine";
 import { useSequencersState } from "./state/state";
 import { Synth } from "./components/Synth/Synth";
 import { Button } from "@blueprintjs/core";
+import downloadObjectAsJson from "./utils/downloadObjectAsJson";
+import uploadJsonFileAsObject from "./utils/uploadJsonFileAsObject";
 
 export interface MainProps {
   app: App;
@@ -13,6 +15,7 @@ export const Main: React.FC<MainProps> = ({ app }) => {
   const [clock, setClock] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const isPlayingRef = useRef(isPlaying);
+  const state = useSequencersState((state) => state);
   const sequences = useSequencersState((state) => state.sequences);
   const clockSpeed = useSequencersState((state) => state.clockSpeed);
   const resetState = useSequencersState((state) => state.reset);
@@ -35,7 +38,7 @@ export const Main: React.FC<MainProps> = ({ app }) => {
           text="reset"
           rightIcon="delete"
           fill={true}
-          onClick={resetState}
+          onClick={() => resetState()}
         />
         {isPlaying && (
           <Button
@@ -53,6 +56,18 @@ export const Main: React.FC<MainProps> = ({ app }) => {
             onClick={() => setIsPlaying(true)}
           />
         )}
+        <Button
+          text="save"
+          rightIcon="import"
+          fill={true}
+          onClick={() => downloadObjectAsJson(state, "sequencer")}
+        />
+        <Button
+          text="load"
+          rightIcon="export"
+          fill={true}
+          onClick={() => uploadJsonFileAsObject((obj) => resetState(obj))}
+        />
       </div>
       {sequences.map((sequence) => (
         <div key={sequence.name}>

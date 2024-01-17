@@ -1,8 +1,10 @@
-import { StateSequenceChannelConfig } from "src/state/state.types";
+import { StateSequenceChannelConfig, StateSequenceDrumMachine } from "src/state/state.types";
 import { SequencerProps } from "../Sequencer/Sequencer";
 
 export interface DrumMachineProps
-  extends Omit<SequencerProps, "triggerCallback" | "channelsConfig"> {}
+  extends Omit<SequencerProps, "triggerCallback" | "channelsConfig" | "sequence"> {
+    sequence: StateSequenceDrumMachine;
+  }
 
 export type DrumMachineChannelConfig = StateSequenceChannelConfig &
   (DrumMachineChannelConfigMidi | DrumMachineChannelConfigSample);

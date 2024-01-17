@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Sequencer } from "../Sequencer/Sequencer";
 import { SynthChannelConfig, SynthChannelConfigMidi, SynthProps } from "./Synth.types";
 import { sendMidiMessage } from "../../utils/midi";
-import { StateSequenceSynth } from "src/state/state.types";
 import { InstrumentConfig } from "../InstrumentConfig/InstrumentConfig";
 import { InstrumentConfigSelect } from "../InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect";
 import { Midi, Scale, ScaleType } from "tonal";
@@ -10,11 +9,11 @@ import { useSequencersState } from "../../state/state";
 import { InstrumentConfigSelectItem } from "../InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect.types";
 
 export const Synth: React.FC<SynthProps> = ({
+  sequence,
   ...sequencerProps
 }) => {
-  const synthSequenceAttributes = (sequencerProps.sequence as StateSequenceSynth);
   const updateSequence = useSequencersState((state) =>
-    state.updateSequence(sequencerProps.sequence.name)
+    state.updateSequence(sequence.name)
   );
   const [synthChannels, setSynthChannels] = useState<SynthChannelConfig[]>([]);
   const rootNoteOptions = useRef<InstrumentConfigSelectItem[]>(
@@ -41,17 +40,17 @@ export const Synth: React.FC<SynthProps> = ({
 
   useEffect(() => {
     // Get indexes of the scale per channel e.g. [-3, -2, -1, 0, 1, 2, 3]
-    const scaleIndexes = [...Array(synthSequenceAttributes.range).keys()].map(
-      (i) => i - Math.floor(synthSequenceAttributes.range / 2)
+    const scaleIndexes = [...Array(sequence.range).keys()].map(
+      (i) => i - Math.floor(sequence.range / 2)
     );
 
     const stepMap = Midi.pcsetSteps(
       Scale.get(
-        `${Midi.midiToNoteName(synthSequenceAttributes.rootNote)} ${
-          synthSequenceAttributes.scale
+        `${Midi.midiToNoteName(sequence.rootNote)} ${
+          sequence.scale
         }`
       ).chroma,
-      synthSequenceAttributes.rootNote
+      sequence.rootNote
     );
     const channelNotes = scaleIndexes.map(stepMap).filter((note) => note >= 0);
 
@@ -63,17 +62,17 @@ export const Synth: React.FC<SynthProps> = ({
       }))
     );
   }, [
-    synthSequenceAttributes.rootNote,
-    synthSequenceAttributes.range,
-    synthSequenceAttributes.scale,
+    sequence.rootNote,
+    sequence.range,
+    sequence.scale,
   ]);
 
   const triggerSample = (channelIndex: number) => {
     const channel = synthChannels[channelIndex];
 
-    if (!channel || !sequencerProps.sequence.midiOutDeviceName) return;
+    if (!channel || !sequence.midiOutDeviceName) return;
 
-    sendMidiMessage(sequencerProps.sequence.midiOutDeviceName, {
+    sendMidiMessage(sequence.midiOutDeviceName, {
       note: (synthChannels[channelIndex] as SynthChannelConfigMidi).note,
       velocity: 127,
       channel: 1,
@@ -82,25 +81,26 @@ export const Synth: React.FC<SynthProps> = ({
 
   return (
     <div className="synth instrument">
-      <InstrumentConfig sequence={sequencerProps.sequence}>
+      <InstrumentConfig sequence={sequence}>
         <InstrumentConfigSelect
-          label={`range: ${synthSequenceAttributes.range}`}
+          label={`range: ${sequence.range}`}
           items={rangeOptions.current}
           onSelect={({ value }) => updateSequence({ range: value })}
         />
         <InstrumentConfigSelect
-          label={`root: ${Midi.midiToNoteName(synthSequenceAttributes.rootNote)}`}
+          label={`root: ${Midi.midiToNoteName(sequence.rootNote)}`}
           items={rootNoteOptions.current}
           onSelect={({ value }) => updateSequence({ rootNote: value })}
         />
         <InstrumentConfigSelect
-          label={`scale: ${synthSequenceAttributes.scale}`}
+          label={`scale: ${sequence.scale}`}
           items={scaleOptions.current}
           onSelect={({ label }) => updateSequence({ scale: label })}
         />
       </InstrumentConfig>
       <Sequencer
         {...sequencerProps}
+        sequence={sequence}
         channelsConfig={synthChannels}
         triggerCallback={triggerSample}
       />
