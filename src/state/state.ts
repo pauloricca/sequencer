@@ -6,6 +6,7 @@ import {
   State,
   StateSequence,
   StateSequenceDrumMachine,
+  StateSequenceSynth,
 } from "./state.types";
 import { INITIAL_STATE } from "./state.initial";
 import { unregisterMidiOutputDevice } from "../utils/midi";
@@ -38,7 +39,7 @@ export const useSequencersState = create<State & Actions>()(
               );
           }
         }),
-      updateChannelConfig: (sequenceName, channelIndex) => (newChannelConfig) =>
+      updateChannelConfig: (sequenceName) => (channelIndex) => (newChannelConfig) =>
         set((state) => {
           const channelConfig = (
             getSequenceByName(
@@ -59,6 +60,7 @@ export const useSequencersState = create<State & Actions>()(
           if (sequence) {
             // Check if we need to unregister midi devices
             if (
+              newSequenceSettings.midiOutDeviceName &&
               sequence.midiOutDeviceName &&
               newSequenceSettings.midiOutDeviceName !==
                 sequence.midiOutDeviceName
@@ -75,13 +77,35 @@ export const useSequencersState = create<State & Actions>()(
                 unregisterMidiOutputDevice(sequence.midiOutDeviceName);
               }
             }
+
+            // Check if we need to shift the steps because of a range change
+            if (
+              (newSequenceSettings as StateSequenceSynth).range &&
+              (newSequenceSettings as StateSequenceSynth).range !==
+                (sequence as StateSequenceSynth).range
+            ) {
+              const rangeDifference =
+                (newSequenceSettings as StateSequenceSynth).range -
+                (sequence as StateSequenceSynth).range;
+
+              sequence.patterns.forEach((pattern) =>
+                pattern.steps.forEach((step) => {
+                  step.channel += Math.ceil(
+                    (rangeDifference - Math.abs(rangeDifference % 2)) / 2
+                  );
+                })
+              );
+            }
+
             Object.keys(newSequenceSettings).forEach(
               (key) =>
                 ((sequence as any)[key] = (newSequenceSettings as any)[key])
             );
           }
         }),
-      getSequence: (sequenceName: string) =>
+      setClockSpeed: (clockSpeed) =>
+        set((state) => { state.clockSpeed = clockSpeed }),
+      getSequence: (sequenceName) =>
         getSequenceByName(get().sequences, sequenceName),
       reset: (state = INITIAL_STATE) => set(() => state),
     })),

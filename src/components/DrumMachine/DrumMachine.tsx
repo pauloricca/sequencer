@@ -7,11 +7,15 @@ import {
 } from "./DrumMachine.types";
 import { sendMidiMessage } from "../../utils/midi";
 import { InstrumentConfig } from "../InstrumentConfig/InstrumentConfig";
+import { useSequencersState } from "../../state/state";
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({
   sequence,
   ...sequencerProps
 }) => {
+  const updateChannelConfig = useSequencersState((state) =>
+    state.updateChannelConfig(sequence.name)
+  );
   const samples = useRef<Howl[]>([]);
 
   const drumMachineChannels =
@@ -38,11 +42,14 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
     } else if (channel.type === "midi" && sequence.midiOutDeviceName) {
       sendMidiMessage(sequence.midiOutDeviceName, {
         note: channel.note,
-        velocity: 127,
+        velocity: (sequence.channelsConfig[channel.channel].volume ?? 1) * 127,
         channel: channel.channel,
+        duration: 0
       });
     }
   };
+
+  const getChannelConfigComponents = (channelIndex: number) => null;
 
   return (
     <div className="drum-machine instrument">
@@ -53,6 +60,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
         channelsConfig={drumMachineChannels}
         triggerCallback={triggerSample}
         showChannelControls={true}
+        channelConfigComponents={getChannelConfigComponents}
       />
     </div>
   );

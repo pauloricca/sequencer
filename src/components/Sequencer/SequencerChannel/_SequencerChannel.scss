@@ -1,18 +1,25 @@
 .sequencer-channel {
     display: flex;
-    flex-direction: row;
-    gap: 8px;
+    flex-direction: column;
+    gap: 4px;
+
+    &__inner {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 8px;
+    }
 
     &__name {
         font-size: 0.7rem;
         padding-top: 2px;
         text-align: right;
-        width: 150px;
         cursor: pointer;
     }
 
     &__controls {
         display: flex;
+        gap: 8px;
         align-items: center;
 
         >* {
@@ -28,5 +35,10 @@
     &__steps {
         display: flex;
         flex-direction: row;
+    }
+
+    &__config {
+        padding: 4px 4px;
+        margin-bottom: 4px;
     }
 }

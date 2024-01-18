@@ -6,6 +6,7 @@ interface MidiMessage {
   channel: number;
   note: number;
   velocity: number;
+  duration: number;
 }
 
 interface MidiDevice {
@@ -72,7 +73,7 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
           midiDevices[deviceName].currentNotes = midiDevices[
             deviceName
           ].currentNotes.filter((note) => note !== message.note);
-        }, 10);
+        }, message.duration);
       } else {
         clearInterval(midiDevices[deviceName].queueInterval as number);
         midiDevices[deviceName].queueInterval = null;

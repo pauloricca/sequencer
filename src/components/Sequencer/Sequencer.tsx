@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { SequencerChannel } from "./SequencerChannel/SequencerChannel";
+import React, { ReactNode, useEffect } from "react";
+import { SequencerChannel, SequencerChannelProps } from "./SequencerChannel/SequencerChannel";
 import {
   StateSequence,
   StateSequenceChannelConfig,
@@ -10,20 +10,22 @@ import { useSequencersState } from "../../state/state";
 import { cloneDeep } from "lodash";
 require("./_Sequencer.scss");
 
-export interface SequencerProps {
+export interface SequencerProps
+  extends Pick<
+    SequencerChannelProps,
+    "triggerCallback" | "showChannelControls" | "channelConfigComponents"
+  > {
   sequence: StateSequence;
   channelsConfig: StateSequenceChannelConfig[];
   tick: number;
-  triggerCallback: (channel: number) => void;
-  showChannelControls?: boolean;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
   sequence,
   channelsConfig,
   tick,
-  triggerCallback,
-  showChannelControls = false,
+  triggerCallback = () => {},
+  ...otherSequencerChannelProps
 }) => {
   const updateSequence = useSequencersState((state) =>
     state.updateSequence(sequence.name)
@@ -57,21 +59,21 @@ export const Sequencer: React.FC<SequencerProps> = ({
             key={channelIndex}
             activeStepIndex={activeStepIndex}
             triggerCallback={triggerCallback}
-            showChannelControls={showChannelControls}
+            {...otherSequencerChannelProps}
           />
         ))}
       </div>
       <div className="sequencer__patterns">
         {sequence.patterns.map((_, patternIndex) => (
           <Button
-            text={`pattern ${patternIndex}`}
+            text={patternIndex}
             key={patternIndex}
             onClick={() => updateSequence({ currentPattern: patternIndex })}
             active={sequence.currentPattern === patternIndex}
           />
         ))}
         <Button
-          text={`new`}
+          icon="add"
           onClick={() => {
             updateSequence({
               patterns: [...sequence.patterns, { steps: [] }],
@@ -80,21 +82,30 @@ export const Sequencer: React.FC<SequencerProps> = ({
           }}
         />
         <Button
-          text={`duplicate`}
+          icon="duplicate"
           onClick={() => {
             updateSequence({
-              patterns: [...sequence.patterns, cloneDeep(sequence.patterns[sequence.currentPattern]) ],
+              patterns: [
+                ...sequence.patterns,
+                cloneDeep(sequence.patterns[sequence.currentPattern]),
+              ],
               currentPattern: sequence.patterns.length,
             });
           }}
         />
         <Button
-          text={`delete`}
+          icon="delete"
           onClick={() => {
-            confirm("Are you sure you want to delete this pattern?") && updateSequence({
-              patterns: sequence.patterns.filter((_, index) => index !== sequence.currentPattern),
-              currentPattern: Math.min(0, sequence.currentPattern - 1),
-            });
+            confirm("Are you sure you want to delete this pattern?") &&
+              updateSequence({
+                patterns:
+                  sequence.patterns.length > 1
+                    ? sequence.patterns.filter(
+                        (_, index) => index !== sequence.currentPattern
+                      )
+                    : [{ steps: [] }],
+                currentPattern: Math.max(0, sequence.currentPattern - 1),
+              });
           }}
         />
       </div>

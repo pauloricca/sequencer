@@ -1,13 +1,27 @@
 .instrument-config {
-	border: 1px solid white;
-	padding: 4px 8px;
-	border-radius: 8px;
+	border-bottom: 1px solid white;
+	padding: 4px;
+
+	&:hover:not(.instrument-config--is-open) {
+		background-color: #0000002b;
+	}
 
 	&__header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		cursor: pointer;
+	}
+
+	&__instrument-name {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	
+		&__name {
+			text-align: center;
+			font-size: 1.2rem;
+		}
 	}
 
 	&__controls {

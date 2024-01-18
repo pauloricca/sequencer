@@ -1,6 +1,45 @@
 import { DrumMachineChannelConfig } from "components/DrumMachine/DrumMachine.types";
 import { State } from "./state.types";
 
+export const VOLCA_DRUM_MACHINE_CHANNELS: DrumMachineChannelConfig[] = [
+  {
+    type: "midi",
+    name: "p1",
+    channel: 1,
+    note: 64,
+  },
+  {
+    type: "midi",
+    name: "p2",
+    channel: 2,
+    note: 64,
+  },
+  {
+    type: "midi",
+    name: "p3",
+    channel: 3,
+    note: 64,
+  },
+  {
+    type: "midi",
+    name: "p4",
+    channel: 4,
+    note: 64,
+  },
+  {
+    type: "midi",
+    name: "p5",
+    channel: 5,
+    note: 64,
+  },
+  {
+    type: "midi",
+    name: "p6",
+    channel: 6,
+    note: 64,
+  },
+];
+
 export const DRUM_MACHINE_CHANNELS: DrumMachineChannelConfig[] = [
   {
     type: "midi",
@@ -99,11 +138,6 @@ export const DRUM_MACHINE_CHANNELS: DrumMachineChannelConfig[] = [
   },
   {
     type: "sample",
-    name: "GS_FREE2_172_ATMO_02_Am_b",
-    soundFile: "GS_FREE2_172_ATMO_02_Am_b.wav",
-  },
-  {
-    type: "sample",
     name: "GS_FREE2_172_ATMO_01_Cm",
     soundFile: "GS_FREE2_172_ATMO_01_Cm.wav",
   },
@@ -172,7 +206,8 @@ export const SYNTH_CHANNELS: DrumMachineChannelConfig[] = [
   },
 ];
 
-export const DRUM_MIDI_OUTPUT = "USB2.0-MIDI Port 1";
+export const DRUM_MIDI_OUTPUT = "USB Uno MIDI Interface";
+export const BASS_MIDI_OUTPUT = "USB2.0-MIDI Port 1";
 export const SYNTH_MIDI_OUTPUT = "JT-4000 MICRO";
 
 export const INITIAL_STATE: State = {
@@ -190,13 +225,29 @@ export const INITIAL_STATE: State = {
     },
     {
       type: "synth",
+      name: "bass",
+      nSteps: 16,
+      stepLength: 4,
+      rootNote: 60,
+      noteDuration: 20,
+      scale: "minor",
+      range: 11,
+      currentPattern: 0,
+      midiChannel: 1,
+      patterns: [{ steps: [] }],
+      midiOutDeviceName: BASS_MIDI_OUTPUT,
+    },
+    {
+      type: "synth",
       name: "lead",
       nSteps: 16,
       stepLength: 4,
       rootNote: 60,
-      scale: "major",
+      noteDuration: 20,
+      scale: "minor",
       range: 11,
       currentPattern: 0,
+      midiChannel: 1,
       patterns: [{ steps: [] }],
       midiOutDeviceName: SYNTH_MIDI_OUTPUT,
     },

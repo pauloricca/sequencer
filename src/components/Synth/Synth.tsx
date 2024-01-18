@@ -7,6 +7,8 @@ import { InstrumentConfigSelect } from "../InstrumentConfig/InstrumentConfigSele
 import { Midi, Scale, ScaleType } from "tonal";
 import { useSequencersState } from "../../state/state";
 import { InstrumentConfigSelectItem } from "../InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect.types";
+import { InstrumentConfigKnob } from "../InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
+import { DrumMachineChannelConfig } from "components/DrumMachine/DrumMachine.types";
 
 export const Synth: React.FC<SynthProps> = ({
   sequence,
@@ -16,13 +18,6 @@ export const Synth: React.FC<SynthProps> = ({
     state.updateSequence(sequence.name)
   );
   const [synthChannels, setSynthChannels] = useState<SynthChannelConfig[]>([]);
-  const rootNoteOptions = useRef<InstrumentConfigSelectItem[]>(
-    [...Array(101).keys()].map((key) => ({
-      key,
-      label: Midi.midiToNoteName(key),
-      value: key,
-    }))
-  );
   const scaleOptions = useRef<InstrumentConfigSelectItem[]>(
     ScaleType.all().map((scale) => ({
       key: scale.name,
@@ -30,18 +25,11 @@ export const Synth: React.FC<SynthProps> = ({
       label: scale.name,
     }))
   );
-  const rangeOptions = useRef<InstrumentConfigSelectItem[]>(
-    [...Array(31).keys()].map((key) => ({
-      key: key + 1,
-      label: `${key + 1}`,
-      value: key + 1,
-    }))
-  );
 
   useEffect(() => {
     // Get indexes of the scale per channel e.g. [-3, -2, -1, 0, 1, 2, 3]
     const scaleIndexes = [...Array(sequence.range).keys()].map(
-      (i) => i - Math.floor(sequence.range / 2)
+      (i) => Math.floor(sequence.range / 2) - i
     );
 
     const stepMap = Midi.pcsetSteps(
@@ -59,7 +47,7 @@ export const Synth: React.FC<SynthProps> = ({
         type: "midi",
         name: Midi.midiToNoteName(note),
         note: note,
-      }))
+      } as DrumMachineChannelConfig))
     );
   }, [
     sequence.rootNote,
@@ -75,22 +63,45 @@ export const Synth: React.FC<SynthProps> = ({
     sendMidiMessage(sequence.midiOutDeviceName, {
       note: (synthChannels[channelIndex] as SynthChannelConfigMidi).note,
       velocity: 127,
-      channel: 1,
+      channel: sequence.midiChannel,
+      duration: sequence.noteDuration
     });
   };
 
   return (
     <div className="synth instrument">
       <InstrumentConfig sequence={sequence}>
-        <InstrumentConfigSelect
-          label={`range: ${sequence.range}`}
-          items={rangeOptions.current}
-          onSelect={({ value }) => updateSequence({ range: value })}
+        <InstrumentConfigKnob
+          label={`midi channel: ${sequence.midiChannel}`}
+          value={sequence.midiChannel}
+          min={0}
+          max={32}
+          isIntegerOnly={true}
+          onChange={( value ) => updateSequence({ midiChannel: value })}
         />
-        <InstrumentConfigSelect
+        <InstrumentConfigKnob
+          label={`range: ${sequence.range}`}
+          value={sequence.range}
+          min={1}
+          max={32}
+          isIntegerOnly={true}
+          onChange={( value ) => updateSequence({ range: value })}
+        />
+        <InstrumentConfigKnob
           label={`root: ${Midi.midiToNoteName(sequence.rootNote)}`}
-          items={rootNoteOptions.current}
-          onSelect={({ value }) => updateSequence({ rootNote: value })}
+          value={sequence.rootNote}
+          min={0}
+          max={101}
+          isIntegerOnly={true}
+          onChange={( value ) => updateSequence({ rootNote: value })}
+        />
+        <InstrumentConfigKnob
+          label={`note duration: ${sequence.noteDuration}`}
+          value={sequence.noteDuration}
+          min={0}
+          max={1000}
+          isIntegerOnly={true}
+          onChange={( value ) => updateSequence({ noteDuration: value })}
         />
         <InstrumentConfigSelect
           label={`scale: ${sequence.scale}`}

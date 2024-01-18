@@ -10,11 +10,12 @@ export type Actions = {
   setStep: (sequenceName: string) => (step: StateSequenceStep) => void;
   removeStep: (sequenceName: string) => (stepIndex: StateSequenceStep) => void;
   updateChannelConfig: (
-    sequenceName: string, channelIndex: number
+    sequenceName: string) => (channelIndex: number
   ) => (newChannelConfig: Partial<StateSequenceChannelConfig>) => void;
   updateSequence: (
     sequenceName: string
   ) => (newSequenceSettings: Partial<StateSequence>) => void;
+  setClockSpeed: (clockSpeed: number) => void;
   getSequence: (sequenceName: string) => StateSequence | undefined;
   reset: (state?: State) => void;
 };
@@ -46,6 +47,8 @@ export interface StateSequenceSynth extends StateSequenceCommon {
   rootNote: number;
   scale: string;
   range: number;
+  noteDuration: number;
+  midiChannel: number;
 };
 
 export type StateSequencePattern = {
@@ -56,6 +59,10 @@ export type StateSequenceChannelConfig = {
   name?: string;
   isHidden?: boolean;
   isMuted?: boolean;
+  /**
+   * 0 to 1
+   */
+  volume?: number;
 };
 
 export interface StateSequenceStep {

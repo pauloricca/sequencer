@@ -5,6 +5,8 @@ import { InstrumentConfigSelectItem } from "./InstrumentConfigSelect/InstrumentC
 import { InstrumentConfigSelect } from "./InstrumentConfigSelect/InstrumentConfigSelect";
 import { useSequencersState } from "../../state/state";
 import { getMidiOutputDeviceNames } from "../../utils/midi";
+import { InstrumentConfigKnob } from "./InstrumentConfigKnob/InstrumentConfigKnob";
+import classNames from "classnames";
 require("./_InstrumentConfig.scss");
 
 interface InstrumentConfigProps {
@@ -20,20 +22,6 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
     state.updateSequence(sequence.name)
   );
   const [isOpen, setIsOpen] = useState(false);
-  const nStepsOptions = useRef<InstrumentConfigSelectItem[]>(
-    [...Array(64).keys()].map((key) => ({
-      key: key + 1,
-      label: `${key + 1}`,
-      value: key + 1,
-    }))
-  );
-  const stepLengthOptions = useRef<InstrumentConfigSelectItem[]>(
-    [...Array(32).keys()].map((key) => ({
-      key: key + 1,
-      label: `${key + 1}`,
-      value: key + 1,
-    }))
-  );
   const [midiOutOptions, setMidiOutOptions] = useState<InstrumentConfigSelectItem[]>([]);
 
   const getMidiOutOptions = useCallback(() => [
@@ -56,26 +44,32 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
   }, []);
 
   return (
-    <div className="instrument-config">
+    <div className={classNames("instrument-config", {"instrument-config--is-open": isOpen})}>
       <div
         className="instrument-config__header"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <p className="instrument__name">{sequence.name}</p>
+        <p className="instrument-config__instrument-name">{sequence.name}</p>
         {isOpen && <Icon icon="cross" />}
         {!isOpen && <Icon icon="cog" />}
       </div>
       {isOpen && (
         <div className="instrument-config__controls">
-          <InstrumentConfigSelect
+          <InstrumentConfigKnob
             label={`n steps: ${sequence.nSteps}`}
-            items={nStepsOptions.current}
-            onSelect={({ value }) => updateSequence({ nSteps: value })}
+            value={sequence.nSteps}
+            min={1}
+            max={64}
+            isIntegerOnly={true}
+            onChange={( value ) => updateSequence({ nSteps: value })}
           />
-          <InstrumentConfigSelect
+          <InstrumentConfigKnob
             label={`step length: ${sequence.stepLength}`}
-            items={stepLengthOptions.current}
-            onSelect={({ value }) => updateSequence({ stepLength: value })}
+            value={sequence.stepLength}
+            min={1}
+            max={32}
+            isIntegerOnly={true}
+            onChange={( value ) => updateSequence({ stepLength: value })}
           />
           <InstrumentConfigSelect
             label={sequence.midiOutDeviceName || "midi out"}
