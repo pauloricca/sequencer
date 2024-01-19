@@ -1,3 +1,5 @@
+import { DrumMachineChannelConfig } from "../components/DrumMachine/DrumMachine.types";
+
 export type State = {
   /**
    * Typically BPM x 4 (on an x/4 time signature)
@@ -39,7 +41,7 @@ export interface StateSequenceCommon {
 
 export interface StateSequenceDrumMachine extends StateSequenceCommon {
   type: "drum-machine";
-  channelsConfig: StateSequenceChannelConfig[];
+  channelsConfig: DrumMachineChannelConfig[];
 };
 
 export interface StateSequenceSynth extends StateSequenceCommon {

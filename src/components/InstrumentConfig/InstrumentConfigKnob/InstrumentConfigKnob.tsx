@@ -3,7 +3,16 @@ import classNames from "classnames";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 require("./_InstrumentConfigKnob.scss");
 
-const MOUSE_DRAG_RANGE = 800;
+const MOUSE_DRAG_RANGE_NORMAL = 800;
+const MOUSE_DRAG_RANGE_FAST = 50;
+
+type InstrumentConfigKnobSpeed = "normal" | "fast";
+
+const MOUSE_DRAG_RANGE_SPEEDS: {[key in InstrumentConfigKnobSpeed]: number} = {
+  normal: MOUSE_DRAG_RANGE_NORMAL,
+  fast: MOUSE_DRAG_RANGE_FAST,
+};
+
 
 interface InstrumentConfigKnobProps {
   value: number;
@@ -13,6 +22,7 @@ interface InstrumentConfigKnobProps {
   max?: number;
   isIntegerOnly?: boolean;
   isTransparent?: boolean;
+  speed?: InstrumentConfigKnobSpeed;
 }
 
 export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
@@ -23,6 +33,7 @@ export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
   max = 1,
   isIntegerOnly = false,
   isTransparent = false,
+  speed = "normal",
 }) => {
   const [internalValue, setInternalValue] = useState(value);
   const [isDragging, setIsDragging] = useState(false);
@@ -47,7 +58,7 @@ export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
           min,
           Math.min(
             max,
-            prevValue + ((max - min) * mouseYDif) / MOUSE_DRAG_RANGE
+            prevValue + ((max - min) * mouseYDif) / MOUSE_DRAG_RANGE_SPEEDS[speed]
           )
         )
       );

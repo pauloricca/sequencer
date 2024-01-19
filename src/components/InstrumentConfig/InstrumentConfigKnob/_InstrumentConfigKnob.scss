@@ -1,5 +1,7 @@
 .instrument-config-knob {
 	.bp5-button {
+		cursor: ns-resize;
+
 		&:not([class*=bp5-intent-]):active {
 			background-color: transparent;
 		}

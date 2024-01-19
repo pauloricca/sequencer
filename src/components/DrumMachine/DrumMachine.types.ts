@@ -11,7 +11,7 @@ export type DrumMachineChannelConfig = StateSequenceChannelConfig &
 
 export type DrumMachineChannelConfigMidi = {
   type: 'midi';
-  channel: number;
+  midiChannel: number;
   note: number;
 };
 

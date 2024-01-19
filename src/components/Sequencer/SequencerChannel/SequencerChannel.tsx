@@ -114,8 +114,10 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
           ))}
         </div>
       </div>
-      {isConfigOpen && (
-        <div className="sequencer-channel__config"></div>
+      {isConfigOpen && channelConfigComponents && (
+        <div className="sequencer-channel__config">
+          {channelConfigComponents(channelIndex)}
+        </div>
       )}
     </div>
   );

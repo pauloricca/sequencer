@@ -8,6 +8,7 @@ import {
 import { sendMidiMessage } from "../../utils/midi";
 import { InstrumentConfig } from "../InstrumentConfig/InstrumentConfig";
 import { useSequencersState } from "../../state/state";
+import { InstrumentConfigKnob } from "../InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({
   sequence,
@@ -31,25 +32,41 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
     });
   }, []);
 
-  const triggerSample = (sampleIndex: number) => {
-    const channel = drumMachineChannels[sampleIndex];
+  const triggerSample = (channelIndex: number) => {
+    const channel = drumMachineChannels[channelIndex];
 
     if (!channel) return;
 
     if (channel.type === "sample") {
-      samples.current[sampleIndex]?.stop();
-      samples.current[sampleIndex]?.play();
+      const sample = samples.current[channelIndex];
+
+      if (sample) {
+        sample.stop();
+        sample.volume(drumMachineChannels[channelIndex].volume ?? 1);
+        sample.play();
+      }
     } else if (channel.type === "midi" && sequence.midiOutDeviceName) {
       sendMidiMessage(sequence.midiOutDeviceName, {
         note: channel.note,
-        velocity: (sequence.channelsConfig[channel.channel].volume ?? 1) * 127,
-        channel: channel.channel,
-        duration: 0
+        velocity: (sequence.channelsConfig[channelIndex].volume ?? 1) * 127,
+        channel: channel.midiChannel,
+        duration: 0,
       });
     }
   };
 
-  const getChannelConfigComponents = (channelIndex: number) => null;
+  const getChannelConfigComponents = (channelIndex: number) => (
+    <>
+      <InstrumentConfigKnob
+        label="volume"
+        value={sequence.channelsConfig[channelIndex].volume ?? 1}
+        speed="fast"
+        onChange={(value) =>
+          updateChannelConfig(channelIndex)({ volume: value })
+        }
+      />
+    </>
+  );
 
   return (
     <div className="drum-machine instrument">
