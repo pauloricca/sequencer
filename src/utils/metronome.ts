@@ -32,7 +32,7 @@ class Metronome {
 
   public stop() {
 		this.nextAt = -1;
-    return clearTimeout(this.timeout);
+    clearTimeout(this.timeout);
   }
 
 	public start() {

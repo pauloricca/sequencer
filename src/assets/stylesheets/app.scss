@@ -82,3 +82,17 @@ p {
     outline: none;
     outline-offset: 0;
 }
+
+.bp5-input:focus,
+.bp5-input.bp5-active {
+    box-shadow: none;
+}
+
+input[type=text] {
+    background-color: transparent;
+    box-shadow: none;
+    border: 1px solid white;
+    border-radius: 8px;
+    color: white;
+    font-family: inherit;
+}

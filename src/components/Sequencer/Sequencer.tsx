@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { SequencerChannel, SequencerChannelProps } from "./SequencerChannel/SequencerChannel";
 import {
   StateSequence,
@@ -30,8 +30,11 @@ export const Sequencer: React.FC<SequencerProps> = ({
   const updateSequence = useSequencersState((state) =>
     state.updateSequence(sequence.name)
   );
+  const [activeStepIndex, setActiveStepIndex] = useState(-1);
 
-  const activeStepIndex = tick % sequence.nSteps;
+  useEffect(() => {
+    setActiveStepIndex(tick === 0 ? 0 : ((activeStepIndex + 1) % sequence.nSteps))
+  }, [tick]);
 
   useEffect(() => {
     if (sequence.midiOutDeviceName)

@@ -23,15 +23,17 @@ export const Main: React.FC<MainProps> = ({ app }) => {
   const setClockSpeed = useSequencersState((state) => state.setClockSpeed);
   const resetState = useSequencersState((state) => state.reset);
 
+  const getIntervalFromClockSpeed = (clockSpeed: number) => 60000 / clockSpeed;
+
   useEffect(() => {
     metronome.current = new Metronome(
       () => setClock((prev) => prev + 1),
-      60000 / clockSpeed
+      getIntervalFromClockSpeed(clockSpeed)
     );
   }, []);
 
   useEffect(() => {
-    metronome.current?.setInterval(60000 / clockSpeed);
+    metronome.current?.setInterval(getIntervalFromClockSpeed(clockSpeed));
   }, [clockSpeed]);
 
   useEffect(() => {
@@ -90,8 +92,8 @@ export const Main: React.FC<MainProps> = ({ app }) => {
           />
         )}
       </div>
-      {sequences.map((sequence) => (
-        <div key={sequence.name}>
+      {sequences.map((sequence, sequenceIndex) => (
+        <div key={sequenceIndex}>
           {sequence.type === "drum-machine" && (
             <DrumMachine
               sequence={sequence}

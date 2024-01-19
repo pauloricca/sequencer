@@ -90,9 +90,15 @@ export const useSequencersState = create<State & Actions>()(
 
               sequence.patterns.forEach((pattern) =>
                 pattern.steps.forEach((step) => {
-                  step.channel += Math.ceil(
-                    (rangeDifference - Math.abs(rangeDifference % 2)) / 2
-                  );
+                  if ((sequence as StateSequenceSynth).range % 2 === 0) {
+                    step.channel += Math.floor(
+                      (rangeDifference / 2)
+                    );
+                  } else {
+                    step.channel += Math.ceil(
+                      (rangeDifference / 2)
+                    );
+                  }
                 })
               );
             }

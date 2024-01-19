@@ -1,4 +1,4 @@
-import { Icon } from "@blueprintjs/core";
+import { Icon, InputGroup } from "@blueprintjs/core";
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { StateSequence } from "src/state/state.types";
 import { InstrumentConfigSelectItem } from "./InstrumentConfigSelect/InstrumentConfigSelect.types";
@@ -44,7 +44,11 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
   }, []);
 
   return (
-    <div className={classNames("instrument-config", {"instrument-config--is-open": isOpen})}>
+    <div
+      className={classNames("instrument-config", {
+        "instrument-config--is-open": isOpen,
+      })}
+    >
       <div
         className="instrument-config__header"
         onClick={() => setIsOpen(!isOpen)}
@@ -55,21 +59,9 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
       </div>
       {isOpen && (
         <div className="instrument-config__controls">
-          <InstrumentConfigKnob
-            label={`n steps: ${sequence.nSteps}`}
-            value={sequence.nSteps}
-            min={1}
-            max={64}
-            isIntegerOnly={true}
-            onChange={( value ) => updateSequence({ nSteps: value })}
-          />
-          <InstrumentConfigKnob
-            label={`step length: ${sequence.stepLength}`}
-            value={sequence.stepLength}
-            min={1}
-            max={32}
-            isIntegerOnly={true}
-            onChange={( value ) => updateSequence({ stepLength: value })}
+          <InputGroup
+            value={sequence.name}
+            onValueChange={(value) => updateSequence({ name: value })}
           />
           <InstrumentConfigSelect
             label={sequence.midiOutDeviceName || "midi out"}
@@ -77,6 +69,22 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             onSelect={({ value }) =>
               updateSequence({ midiOutDeviceName: value })
             }
+          />
+          <InstrumentConfigKnob
+            label={`n steps: ${sequence.nSteps}`}
+            value={sequence.nSteps}
+            min={1}
+            max={64}
+            isIntegerOnly={true}
+            onChange={(value) => updateSequence({ nSteps: value })}
+          />
+          <InstrumentConfigKnob
+            label={`step length: ${sequence.stepLength}`}
+            value={sequence.stepLength}
+            min={1}
+            max={32}
+            isIntegerOnly={true}
+            onChange={(value) => updateSequence({ stepLength: value })}
           />
           {children}
         </div>
