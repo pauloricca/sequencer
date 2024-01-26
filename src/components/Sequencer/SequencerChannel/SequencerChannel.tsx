@@ -2,8 +2,9 @@ import React, { ReactNode, useState } from "react";
 import { SequencerChannelStep } from "./SequencerChannelStep/SequencerChannelStep";
 import {
   StateSequence,
-  StateSequenceChannelConfig,
+  StateSequenceChannelConfigCommon,
   StateSequenceStep,
+  StateSequenceStepProperties,
 } from "../../../state/state.types";
 import { useSequencersState } from "../../../state/state";
 import { Icon } from "@blueprintjs/core";
@@ -11,12 +12,13 @@ require("./_SequencerChannel.scss");
 
 export interface SequencerChannelProps {
   sequence: StateSequence;
-  channelConfig: StateSequenceChannelConfig;
+  channelConfig: StateSequenceChannelConfigCommon;
   channelIndex: number;
   activeStepIndex: number;
-  triggerCallback?: (channel: number) => void;
+  triggerCallback?: (channel: number, step?: StateSequenceStep) => void;
   showChannelControls?: boolean;
   channelConfigComponents?: (channelIndex: number) => ReactNode;
+  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null
 }
 
 export const SequencerChannel: React.FC<SequencerChannelProps> = ({
@@ -27,6 +29,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   triggerCallback = () => {},
   showChannelControls = false,
   channelConfigComponents,
+  stepPropertyCurrentlyBeingEdited,
 }) => {
   const setStep = useSequencersState((state) => state.setStep(sequence.name));
   const removeStep = useSequencersState((state) =>
@@ -34,6 +37,9 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   );
   const updateChannelConfig = useSequencersState((state) =>
     state.updateChannelConfig(sequence.name)(channelIndex)
+  );
+  const updateStep = useSequencersState((state) =>
+    state.updateStep(sequence.name)
   );
   const [isDraggingAlongChannel, setIsDraggingAlongChannel] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -110,6 +116,11 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
               onToggle={() => onStepClickHandler(stepIndex, step)}
               onDragStart={onDragStartHandler}
               isDraggingAlongChannel={isDraggingAlongChannel}
+              isControllingFillPercentage={!!stepPropertyCurrentlyBeingEdited}
+              fillPercentage={stepPropertyCurrentlyBeingEdited ? step?.[stepPropertyCurrentlyBeingEdited] : undefined}
+              onFillPercentageChange={stepPropertyCurrentlyBeingEdited ? (value) =>
+                step && updateStep(step)({ [stepPropertyCurrentlyBeingEdited]: value }) : undefined
+              }
             />
           ))}
         </div>

@@ -39,6 +39,21 @@ export const useSequencersState = create<State & Actions>()(
               );
           }
         }),
+        updateStep: (sequenceName) => (step) => (newSequenceSettings) => set((state) => {
+          const sequence = getSequenceByName(state.sequences, sequenceName);
+          if (sequence && sequence.patterns[sequence.currentPattern]) {
+            const stepToMutate = sequence.patterns[sequence.currentPattern].steps.find(
+              ({ channel, stepIndex }) =>
+                channel == step.channel && step.stepIndex == stepIndex
+            );
+            if (stepToMutate) {
+              Object.keys(newSequenceSettings).forEach(
+                (key) =>
+                  ((stepToMutate as any)[key] = (newSequenceSettings as any)[key])
+              );
+            }
+          }
+        }),
       updateChannelConfig: (sequenceName) => (channelIndex) => (newChannelConfig) =>
         set((state) => {
           const channelConfig = (

@@ -1,6 +1,6 @@
 import { Icon, InputGroup } from "@blueprintjs/core";
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
-import { StateSequence } from "src/state/state.types";
+import React, { ReactNode, useEffect, useState } from "react";
+import { StateSequence, StateSequenceStepProperties } from "src/state/state.types";
 import { InstrumentConfigSelectItem } from "./InstrumentConfigSelect/InstrumentConfigSelect.types";
 import { InstrumentConfigSelect } from "./InstrumentConfigSelect/InstrumentConfigSelect";
 import { useSequencersState } from "../../state/state";
@@ -11,35 +11,35 @@ require("./_InstrumentConfig.scss");
 
 interface InstrumentConfigProps {
   sequence: StateSequence;
+  tools?: { name: string; value: string | null; icon: string }[];
+  selectedTool?: string | null;
+  onSelectTool?: (value: string | null) => void;
   children?: ReactNode;
 }
 
 export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
   sequence,
+  tools,
+  selectedTool,
+  onSelectTool = () => {},
   children,
 }) => {
   const updateSequence = useSequencersState((state) =>
     state.updateSequence(sequence.name)
   );
   const [isOpen, setIsOpen] = useState(false);
-  const [midiOutOptions, setMidiOutOptions] = useState<InstrumentConfigSelectItem[]>([]);
+  const [midiOutOptions, setMidiOutOptions] = useState<
+    InstrumentConfigSelectItem[]
+  >([]);
 
-  const getMidiOutOptions = useCallback(() => [
-    {
-      key: 0,
-      label: "none",
-      value: undefined,
-    },
-    ...getMidiOutputDeviceNames().map((name) => ({
-      key: name,
-      label: name,
-      value: name,
-    })),
-  ], []);
+  const getMidiOutOptions = () => [
+    { label: "none", value: undefined },
+    ...getMidiOutputDeviceNames().map((name) => ({ value: name })),
+  ];
 
   useEffect(() => {
     setInterval(() => {
-      setMidiOutOptions(getMidiOutOptions())
+      setMidiOutOptions(getMidiOutOptions());
     }, 2000);
   }, []);
 
@@ -49,13 +49,34 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
         "instrument-config--is-open": isOpen,
       })}
     >
-      <div
-        className="instrument-config__header"
-        onClick={() => setIsOpen(!isOpen)}
-      >
+      <div className="instrument-config__header">
         <p className="instrument-config__instrument-name">{sequence.name}</p>
-        {isOpen && <Icon icon="cross" />}
-        {!isOpen && <Icon icon="cog" />}
+        <div className="instrument-config__tools">
+          {tools?.map(({ name, value, icon }) => (
+            <Icon
+              icon={icon}
+              key={name ?? value}
+              className={classNames("instrument-config__tool", {
+                "instrument-config__tool--is-active": value === selectedTool,
+              })}
+              onClick={() => onSelectTool(value)}
+            />
+          ))}
+          {isOpen && (
+            <Icon
+              icon="cross"
+              className="instrument-config__tool instrument-config__tool--is-active"
+              onClick={() => setIsOpen(false)}
+            />
+          )}
+          {!isOpen && (
+            <Icon
+              icon="cog"
+              className="instrument-config__tool"
+              onClick={() => setIsOpen(true)}
+            />
+          )}
+        </div>
       </div>
       {isOpen && (
         <div className="instrument-config__controls">

@@ -2,20 +2,36 @@
     border: 1px solid white;
     width: 15px;
     height: 15px;
+    position: relative;
+    z-index: 1001;
 
     &:not(:last-of-type) {
         border-right-width: 0;
     }
 
+    &__fill {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        z-index: 1000;
+        min-height: 1px;
+    }
+
     &--is-toggled {
-        background-color: white;
+        .sequencer-channel-step__fill {
+            background-color: white;
+        }
     }
 
     &--is-active {
         background-color: rgba(117, 195, 0, 0.31);
 
         &.sequencer-channel-step--is-toggled {
-            background-color: rgb(116 195 0);
+            .sequencer-channel-step__fill {
+                background-color: rgb(116 195 0);
+            }
         }
     }
 }

@@ -1,5 +1,3 @@
-import { DrumMachineChannelConfig } from "../components/DrumMachine/DrumMachine.types";
-
 export type State = {
   /**
    * Typically BPM x 4 (on an x/4 time signature)
@@ -10,9 +8,16 @@ export type State = {
 
 export type Actions = {
   setStep: (sequenceName: string) => (step: StateSequenceStep) => void;
-  removeStep: (sequenceName: string) => (stepIndex: StateSequenceStep) => void;
+  removeStep: (sequenceName: string) => (step: StateSequenceStep) => void;
+  updateStep: (
+    sequenceName: string
+  ) => (
+    step: StateSequenceStep
+  ) => (newSequenceSettings: Partial<StateSequenceStep>) => void;
   updateChannelConfig: (
-    sequenceName: string) => (channelIndex: number
+    sequenceName: string
+  ) => (
+    channelIndex: number
   ) => (newChannelConfig: Partial<StateSequenceChannelConfig>) => void;
   updateSequence: (
     sequenceName: string
@@ -37,12 +42,12 @@ export interface StateSequenceCommon {
    */
   stepLength: number;
   midiOutDeviceName?: string;
-};
+}
 
 export interface StateSequenceDrumMachine extends StateSequenceCommon {
   type: "drum-machine";
-  channelsConfig: DrumMachineChannelConfig[];
-};
+  channelsConfig: StateSequenceChannelConfig[];
+}
 
 export interface StateSequenceSynth extends StateSequenceCommon {
   type: "synth";
@@ -51,13 +56,17 @@ export interface StateSequenceSynth extends StateSequenceCommon {
   range: number;
   noteDuration: number;
   midiChannel: number;
-};
+}
 
 export type StateSequencePattern = {
   steps: StateSequenceStep[];
-}
+};
 
-export type StateSequenceChannelConfig = {
+export type StateSequenceChannelConfig =
+  | StateSequenceChannelConfigMidi
+  | StateSequenceChannelConfigSample;
+
+export interface StateSequenceChannelConfigCommon {
   name?: string;
   isHidden?: boolean;
   isMuted?: boolean;
@@ -67,7 +76,25 @@ export type StateSequenceChannelConfig = {
   volume?: number;
 };
 
-export interface StateSequenceStep {
+export interface StateSequenceChannelConfigMidi
+  extends StateSequenceChannelConfigCommon {
+  type: "midi";
+  midiChannel: number;
+  midiNote: number;
+}
+
+export interface StateSequenceChannelConfigSample
+  extends StateSequenceChannelConfigCommon {
+  type: "sample";
+  audioFile: string;
+}
+
+export interface StateSequenceStep extends StateSequenceStepProperties {
   channel: number;
   stepIndex: number;
+}
+
+export interface StateSequenceStepProperties {
+  volume?: number;
+  probability?: number;
 }

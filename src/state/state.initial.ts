@@ -1,145 +1,144 @@
-import { DrumMachineChannelConfig } from "components/DrumMachine/DrumMachine.types";
-import { State } from "./state.types";
+import { State, StateSequenceChannelConfig } from "./state.types";
 
-export const VOLCA_DRUM_MACHINE_CHANNELS: DrumMachineChannelConfig[] = [
+export const VOLCA_DRUM_MACHINE_CHANNELS: StateSequenceChannelConfig[] = [
   {
     type: "midi",
     name: "p1",
     midiChannel: 1,
-    note: 64,
+    midiNote: 64,
   },
   {
     type: "midi",
     name: "p2",
     midiChannel: 2,
-    note: 64,
+    midiNote: 64,
   },
   {
     type: "midi",
     name: "p3",
     midiChannel: 3,
-    note: 64,
+    midiNote: 64,
   },
   {
     type: "midi",
     name: "p4",
     midiChannel: 4,
-    note: 64,
+    midiNote: 64,
   },
   {
     type: "midi",
     name: "p5",
     midiChannel: 5,
-    note: 64,
+    midiNote: 64,
   },
   {
     type: "midi",
     name: "p6",
     midiChannel: 6,
-    note: 64,
+    midiNote: 64,
   },
 ];
 
-export const DRUM_MACHINE_CHANNELS: DrumMachineChannelConfig[] = [
+export const DRUM_MACHINE_CHANNELS: StateSequenceChannelConfig[] = [
   {
     type: "midi",
     name: "kick",
     midiChannel: 10,
-    note: 36,
+    midiNote: 36,
   },
   {
     type: "midi",
     name: "snare",
     midiChannel: 10,
-    note: 38,
+    midiNote: 38,
   },
   {
     type: "midi",
     name: "lo tom",
     midiChannel: 10,
-    note: 43,
+    midiNote: 43,
   },
   {
     type: "midi",
     name: "hi tom",
     midiChannel: 10,
-    note: 50,
+    midiNote: 50,
   },
   {
     type: "midi",
     name: "cl hat",
     midiChannel: 10,
-    note: 42,
+    midiNote: 42,
   },
   {
     type: "midi",
     name: "op hat",
     midiChannel: 10,
-    note: 46,
+    midiNote: 46,
   },
   {
     type: "midi",
     name: "clap",
     midiChannel: 10,
-    note: 39,
+    midiNote: 39,
   },
   {
     type: "midi",
     name: "claves",
     midiChannel: 10,
-    note: 75,
+    midiNote: 75,
   },
   {
     type: "midi",
     name: "agogo",
     midiChannel: 10,
-    note: 67,
+    midiNote: 67,
   },
   {
     type: "midi",
     name: "crash",
     midiChannel: 10,
-    note: 49,
+    midiNote: 49,
   },
   {
     type: "sample",
     name: "SS_TCN_Kick_Solo_01",
-    soundFile: "SS_TCN_Kick_Solo_01.wav",
+    audioFile: "SS_TCN_Kick_Solo_01.wav",
   },
   {
     type: "sample",
     name: "SS_TCN_Kick_Solo_31",
-    soundFile: "SS_TCN_Kick_Solo_31.wav",
+    audioFile: "SS_TCN_Kick_Solo_31.wav",
   },
   {
     type: "sample",
     name: "SS_TCN_HH_03",
-    soundFile: "SS_TCN_HH_03.wav",
+    audioFile: "SS_TCN_HH_03.wav",
   },
   {
     type: "sample",
     name: "SS_TCN_HH_05",
-    soundFile: "SS_TCN_HH_05.wav",
+    audioFile: "SS_TCN_HH_05.wav",
   },
   {
     type: "sample",
     name: "SS_TCN_Clap_Snare_15",
-    soundFile: "SS_TCN_Clap_Snare_15.wav",
+    audioFile: "SS_TCN_Clap_Snare_15.wav",
   },
   {
     type: "sample",
     name: "SS_TCN_Clap_Snare_04",
-    soundFile: "SS_TCN_Clap_Snare_04.wav",
+    audioFile: "SS_TCN_Clap_Snare_04.wav",
   },
   {
     type: "sample",
     name: "GS_FREE2_Prc_01",
-    soundFile: "GS_FREE2_Prc_01.wav",
+    audioFile: "GS_FREE2_Prc_01.wav",
   },
   {
     type: "sample",
     name: "GS_FREE2_172_ATMO_01_Cm",
-    soundFile: "GS_FREE2_172_ATMO_01_Cm.wav",
+    audioFile: "GS_FREE2_172_ATMO_01_Cm.wav",
   },
 ];
 

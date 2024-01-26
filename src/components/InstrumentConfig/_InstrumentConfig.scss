@@ -2,15 +2,10 @@
 	border-bottom: 1px solid white;
 	padding: 4px;
 
-	&:hover:not(.instrument-config--is-open) {
-		background-color: #0000002b;
-	}
-
 	&__header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		cursor: pointer;
 	}
 
 	&__instrument-name {
@@ -30,5 +25,20 @@
     grid-row-gap: 8px;
     grid-column-gap: 8px;
 		margin: 4px 0;
+	}
+
+	&__tools {
+		display: flex;
+		gap: 4px;
+
+		.instrument-config__tool {
+			cursor: pointer;
+			opacity: 0.5;
+
+			&:hover,
+			&--is-active {
+					opacity: 1;
+			}
+		}
 	}
 }

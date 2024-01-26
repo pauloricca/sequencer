@@ -26,9 +26,9 @@ export const InstrumentConfigSelect: React.FC<InstrumentConfigSelectProps> = ({
     return (
       <MenuItem
         active={modifiers.active}
-        key={item.key}
+        key={item.key ?? item.value ?? item.label}
         onClick={handleClick}
-        text={item.label}
+        text={item.label ?? item.value}
       />
     );
   };
@@ -37,7 +37,7 @@ export const InstrumentConfigSelect: React.FC<InstrumentConfigSelectProps> = ({
     query,
     item
   ) => {
-    return item.label.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+    return (item.label ?? item.value).toLowerCase().indexOf(query.toLowerCase()) >= 0;
   };
 
   const renderMenu: ItemListRenderer<InstrumentConfigSelectItem> = ({

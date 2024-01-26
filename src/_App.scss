@@ -11,19 +11,105 @@
 	padding: 24px;
 }
 
-.instruments {
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
+// @font-face {
+// 	font-family: 'Pixelify Sans';
+// 	src: url('../fonts/Pixelify_Sans/static/PixelifySans-Regular.ttf') format('truetype');
+// }
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
 
-	&__controls {
-		display: flex;
-		gap: 8px;
+@import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+
+:root {
+	--color-example: #fff;
+}
+
+html,
+body {
+	font-family: 'Pixelify Sans', sans-serif;
+	display: flex;
+	flex-grow: 1;
+	width: 100%;
+	min-height: 100vh;
+	font-size: 14px;
+	text-align: center;
+	color: var(--color-example);
+	margin: 0;
+	user-select: none;
+}
+
+button {
+	font-family: 'Pixelify Sans', sans-serif;
+}
+
+p {
+	margin-block-start: 0;
+	margin-block-end: 0;
+}
+
+.bp5-icon {
+	svg {
+			fill: currentColor;
 	}
 }
 
-.instrument {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+.bp5-button {
+	border-radius: 8px;
+
+	&:not([class*=bp5-intent-]) {
+			background-color: transparent;
+			box-shadow: none;
+			border: 1px solid white;
+			color: white;
+
+			&.bp5-active {
+					background-color: rgb(116 195 0);
+					box-shadow: none;
+
+					&:hover {
+							background-color: rgb(94 158 0);
+					}
+			}
+
+			&:hover {
+					background-clip: padding-box;
+					background-color: #0000002b;
+					box-shadow: none;
+			}
+	}
+
+	&:not([class*=bp5-intent-]):active {
+			box-shadow: none;
+	}
+
+	.bp5-icon {
+			color: white;
+	}
+}
+
+.bp5-button-text {
+	white-space: nowrap;
+}
+
+:focus {
+	outline: none;
+	outline-offset: 0;
+}
+
+.bp5-input:focus,
+.bp5-input.bp5-active {
+	box-shadow: none;
+}
+
+input[type=text] {
+	background-color: transparent;
+	box-shadow: none;
+	border: 1px solid white;
+	border-radius: 8px;
+	color: white;
+	font-family: inherit;
+}
+
+.bp5-overlay-content {
+	z-index: 5000;
 }

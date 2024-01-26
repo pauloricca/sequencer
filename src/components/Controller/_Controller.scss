@@ -1,0 +1,10 @@
+.controller {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+
+	&__controls {
+		display: flex;
+		gap: 8px;
+	}
+}

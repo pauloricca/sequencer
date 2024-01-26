@@ -3,6 +3,12 @@
     justify-content: flex-end;
     gap: 8px;
 
+    &__outer {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
     &__channels {
         display: flex;
         flex-direction: column;

@@ -63,9 +63,11 @@ module.exports = (env, options) =>
         },
         resolve: { extensions: [".tsx", ".ts", ".js"] },
         output: {
-            filename: "js/[name].bundle.js",
+            filename: "js/[name].[hash:8].bundle.js",
             path: path.resolve(__dirname, outputConfig.destPath),
             publicPath: "",
+            sourceMapFilename: "[name].[hash:8].map",
+            chunkFilename: "[id].[hash:8].js"
         },
         optimization: {
             minimizer: [

@@ -1,10 +1,12 @@
 import { Button, Spinner } from "@blueprintjs/core";
 import classNames from "classnames";
+import { throttle } from "lodash";
 import React, { MouseEventHandler, useEffect, useState } from "react";
 require("./_InstrumentConfigKnob.scss");
 
 const MOUSE_DRAG_RANGE_NORMAL = 800;
 const MOUSE_DRAG_RANGE_FAST = 50;
+const MOUSE_MOUSE_THROTTLE = 150;
 
 type InstrumentConfigKnobSpeed = "normal" | "fast";
 
@@ -42,16 +44,17 @@ export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
 
   useEffect(() => {
     if (value !== internalValue && internalValue !== undefined) {
-      // console.log('paulo internalValue', internalValue);
       onChange(isIntegerOnly ? Math.round(internalValue) : internalValue);
     }
   }, [internalValue]);
 
   const onMouseDownHandler: MouseEventHandler = (ev) => {
+    let lastMouseX = ev.screenX;
     let lastMouseY = ev.screenY;
     setIsDragging(true);
-    const mouseMoveHandler = (ev: MouseEvent) => {
-      const mouseYDif = lastMouseY - ev.screenY;
+    const mouseMoveHandler = throttle((ev: MouseEvent) => {
+      const mouseYDif = lastMouseY - ev.screenY + ev.screenX - lastMouseX;
+      lastMouseX = ev.screenX;
       lastMouseY = ev.screenY;
       setInternalValue((prevValue) =>
         Math.max(
@@ -62,7 +65,7 @@ export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
           )
         )
       );
-    };
+    }, MOUSE_MOUSE_THROTTLE);
     const mouseUpHandler = () => {
       setIsDragging(false);
       window.removeEventListener("mousemove", mouseMoveHandler);

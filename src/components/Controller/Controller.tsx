@@ -1,19 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import { App } from "./App";
-import { DrumMachine } from "./components/DrumMachine/DrumMachine";
-import { useSequencersState } from "./state/state";
-import { Synth } from "./components/Synth/Synth";
+import { DrumMachine } from "../DrumMachine/DrumMachine";
+import { useSequencersState } from "../../state/state";
+import { Synth } from "../Synth/Synth";
 import { Button } from "@blueprintjs/core";
-import downloadObjectAsJson from "./utils/downloadObjectAsJson";
-import uploadJsonFileAsObject from "./utils/uploadJsonFileAsObject";
-import { InstrumentConfigKnob } from "./components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
-import Metronome from "./utils/metronome";
+import downloadObjectAsJson from "../../utils/downloadObjectAsJson";
+import uploadJsonFileAsObject from "../../utils/uploadJsonFileAsObject";
+import { InstrumentConfigKnob } from "../InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
+import Metronome from "../../utils/metronome";
+import { StateSequence } from "state/state.types";
+require("./_Controller.scss");
 
-export interface MainProps {
-  app: App;
-}
-
-export const Main: React.FC<MainProps> = ({ app }) => {
+export const Controller: React.FC = () => {
   const [clock, setClock] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
   const metronome = useRef<Metronome>();
@@ -45,9 +42,12 @@ export const Main: React.FC<MainProps> = ({ app }) => {
     }
   }, [isPlaying]);
 
+  const getSequencerTick = (sequence: StateSequence) =>
+    clock === -1 ? clock : Math.floor(clock / sequence.stepLength);
+
   return (
-    <div className="instruments">
-      <div className="instruments__controls">
+    <div className="controller">
+      <div className="controller__controls">
         <Button
           text="reset"
           rightIcon="delete"
@@ -97,13 +97,13 @@ export const Main: React.FC<MainProps> = ({ app }) => {
           {sequence.type === "drum-machine" && (
             <DrumMachine
               sequence={sequence}
-              tick={Math.floor(clock / sequence.stepLength)}
+              tick={getSequencerTick(sequence)}
             />
           )}
           {sequence.type === "synth" && (
             <Synth
               sequence={sequence}
-              tick={Math.floor(clock / sequence.stepLength)}
+              tick={getSequencerTick(sequence)}
             />
           )}
         </div>

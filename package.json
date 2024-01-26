@@ -15,6 +15,10 @@
     ],
     "author": "Paulo Ricca",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/pauloricca/sequencer"
+    },
     "dependencies": {
         "@blueprintjs/core": "5.8.2",
         "@blueprintjs/icons": "5.7.0",
