@@ -62,6 +62,20 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
               onClick={() => onSelectTool(value)}
             />
           ))}
+          {!sequence.isMuted && (
+              <Icon
+                icon="volume-up"
+                className="instrument-config__tool"
+                onClick={() => updateSequence({ isMuted: true })}
+              />
+            )}
+            {sequence.isMuted && (
+              <Icon
+                icon="volume-off"
+                className="instrument-config__tool"
+                onClick={() => updateSequence({ isMuted: false })}
+              />
+            )}
           {isOpen && (
             <Icon
               icon="cross"

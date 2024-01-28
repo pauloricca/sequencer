@@ -45,4 +45,11 @@
         grid-row-gap: 8px;
         grid-column-gap: 8px;
     }
+
+    &--is-muted {
+        .sequencer-channel__steps,
+        .sequencer-channel__name {
+            opacity: 0.5;
+        }
+    }
 }

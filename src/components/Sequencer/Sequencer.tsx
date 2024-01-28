@@ -60,7 +60,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
     ].steps.filter(({ stepIndex }) => stepIndex === activeStepIndex);
     stepsToTrigger.forEach(
       (step) => {
-        if (!channelsConfig[step.channel]?.isMuted) {
+        if (!sequence.isMuted && !channelsConfig[step.channel]?.isMuted) {
           if (
             [1, undefined].includes(step.probability) ||
             Math.random() < step.probability!
@@ -104,7 +104,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
             tool as keyof StateSequenceStepProperties || null
           )
         }
-      />
+      >
+        {instrumentConfig}
+      </InstrumentConfig>
       <div className="sequencer">
         <div className="sequencer__channels">
           {channelsConfig

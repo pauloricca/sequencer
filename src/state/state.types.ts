@@ -42,6 +42,7 @@ export interface StateSequenceCommon {
    */
   stepLength: number;
   midiOutDeviceName?: string;
+  isMuted?: boolean;
 }
 
 export interface StateSequenceDrumMachine extends StateSequenceCommon {

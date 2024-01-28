@@ -8,6 +8,7 @@ import {
 } from "../../../state/state.types";
 import { useSequencersState } from "../../../state/state";
 import { Icon } from "@blueprintjs/core";
+import classNames from "classnames";
 require("./_SequencerChannel.scss");
 
 export interface SequencerChannelProps {
@@ -77,7 +78,11 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   };
 
   return (
-    <div className="sequencer-channel">
+    <div
+      className={classNames("sequencer-channel", {
+        "sequencer-channel--is-muted": channelConfig.isMuted || sequence.isMuted,
+      })}
+    >
       <div className="sequencer-channel__inner">
         <div
           className="sequencer-channel__name"
@@ -117,9 +122,19 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
               onDragStart={onDragStartHandler}
               isDraggingAlongChannel={isDraggingAlongChannel}
               isControllingFillPercentage={!!stepPropertyCurrentlyBeingEdited}
-              fillPercentage={stepPropertyCurrentlyBeingEdited ? step?.[stepPropertyCurrentlyBeingEdited] : undefined}
-              onFillPercentageChange={stepPropertyCurrentlyBeingEdited ? (value) =>
-                step && updateStep(step)({ [stepPropertyCurrentlyBeingEdited]: value }) : undefined
+              fillPercentage={
+                stepPropertyCurrentlyBeingEdited
+                  ? step?.[stepPropertyCurrentlyBeingEdited]
+                  : undefined
+              }
+              onFillPercentageChange={
+                stepPropertyCurrentlyBeingEdited
+                  ? (value) =>
+                      step &&
+                      updateStep(step)({
+                        [stepPropertyCurrentlyBeingEdited]: value,
+                      })
+                  : undefined
               }
             />
           ))}
