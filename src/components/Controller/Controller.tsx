@@ -67,12 +67,12 @@ export const Controller: React.FC = () => {
           onClick={() => downloadObjectAsJson(state, "sequencer")}
         />
         <InstrumentConfigKnob
-          label={`bpm: ${state.clockSpeed / 16}`}
-          value={state.clockSpeed / 16}
+          label={`bpm: ${state.clockSpeed / 4}`}
+          value={state.clockSpeed / 4}
           min={30}
           max={600}
           isIntegerOnly={true}
-          onChange={(value) => setClockSpeed(value * 16)}
+          onChange={(value) => setClockSpeed(value * 4)}
         />
         {isPlaying && (
           <Button

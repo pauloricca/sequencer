@@ -147,13 +147,13 @@ export const BASS_MIDI_OUTPUT = "USB2.0-MIDI Port 1";
 export const SYNTH_MIDI_OUTPUT = "JT-4000 MICRO";
 
 export const INITIAL_STATE: State = {
-  clockSpeed: 120 * 16,
+  clockSpeed: 120 * 4,
   sequences: [
     {
       type: "drum-machine",
       name: "drums",
       nSteps: 16,
-      stepLength: 4,
+      stepLength: 1,
       currentPattern: 0,
       patterns: [{ steps: [] }],
       channelsConfig: DRUM_MACHINE_CHANNELS,
@@ -163,7 +163,7 @@ export const INITIAL_STATE: State = {
       type: "synth",
       name: "bass",
       nSteps: 16,
-      stepLength: 4,
+      stepLength: 1,
       rootNote: 60,
       noteDuration: 20,
       scale: "minor",
@@ -177,7 +177,7 @@ export const INITIAL_STATE: State = {
       type: "synth",
       name: "lead",
       nSteps: 16,
-      stepLength: 4,
+      stepLength: 1,
       rootNote: 60,
       noteDuration: 20,
       scale: "minor",
