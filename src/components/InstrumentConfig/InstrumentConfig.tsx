@@ -65,7 +65,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
           {!sequence.isMuted && (
               <Icon
                 icon="volume-up"
-                className="instrument-config__tool"
+                className="instrument-config__tool instrument-config__tool--is-active"
                 onClick={() => updateSequence({ isMuted: true })}
               />
             )}

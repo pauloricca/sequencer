@@ -204,11 +204,11 @@ export const Sequencer: React.FC<SequencerProps> = ({
             <Button
               className={classNames("sequencer__pattern-pagination-page", {
                 "sequencer__pattern-pagination-page--is-visible":
-                  pageNumber === visiblePage,
+                  pageNumber === activePage,
               })}
               key={pageNumber}
               onClick={() => setVisiblePage(pageNumber)}
-              active={pageNumber === activePage}
+              active={pageNumber === visiblePage}
             />
           ))}
           <Button
