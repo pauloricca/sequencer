@@ -17,6 +17,10 @@
 // }
 @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
 
+html, button, body {
+	// font-family: 'Pixelify Sans', sans-serif;
+}
+
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
 
@@ -26,7 +30,6 @@
 
 html,
 body {
-	font-family: 'Pixelify Sans', sans-serif;
 	display: flex;
 	flex-grow: 1;
 	width: 100%;
@@ -36,10 +39,6 @@ body {
 	color: var(--color-example);
 	margin: 0;
 	user-select: none;
-}
-
-button {
-	font-family: 'Pixelify Sans', sans-serif;
 }
 
 p {

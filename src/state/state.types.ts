@@ -1,3 +1,5 @@
+import { Draft } from "immer";
+
 export type State = {
   /**
    * Typically BPM x 4 (on an x/4 time signature)
@@ -6,14 +8,25 @@ export type State = {
   sequences: StateSequence[];
 };
 
-export type Actions = {
-  setStep: (sequenceName: string) => (step: StateSequenceStep) => void;
-  removeStep: (sequenceName: string) => (step: StateSequenceStep) => void;
+export type StateActions = {
+  setStep: (
+    sequenceName: string
+  ) => (step: StateSequenceStep, pageNumber: number) => void;
+  removeStep: (
+    sequenceName: string
+  ) => (step: StateSequenceStep, pageNumber: number) => void;
   updateStep: (
     sequenceName: string
   ) => (
-    step: StateSequenceStep
+    step: StateSequenceStep,
+    pageNumber: number
   ) => (newSequenceSettings: Partial<StateSequenceStep>) => void;
+  addPage: (
+    sequenceName: string
+  ) => (page?: StateSequencePatternPage) => void;
+  removePage: (
+    sequenceName: string
+  ) => (pageNumber: number) => void;
   updateChannelConfig: (
     sequenceName: string
   ) => (
@@ -23,9 +36,20 @@ export type Actions = {
     sequenceName: string
   ) => (newSequenceSettings: Partial<StateSequence>) => void;
   setClockSpeed: (clockSpeed: number) => void;
-  getSequence: (sequenceName: string) => StateSequence | undefined;
   reset: (state?: State) => void;
 };
+
+type StateSetter = (
+  nextStateOrUpdater:
+    | (State & StateActions)
+    | Partial<State & StateActions>
+    | ((state: Draft<State & StateActions>) => void),
+  shouldReplace?: boolean | undefined
+) => void;
+
+type StateGetter = () => State & StateActions;
+
+export type StateAction = (set: StateSetter, get: StateGetter) => any;
 
 export type StateSequence = StateSequenceDrumMachine | StateSequenceSynth;
 
@@ -60,6 +84,10 @@ export interface StateSequenceSynth extends StateSequenceCommon {
 }
 
 export type StateSequencePattern = {
+  pages: StateSequencePatternPage[];
+};
+
+export type StateSequencePatternPage = {
   steps: StateSequenceStep[];
 };
 
@@ -75,7 +103,7 @@ export interface StateSequenceChannelConfigCommon {
    * 0 to 1
    */
   volume?: number;
-};
+}
 
 export interface StateSequenceChannelConfigMidi
   extends StateSequenceChannelConfigCommon {

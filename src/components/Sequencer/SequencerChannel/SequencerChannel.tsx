@@ -16,6 +16,7 @@ export interface SequencerChannelProps {
   channelConfig: StateSequenceChannelConfigCommon;
   channelIndex: number;
   activeStepIndex: number;
+  visiblePage: number;
   triggerCallback?: (channel: number, step?: StateSequenceStep) => void;
   showChannelControls?: boolean;
   channelConfigComponents?: (channelIndex: number) => ReactNode;
@@ -27,6 +28,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   channelConfig,
   channelIndex,
   activeStepIndex,
+  visiblePage,
   triggerCallback = () => {},
   showChannelControls = false,
   channelConfigComponents,
@@ -49,7 +51,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
 
   const channelStepsByIndex = [...Array(sequence.nSteps).keys()].map(
     (stepIndex) =>
-      sequence.patterns[sequence.currentPattern].steps.find(
+      sequence.patterns[sequence.currentPattern].pages[visiblePage].steps.find(
         (step) => step.stepIndex === stepIndex && step.channel === channelIndex
       )
   );
@@ -59,12 +61,12 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
     currentStep?: StateSequenceStep
   ) => {
     if (currentStep) {
-      removeStep(currentStep);
+      removeStep(currentStep, visiblePage);
     } else {
       setStep({
         channel: channelIndex,
         stepIndex,
-      });
+      }, visiblePage);
     }
   };
 
@@ -131,7 +133,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
                 stepPropertyCurrentlyBeingEdited
                   ? (value) =>
                       step &&
-                      updateStep(step)({
+                      updateStep(step, visiblePage)({
                         [stepPropertyCurrentlyBeingEdited]: value,
                       })
                   : undefined

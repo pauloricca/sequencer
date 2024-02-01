@@ -1,11 +1,11 @@
 .sequencer {
     display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
     gap: 8px;
 
-    &__outer {
+    &__body {
         display: flex;
-        flex-direction: column;
+        justify-content: flex-end;
         gap: 8px;
     }
 
@@ -18,5 +18,34 @@
         display: flex;
         flex-direction: column;
         gap: 4px;
+    }
+
+    &__pattern-pagination {
+        margin-top: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__pattern-pagination-control,
+    &__pattern-pagination-page {
+        &.bp5-button {
+            border-radius: 50%;
+            min-height: 24px;
+            min-width: 24px;
+
+            svg {
+                height: 12px;
+            }
+        }
+    }
+
+    &__pattern-pagination-page {
+        &--is-visible {
+            &.bp5-button {
+                border-width: 3px !important;
+            }
+        }
     }
 }

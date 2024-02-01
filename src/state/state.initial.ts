@@ -1,4 +1,5 @@
 import { State, StateSequenceChannelConfig } from "./state.types";
+import { getBlankPattern } from "./state.utils";
 
 export const VOLCA_DRUM_MACHINE_CHANNELS: StateSequenceChannelConfig[] = [
   {
@@ -155,7 +156,7 @@ export const INITIAL_STATE: State = {
       nSteps: 16,
       stepLength: 1,
       currentPattern: 0,
-      patterns: [{ steps: [] }],
+      patterns: [getBlankPattern()],
       channelsConfig: DRUM_MACHINE_CHANNELS,
       midiOutDeviceName: DRUM_MIDI_OUTPUT,
     },
@@ -170,7 +171,7 @@ export const INITIAL_STATE: State = {
       range: 11,
       currentPattern: 0,
       midiChannel: 1,
-      patterns: [{ steps: [] }],
+      patterns: [getBlankPattern()],
       midiOutDeviceName: BASS_MIDI_OUTPUT,
     },
     {
@@ -184,7 +185,7 @@ export const INITIAL_STATE: State = {
       range: 11,
       currentPattern: 0,
       midiChannel: 1,
-      patterns: [{ steps: [] }],
+      patterns: [getBlankPattern()],
       midiOutDeviceName: SYNTH_MIDI_OUTPUT,
     },
   ],
