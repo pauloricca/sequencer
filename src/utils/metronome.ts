@@ -1,4 +1,4 @@
-class Metronome {
+export class Metronome {
   private func: (scheduledTime: number) => any;
   private interval: number;
 	private now: number = -1;
@@ -42,4 +42,26 @@ class Metronome {
 	}
 }
 
-export default Metronome;
+// const metronome = new Metronome(
+// 	() => setClock((prev) => prev + 1),
+// 	getIntervalFromClockSpeed(clockSpeed)
+// );
+
+// export const useMetronome = () => {
+//   const [isOnline, setIsOnline] = useState(true);
+//   useEffect(() => {
+//     function handleOnline() {
+//       setIsOnline(true);
+//     }
+//     function handleOffline() {
+//       setIsOnline(false);
+//     }
+//     window.addEventListener('online', handleOnline);
+//     window.addEventListener('offline', handleOffline);
+//     return () => {
+//       window.removeEventListener('online', handleOnline);
+//       window.removeEventListener('offline', handleOffline);
+//     };
+//   }, []);
+//   return isOnline;
+// }

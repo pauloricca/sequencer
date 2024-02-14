@@ -6,8 +6,9 @@ import { Button } from "@blueprintjs/core";
 import downloadObjectAsJson from "../../utils/downloadObjectAsJson";
 import uploadJsonFileAsObject from "../../utils/uploadJsonFileAsObject";
 import { InstrumentConfigKnob } from "../InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
-import Metronome from "../../utils/metronome";
 import { StateSequence } from "state/state.types";
+import { Metronome } from "../../utils/metronome";
+import { getIntervalFromClockSpeed } from "./Controller.utils";
 require("./_Controller.scss");
 
 export const Controller: React.FC = () => {
@@ -19,8 +20,6 @@ export const Controller: React.FC = () => {
   const clockSpeed = useSequencersState((state) => state.clockSpeed);
   const setClockSpeed = useSequencersState((state) => state.setClockSpeed);
   const resetState = useSequencersState((state) => state.reset);
-
-  const getIntervalFromClockSpeed = (clockSpeed: number) => 60000 / clockSpeed;
 
   useEffect(() => {
     metronome.current = new Metronome(
@@ -46,68 +45,67 @@ export const Controller: React.FC = () => {
     clock === -1 ? clock : Math.floor(clock / sequence.stepLength);
 
   return (
-    <div className="controller">
-      <div className="controller__controls">
-        <Button
-          text="reset"
-          rightIcon="delete"
-          fill={true}
-          onClick={() => resetState()}
-        />
-        <Button
-          text="load"
-          rightIcon="export"
-          fill={true}
-          onClick={() => uploadJsonFileAsObject((obj) => resetState(obj))}
-        />
-        <Button
-          text="save"
-          rightIcon="import"
-          fill={true}
-          onClick={() => downloadObjectAsJson(state, "sequencer")}
-        />
-        <InstrumentConfigKnob
-          label={`bpm: ${state.clockSpeed / 4}`}
-          value={state.clockSpeed / 4}
-          min={30}
-          max={600}
-          isIntegerOnly={true}
-          onChange={(value) => setClockSpeed(value * 4)}
-        />
-        {isPlaying && (
+    // <StrictMode>
+      <div className="controller">
+        <div className="controller__controls">
           <Button
-            text="stop"
-            active={true}
-            rightIcon="symbol-square"
+            text="reset"
+            rightIcon="delete"
             fill={true}
-            onClick={() => setIsPlaying(false)}
+            onClick={() => resetState()}
           />
-        )}
-        {!isPlaying && (
           <Button
-            text="play"
-            rightIcon="play"
+            text="load"
+            rightIcon="export"
             fill={true}
-            onClick={() => setIsPlaying(true)}
+            onClick={() => uploadJsonFileAsObject((obj) => resetState(obj))}
           />
-        )}
-      </div>
-      {sequences.map((sequence, sequenceIndex) => (
-        <div key={sequenceIndex}>
-          {sequence.type === "drum-machine" && (
-            <DrumMachine
-              sequence={sequence}
-              tick={getSequencerTick(sequence)}
+          <Button
+            text="save"
+            rightIcon="import"
+            fill={true}
+            onClick={() => downloadObjectAsJson(state, "sequencer")}
+          />
+          <InstrumentConfigKnob
+            label={`bpm: ${state.clockSpeed / 4}`}
+            value={state.clockSpeed / 4}
+            min={30}
+            max={600}
+            isIntegerOnly={true}
+            onChange={(value) => setClockSpeed(value * 4)}
+          />
+          {isPlaying && (
+            <Button
+              text="stop"
+              active={true}
+              rightIcon="symbol-square"
+              fill={true}
+              onClick={() => setIsPlaying(false)}
             />
           )}
-          {sequence.type === "synth" && (
-            <Synth
-              sequence={sequence}
-              tick={getSequencerTick(sequence)}
+          {!isPlaying && (
+            <Button
+              text="play"
+              rightIcon="play"
+              fill={true}
+              onClick={() => setIsPlaying(true)}
             />
           )}
         </div>
-      ))}
-    </div>
+        {sequences.map((sequence, sequenceIndex) => (
+          <div key={sequenceIndex}>
+            {sequence.type === "drum-machine" && (
+              <DrumMachine
+                sequence={sequence}
+                tick={getSequencerTick(sequence)}
+              />
+            )}
+            {sequence.type === "synth" && (
+              <Synth sequence={sequence} tick={getSequencerTick(sequence)} />
+            )}
+          </div>
+        ))}
+      </div>
+    // </StrictMode>
   );
 };

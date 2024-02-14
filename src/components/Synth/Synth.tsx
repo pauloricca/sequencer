@@ -1,19 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Sequencer } from "../Sequencer/Sequencer";
+import { Sequencer, SequencerProps } from "../Sequencer/Sequencer";
 import { SynthProps } from "./Synth.types";
 import { sendMidiMessage } from "../../utils/midi";
-import { InstrumentConfig } from "../InstrumentConfig/InstrumentConfig";
 import { InstrumentConfigSelect } from "../InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect";
 import { Midi, Scale, ScaleType } from "tonal";
 import { useSequencersState } from "../../state/state";
 import { InstrumentConfigSelectItem } from "../InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect.types";
 import { InstrumentConfigKnob } from "../InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
 import { StateSequenceChannelConfigMidi, StateSequenceStep } from "../../state/state.types";
+import { getIntervalFromClockSpeed } from "../Controller/Controller.utils";
 
 export const Synth: React.FC<SynthProps> = ({
   sequence,
   ...sequencerProps
 }) => {
+  const clockSpeed = useSequencersState(({ clockSpeed }) => clockSpeed);
   const updateSequence = useSequencersState((state) =>
     state.updateSequence(sequence.name)
   );
@@ -61,11 +62,11 @@ export const Synth: React.FC<SynthProps> = ({
       note: synthChannels[channelIndex].midiNote,
       velocity: 127 * (step?.volume ?? 1),
       channel: sequence.midiChannel,
-      duration: sequence.noteDuration,
+      duration: sequence.noteDuration * getIntervalFromClockSpeed(clockSpeed) * sequence.stepLength,
     });
   };
 
-  const instrumentConfig = (
+  const instrumentConfigCallback: SequencerProps['instrumentConfigCallback'] = () => (
     <>
       <InstrumentConfigKnob
         label={`midi channel: ${sequence.midiChannel}`}
@@ -114,7 +115,7 @@ export const Synth: React.FC<SynthProps> = ({
         sequence={sequence}
         channelsConfig={synthChannels}
         triggerCallback={triggerSample}
-        instrumentConfig={instrumentConfig}
+        instrumentConfigCallback={instrumentConfigCallback}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { SequencerChannelStep } from "./SequencerChannelStep/SequencerChannelStep";
 import {
   StateSequence,
@@ -20,7 +20,7 @@ export interface SequencerChannelProps {
   triggerCallback?: (channel: number, step?: StateSequenceStep) => void;
   showChannelControls?: boolean;
   channelConfigComponents?: (channelIndex: number) => ReactNode;
-  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null
+  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
 }
 
 export const SequencerChannel: React.FC<SequencerChannelProps> = ({
@@ -47,6 +47,10 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   const [isDraggingAlongChannel, setIsDraggingAlongChannel] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
+  // To use inside the callback
+  const visiblePageRef = useRef(visiblePage);
+  visiblePageRef.current = visiblePage;
+
   if (channelConfig.isHidden) return null;
 
   const channelStepsByIndex = [...Array(sequence.nSteps).keys()].map(
@@ -56,28 +60,41 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
       )
   );
 
-  const onStepClickHandler = (
+  const onStepToggleHandler = useCallback((
     stepIndex: number,
     currentStep?: StateSequenceStep
   ) => {
     if (currentStep) {
-      removeStep(currentStep, visiblePage);
+      removeStep(currentStep, visiblePageRef.current);
     } else {
       setStep({
         channel: channelIndex,
         stepIndex,
-      }, visiblePage);
+      }, visiblePageRef.current);
     }
-  };
+  }, []);
 
-  const onDragStartHandler = () => {
+  const onDragStartHandler = useCallback(() => {
     setIsDraggingAlongChannel(true);
     const mouseUpHandler = () => {
       setIsDraggingAlongChannel(false);
       window.removeEventListener("mouseup", mouseUpHandler);
     };
     window.addEventListener("mouseup", mouseUpHandler);
-  };
+  }, []);
+
+  const onFillPercentageChangeHandler = useCallback(
+    (value: number, step?: StateSequenceStep) =>
+      step &&
+      stepPropertyCurrentlyBeingEdited &&
+      updateStep(
+        step,
+        visiblePageRef.current
+      )({
+        [stepPropertyCurrentlyBeingEdited]: value,
+      }),
+    [stepPropertyCurrentlyBeingEdited]
+  );
 
   return (
     <div
@@ -118,9 +135,10 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
           {channelStepsByIndex.map((step, stepIndex) => (
             <SequencerChannelStep
               key={stepIndex}
-              isToggled={!!step}
+              stepIndex={stepIndex}
+              step={step}
               isActive={activeStepIndex === stepIndex && !channelConfig.isMuted}
-              onToggle={() => onStepClickHandler(stepIndex, step)}
+              onToggle={onStepToggleHandler}
               onDragStart={onDragStartHandler}
               isDraggingAlongChannel={isDraggingAlongChannel}
               isControllingFillPercentage={!!stepPropertyCurrentlyBeingEdited}
@@ -130,13 +148,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
                   : undefined
               }
               onFillPercentageChange={
-                stepPropertyCurrentlyBeingEdited
-                  ? (value) =>
-                      step &&
-                      updateStep(step, visiblePage)({
-                        [stepPropertyCurrentlyBeingEdited]: value,
-                      })
-                  : undefined
+                stepPropertyCurrentlyBeingEdited ? onFillPercentageChangeHandler : undefined
               }
             />
           ))}

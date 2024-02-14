@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Howl } from "howler";
 import { Sequencer } from "../Sequencer/Sequencer";
 import { DrumMachineProps } from "./DrumMachine.types";
@@ -27,9 +27,10 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
         });
       }
     });
+    console.log('[sequence.channelsConfig]');
   }, [sequence.channelsConfig]);
 
-  const triggerSample = (channelIndex: number, step?: StateSequenceStep) => {
+  const triggerSample = useCallback((channelIndex: number, step?: StateSequenceStep) => {
     const channel = sequence.channelsConfig[channelIndex];
 
     if (!channel) return;
@@ -55,9 +56,9 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
         duration: 0,
       });
     }
-  };
+  }, [sequence]);
 
-  const getChannelConfigComponents = (channelIndex: number) => {
+  const getChannelConfigComponents = useCallback((channelIndex: number) => {
     const channelConfig = sequence.channelsConfig[channelIndex];
     const update = updateChannelConfig(channelIndex);
     return (
@@ -103,7 +104,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
         )}
       </>
     );
-  };
+  }, [sequence.channelsConfig]);
 
   return (
     <div className="drum-machine controller__instrument">

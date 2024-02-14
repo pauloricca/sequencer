@@ -1,9 +1,10 @@
 .sequencer-channel-step {
     border: 1px solid white;
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
+    margin-right: -1px;
+    margin-bottom: -1px;
     position: relative;
-    z-index: 1001;
 
     &:not(:last-of-type) {
         border-right-width: 0;
@@ -11,26 +12,26 @@
 
     &__fill {
         position: absolute;
-        bottom: 0;
+        bottom: 1px;
         left: 0;
-        height: 100%;
-        width: 100%;
-        z-index: 1000;
+        height: calc(100% - 1px);
+        width: calc(100% - 1px);
+        z-index: 1;
         min-height: 1px;
     }
 
     &--is-toggled {
         .sequencer-channel-step__fill {
-            background-color: white;
+            background-color: rgb(144 210 47);
         }
     }
 
     &--is-active {
-        background-color: rgba(117, 195, 0, 0.31);
+        background-color: rgba(117, 195, 0, 0.5);
 
         &.sequencer-channel-step--is-toggled {
             .sequencer-channel-step__fill {
-                background-color: rgb(116 195 0);
+                background-color: white;
             }
         }
     }

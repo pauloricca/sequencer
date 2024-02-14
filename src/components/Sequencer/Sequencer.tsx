@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import {
   SequencerChannel,
   SequencerChannelProps,
@@ -12,20 +12,23 @@ import { registerMidiOutputDevice } from "../../utils/midi";
 import { Button } from "@blueprintjs/core";
 import { useSequencersState } from "../../state/state";
 import { cloneDeep } from "lodash";
-import { InstrumentConfig } from "../InstrumentConfig/InstrumentConfig";
+import {
+  InstrumentConfig,
+  InstrumentConfigProps,
+} from "../InstrumentConfig/InstrumentConfig";
 import { getBlankPattern } from "../../state/state.utils";
 import classNames from "classnames";
 require("./_Sequencer.scss");
 
 export interface SequencerProps
   extends Pick<
-    SequencerChannelProps,
-    "triggerCallback" | "showChannelControls" | "channelConfigComponents"
-  > {
+      SequencerChannelProps,
+      "triggerCallback" | "showChannelControls" | "channelConfigComponents"
+    >,
+    Pick<InstrumentConfigProps, "instrumentConfigCallback"> {
   sequence: StateSequence;
   channelsConfig: StateSequenceChannelConfigCommon[];
   tick: number;
-  instrumentConfig?: ReactNode;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -33,53 +36,43 @@ export const Sequencer: React.FC<SequencerProps> = ({
   channelsConfig,
   tick,
   triggerCallback = () => {},
-  instrumentConfig,
+  instrumentConfigCallback,
   ...otherSequencerChannelProps
 }) => {
   const updateSequence = useSequencersState((state) =>
     state.updateSequence(sequence.name)
   );
-  const addPage = useSequencersState((state) =>
-    state.addPage(sequence.name)
-  );
+  const addPage = useSequencersState((state) => state.addPage(sequence.name));
   const removePage = useSequencersState((state) =>
     state.removePage(sequence.name)
   );
-  const [activeStepIndex, setActiveStepIndex] = useState(-1);
-  const [activePage, setActivePage] = useState(0);
+  const lastTick = useRef(-1);
+  const activeStepIndex = useRef(-1);
+  const activePageIndex = useRef(0);
   const [visiblePage, setVisiblePage] = useState(0);
   const [
     stepPropertyCurrentlyBeingEdited,
     setStepPropertyCurrentlyBeingEdited,
   ] = useState<keyof StateSequenceStepProperties | null>(null);
 
-  useEffect(() => {
-    const nextActiveStepIndex =
-      tick <= 0 ? tick : (activeStepIndex + 1) % sequence.nSteps;
+  if (tick != lastTick.current) {
+    lastTick.current = tick;
+
+    activeStepIndex.current =
+      tick <= 0 ? tick : (activeStepIndex.current + 1) % sequence.nSteps;
 
     if (tick <= 0) {
-      setActivePage(0);
-    } else if (nextActiveStepIndex === 0) {
-      setActivePage(
-        (activePage + 1) %
-          sequence.patterns[sequence.currentPattern].pages.length
-      );
+      activeStepIndex.current = tick;
+    } else if (activeStepIndex.current === 0) {
+      activePageIndex.current =
+        (activePageIndex.current + 1) %
+        sequence.patterns[sequence.currentPattern].pages.length;
     }
 
-    setActiveStepIndex(
-      tick <= 0 ? tick : (activeStepIndex + 1) % sequence.nSteps
-    );
-  }, [tick]);
-
-  useEffect(() => {
-    if (sequence.midiOutDeviceName)
-      registerMidiOutputDevice(sequence.midiOutDeviceName);
-  }, [sequence.midiOutDeviceName]);
-
-  useEffect(() => {
+    // Trigger steps
     const stepsToTrigger = sequence.patterns[sequence.currentPattern].pages[
-      activePage
-    ].steps.filter(({ stepIndex }) => stepIndex === activeStepIndex);
+      activePageIndex.current
+    ].steps.filter(({ stepIndex }) => stepIndex === activeStepIndex.current);
     stepsToTrigger.forEach((step) => {
       if (!sequence.isMuted && !channelsConfig[step.channel]?.isMuted) {
         if (
@@ -90,12 +83,21 @@ export const Sequencer: React.FC<SequencerProps> = ({
         }
       }
     });
-  }, [activeStepIndex]);
+    console.log("tick");
+  }
+
+  useEffect(() => {
+    if (sequence.midiOutDeviceName)
+      registerMidiOutputDevice(sequence.midiOutDeviceName);
+  }, [sequence.midiOutDeviceName]);
+
+  console.log("sequencer rerender");
 
   return (
     <div className="sequencer">
       <InstrumentConfig
         sequence={sequence}
+        instrumentConfigCallback={instrumentConfigCallback}
         tools={[
           {
             name: "default",
@@ -112,11 +114,6 @@ export const Sequencer: React.FC<SequencerProps> = ({
             value: "probability",
             icon: "heatmap",
           },
-          // {
-          //   name: "length",
-          //   value: "length",
-          //   icon: "drawer-left-filled",
-          // },
         ]}
         selectedTool={stepPropertyCurrentlyBeingEdited}
         onSelectTool={(tool) =>
@@ -124,9 +121,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
             (tool as keyof StateSequenceStepProperties) || null
           )
         }
-      >
-        {instrumentConfig}
-      </InstrumentConfig>
+      />
       <div className="sequencer__body">
         <div className="sequencer__channels">
           {channelsConfig
@@ -138,7 +133,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 sequence={sequence}
                 key={channelIndex}
                 activeStepIndex={
-                  visiblePage === activePage ? activeStepIndex : -1
+                  visiblePage === activePageIndex.current
+                    ? activeStepIndex.current
+                    : -1
                 }
                 visiblePage={visiblePage}
                 triggerCallback={triggerCallback}
@@ -204,7 +201,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
             <Button
               className={classNames("sequencer__pattern-pagination-page", {
                 "sequencer__pattern-pagination-page--is-visible":
-                  pageNumber === activePage,
+                  pageNumber === activePageIndex.current,
               })}
               key={pageNumber}
               onClick={() => setVisiblePage(pageNumber)}
@@ -232,13 +229,13 @@ export const Sequencer: React.FC<SequencerProps> = ({
               if (sequence.patterns[sequence.currentPattern].pages.length < 2) {
                 addPage();
               } else {
-                setActivePage(
-                  activePage %
-                    (sequence.patterns[sequence.currentPattern].pages.length - 1)
-                );
+                activePageIndex.current =
+                  activePageIndex.current %
+                  (sequence.patterns[sequence.currentPattern].pages.length - 1);
                 setVisiblePage(
                   visiblePage %
-                    (sequence.patterns[sequence.currentPattern].pages.length - 1)
+                    (sequence.patterns[sequence.currentPattern].pages.length -
+                      1)
                 );
               }
               removePage(visiblePage);

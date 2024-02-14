@@ -9,12 +9,12 @@ import { InstrumentConfigKnob } from "./InstrumentConfigKnob/InstrumentConfigKno
 import classNames from "classnames";
 require("./_InstrumentConfig.scss");
 
-interface InstrumentConfigProps {
+export interface InstrumentConfigProps {
   sequence: StateSequence;
   tools?: { name: string; value: string | null; icon: string }[];
   selectedTool?: string | null;
   onSelectTool?: (value: string | null) => void;
-  children?: ReactNode;
+  instrumentConfigCallback?: () => ReactNode;
 }
 
 export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
@@ -22,7 +22,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
   tools,
   selectedTool,
   onSelectTool = () => {},
-  children,
+  instrumentConfigCallback,
 }) => {
   const updateSequence = useSequencersState((state) =>
     state.updateSequence(sequence.name)
@@ -121,7 +121,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             isIntegerOnly={true}
             onChange={(value) => updateSequence({ stepLength: value })}
           />
-          {children}
+          {!!instrumentConfigCallback && instrumentConfigCallback()}
         </div>
       )}
     </div>
