@@ -27,6 +27,18 @@ export const Synth: React.FC<SynthProps> = ({
       label: scale.name,
     }))
   );
+  const polyphonyOptions = useRef<InstrumentConfigSelectItem[]>(
+    [
+      {
+        value: false,
+        label: "monophonic",
+      },
+      {
+        value: true,
+        label: "polyphonic",
+      }
+    ]
+  );
 
   useEffect(() => {
     // Get indexes of the scale per channel e.g. [-3, -2, -1, 0, 1, 2, 3]
@@ -53,7 +65,7 @@ export const Synth: React.FC<SynthProps> = ({
     );
   }, [sequence.rootNote, sequence.range, sequence.scale]);
 
-  const triggerSample = (channelIndex: number, step?: StateSequenceStep) => {
+  const triggerNote = (channelIndex: number, step?: StateSequenceStep) => {
     const channel = synthChannels[channelIndex];
 
     if (!channel || !sequence.midiOutDeviceName) return;
@@ -65,6 +77,7 @@ export const Synth: React.FC<SynthProps> = ({
       velocity: 127 * (step?.volume ?? 1),
       channel: sequence.midiChannel,
       duration: sequence.noteDuration * getIntervalFromClockSpeed(clockSpeed) * sequence.stepLength,
+      isMonophonic: !sequence.isPolyphonic
     });
   };
 
@@ -107,6 +120,11 @@ export const Synth: React.FC<SynthProps> = ({
         items={scaleOptions.current}
         onSelect={({ label }) => updateSequence({ scale: label })}
       />
+      <InstrumentConfigSelect
+        label={sequence.isPolyphonic ? "polyphonic" : "monophonic"}
+        items={polyphonyOptions.current}
+        onSelect={({ value }) => updateSequence({ isPolyphonic: value })}
+      />
     </>
   );
 
@@ -116,7 +134,7 @@ export const Synth: React.FC<SynthProps> = ({
         {...sequencerProps}
         sequence={sequence}
         channelsConfig={synthChannels}
-        triggerCallback={triggerSample}
+        triggerCallback={triggerNote}
         instrumentConfigCallback={instrumentConfigCallback}
       />
     </div>

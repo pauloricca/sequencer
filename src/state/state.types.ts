@@ -81,6 +81,7 @@ export interface StateSequenceSynth extends StateSequenceCommon {
   range: number;
   noteDuration: number;
   midiChannel: number;
+  isPolyphonic: boolean;
 }
 
 export type StateSequencePattern = {
