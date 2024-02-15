@@ -7,6 +7,7 @@ interface MidiMessage {
   note: number;
   velocity: number;
   duration: number;
+  isNoteOff?: boolean;
 }
 
 interface MidiDevice {
@@ -14,7 +15,7 @@ interface MidiDevice {
   messageQueue: MidiMessage[];
   output: MIDIValOutput | null;
   queueInterval: number | null;
-  currentNotes: number[];
+  currentNotes: {note: number; noteOffTimeout: number}[];
 }
 
 interface MidiDevices {
@@ -48,32 +49,98 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
       const message = midiDevices[deviceName].messageQueue.pop();
 
       if (message && midiDevices[deviceName].output !== null) {
-        // If note is playing already, switch it off first
-        if (midiDevices[deviceName].currentNotes.includes(message.note)) {
+        // console.log('PROCESSING MESSAGE', message);
+        // console.log('BEFORE');
+        // console.log('queue', midiDevices[deviceName].messageQueue);
+        // console.log('current', midiDevices[deviceName].currentNotes);
+        if (message.isNoteOff) {
+          // console.log('OFF', message.note, "is note off");
           (midiDevices[deviceName].output as MIDIValOutput).sendNoteOff(
             message.note,
             message.channel
           );
-          midiDevices[deviceName].messageQueue.push(message);
+
+          // Cancel previous note off timeout
+          const previousNoteOffTimeout = midiDevices[
+            deviceName
+          ].currentNotes.find(
+            (note) => note.note === message.note
+          )?.noteOffTimeout;
+          // console.log('CLEARING INTERVAL', previousNoteOffTimeout);
+          previousNoteOffTimeout && clearTimeout(previousNoteOffTimeout);
+
+          // Remove from currently played notes
+          midiDevices[deviceName].currentNotes = midiDevices[
+            deviceName
+          ].currentNotes.filter((note) => note.note !== message.note);
+        // }
+        // If note is playing already, switch it off first
+        // else if (midiDevices[deviceName].currentNotes.find((note) => note.note === message.note)) {
+        //   console.log('OFF', message.note, "was playing already");
+        //   (midiDevices[deviceName].output as MIDIValOutput).sendNoteOff(
+        //     message.note,
+        //     message.channel
+        //   );
+
+        //   // Cancel previous note off timeout
+        //   const previousNoteOffTimeout = midiDevices[
+        //     deviceName
+        //   ].currentNotes.find(
+        //     (note) => note.note === message.note
+        //   )?.noteOffTimeout;
+        //   previousNoteOffTimeout && clearTimeout(previousNoteOffTimeout);
+
+        //   // Remove from currently played notes
+        //   midiDevices[deviceName].currentNotes = midiDevices[
+        //     deviceName
+        //   ].currentNotes.filter((note) => note.note !== message.note);
+
+        //   // Remove any previous messages for this note
+        //   midiDevices[deviceName].messageQueue = midiDevices[
+        //     deviceName
+        //   ].messageQueue.filter((message) => message.note !== message.note);
+
+        //   // Put original message back in the queue
+        //   sendMidiMessage(deviceName, message);
         } else {
+          // console.log('ON', message.note, message.duration);
           (midiDevices[deviceName].output as MIDIValOutput).sendNoteOn(
             message.note,
             message.velocity,
             message.channel
           );
-          midiDevices[deviceName].currentNotes.push(message.note);
-        }
 
-        // TODO: Add note length instead of fixed
-        setTimeout(() => {
-          (midiDevices[deviceName].output as MIDIValOutput).sendNoteOff(
-            message.note,
-            message.channel
-          );
+          // Cancel previous note off timeout
+          const previousNoteOffTimeout = midiDevices[
+            deviceName
+          ].currentNotes.find(
+            (note) => note.note === message.note
+          )?.noteOffTimeout;
+          // console.log('CLEARING INTERVAL', previousNoteOffTimeout);
+          previousNoteOffTimeout && clearTimeout(previousNoteOffTimeout);
+
+          // Remove any previous messages for this note
+          midiDevices[deviceName].messageQueue = midiDevices[
+            deviceName
+          ].messageQueue.filter((message) => message.note !== message.note);
+
+          // Remove from current noted
           midiDevices[deviceName].currentNotes = midiDevices[
             deviceName
-          ].currentNotes.filter((note) => note !== message.note);
-        }, message.duration);
+          ].currentNotes.filter((note) => note.note !== message.note);
+
+          // Schedule note off message
+          const noteOffTimeout = (setTimeout(() => {
+            sendMidiMessage(deviceName, {...message, isNoteOff: true});
+          }, message.duration) as any as number);
+          midiDevices[deviceName].currentNotes.push({
+            note: message.note,
+            noteOffTimeout,
+          });
+        }
+        // console.log('AFTER');
+        // console.log('queue', midiDevices[deviceName].messageQueue);
+        // console.log('current', midiDevices[deviceName].currentNotes);
       } else {
         clearInterval(midiDevices[deviceName].queueInterval as number);
         midiDevices[deviceName].queueInterval = null;

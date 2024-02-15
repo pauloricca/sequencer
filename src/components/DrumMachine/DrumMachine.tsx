@@ -27,7 +27,6 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
         });
       }
     });
-    console.log('[sequence.channelsConfig]');
   }, [sequence.channelsConfig]);
 
   const triggerSample = useCallback((channelIndex: number, step?: StateSequenceStep) => {

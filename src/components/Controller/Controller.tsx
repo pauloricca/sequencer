@@ -41,6 +41,8 @@ export const Controller: React.FC = () => {
     }
   }, [isPlaying]);
 
+  console.log('TICK');
+
   const getSequencerTick = (sequence: StateSequence) =>
     clock === -1 ? clock : Math.floor(clock / sequence.stepLength);
 
@@ -69,7 +71,7 @@ export const Controller: React.FC = () => {
           <InstrumentConfigKnob
             label={`bpm: ${state.clockSpeed / 4}`}
             value={state.clockSpeed / 4}
-            min={30}
+            min={5}
             max={600}
             isIntegerOnly={true}
             onChange={(value) => setClockSpeed(value * 4)}

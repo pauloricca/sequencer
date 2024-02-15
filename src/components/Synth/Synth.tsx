@@ -58,6 +58,8 @@ export const Synth: React.FC<SynthProps> = ({
 
     if (!channel || !sequence.midiOutDeviceName) return;
 
+    // console.log(sequence.noteDuration * getIntervalFromClockSpeed(clockSpeed) * sequence.stepLength);
+
     sendMidiMessage(sequence.midiOutDeviceName, {
       note: synthChannels[channelIndex].midiNote,
       velocity: 127 * (step?.volume ?? 1),
@@ -93,12 +95,12 @@ export const Synth: React.FC<SynthProps> = ({
         onChange={(value) => updateSequence({ rootNote: value })}
       />
       <InstrumentConfigKnob
-        label={`note duration: ${sequence.noteDuration}`}
+        label={`note duration: ${Math.round(sequence.noteDuration*100)/100}`}
         value={sequence.noteDuration}
         min={0}
-        max={1000}
-        isIntegerOnly={true}
-        onChange={(value) => updateSequence({ noteDuration: value })}
+        max={sequence.nSteps}
+        isIntegerOnly={false}
+        onChange={(value) => updateSequence({ noteDuration: Math.round(value*100)/100 })}
       />
       <InstrumentConfigSelect
         label={`scale: ${sequence.scale}`}

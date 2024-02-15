@@ -83,15 +83,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
         }
       }
     });
-    console.log("tick");
   }
 
   useEffect(() => {
     if (sequence.midiOutDeviceName)
       registerMidiOutputDevice(sequence.midiOutDeviceName);
   }, [sequence.midiOutDeviceName]);
-
-  console.log("sequencer rerender");
 
   return (
     <div className="sequencer">
