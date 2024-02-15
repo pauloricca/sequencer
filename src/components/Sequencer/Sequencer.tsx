@@ -1,8 +1,5 @@
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-import {
-  SequencerChannel,
-  SequencerChannelProps,
-} from "./SequencerChannel/SequencerChannel";
+import React, { useEffect, useRef, useState } from "react";
+import { SequencerChannelProps } from "./SequencerChannel/SequencerChannel";
 import {
   StateSequence,
   StateSequenceChannelConfigCommon,
@@ -18,6 +15,7 @@ import {
 } from "../InstrumentConfig/InstrumentConfig";
 import { getBlankPattern } from "../../state/state.utils";
 import classNames from "classnames";
+import { SequencerGrid } from "./SequencerGrid/SequencerGrid";
 require("./_Sequencer.scss");
 
 export interface SequencerProps
@@ -28,13 +26,11 @@ export interface SequencerProps
     Pick<InstrumentConfigProps, "instrumentConfigCallback"> {
   sequence: StateSequence;
   channelsConfig: StateSequenceChannelConfigCommon[];
-  tick: number;
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
   sequence,
   channelsConfig,
-  tick,
   triggerCallback = () => {},
   instrumentConfigCallback,
   ...otherSequencerChannelProps
@@ -46,44 +42,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
   const removePage = useSequencersState((state) =>
     state.removePage(sequence.name)
   );
-  const lastTick = useRef(-1);
-  const activeStepIndex = useRef(-1);
   const activePageIndex = useRef(0);
   const [visiblePage, setVisiblePage] = useState(0);
   const [
     stepPropertyCurrentlyBeingEdited,
     setStepPropertyCurrentlyBeingEdited,
   ] = useState<keyof StateSequenceStepProperties | null>(null);
-
-  if (tick != lastTick.current) {
-    lastTick.current = tick;
-
-    activeStepIndex.current =
-      tick <= 0 ? tick : (activeStepIndex.current + 1) % sequence.nSteps;
-
-    if (tick <= 0) {
-      activeStepIndex.current = tick;
-    } else if (activeStepIndex.current === 0) {
-      activePageIndex.current =
-        (activePageIndex.current + 1) %
-        sequence.patterns[sequence.currentPattern].pages.length;
-    }
-
-    // Trigger steps
-    const stepsToTrigger = sequence.patterns[sequence.currentPattern].pages[
-      activePageIndex.current
-    ].steps.filter(({ stepIndex }) => stepIndex === activeStepIndex.current);
-    stepsToTrigger.forEach((step) => {
-      if (!sequence.isMuted && !channelsConfig[step.channel]?.isMuted) {
-        if (
-          [1, undefined].includes(step.probability) ||
-          Math.random() < step.probability!
-        ) {
-          triggerCallback(step.channel, step);
-        }
-      }
-    });
-  }
 
   useEffect(() => {
     if (sequence.midiOutDeviceName)
@@ -120,29 +84,14 @@ export const Sequencer: React.FC<SequencerProps> = ({
         }
       />
       <div className="sequencer__body">
-        <div className="sequencer__channels">
-          {channelsConfig
-            .filter(({ isHidden }) => !isHidden)
-            .map((channelConfig, channelIndex) => (
-              <SequencerChannel
-                channelIndex={channelIndex}
-                channelConfig={channelConfig}
-                sequence={sequence}
-                key={channelIndex}
-                activeStepIndex={
-                  visiblePage === activePageIndex.current
-                    ? activeStepIndex.current
-                    : -1
-                }
-                visiblePage={visiblePage}
-                triggerCallback={triggerCallback}
-                stepPropertyCurrentlyBeingEdited={
-                  stepPropertyCurrentlyBeingEdited
-                }
-                {...otherSequencerChannelProps}
-              />
-            ))}
-        </div>
+        <SequencerGrid
+          sequence={sequence}
+          channelsConfig={channelsConfig}
+          visiblePage={visiblePage}
+          stepPropertyCurrentlyBeingEdited={stepPropertyCurrentlyBeingEdited}
+          triggerCallback={triggerCallback}
+          {...otherSequencerChannelProps}
+        />
         <div className="sequencer__patterns">
           {sequence.patterns.map((_, patternIndex) => (
             <Button

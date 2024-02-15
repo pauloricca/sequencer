@@ -42,8 +42,6 @@ export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
 
   useEffect(() => setInternalValue(value), [value]);
 
-  console.log('re-render knob');
-
   useEffect(() => {
     if (value !== internalValue && internalValue !== undefined) {
       onChange(isIntegerOnly ? Math.round(internalValue) : internalValue);

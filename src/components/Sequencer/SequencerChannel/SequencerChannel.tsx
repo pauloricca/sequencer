@@ -1,4 +1,10 @@
-import React, { ReactNode, useCallback, useRef, useState } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { SequencerChannelStep } from "./SequencerChannelStep/SequencerChannelStep";
 import {
   StateSequence,
@@ -60,19 +66,22 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
       )
   );
 
-  const onStepToggleHandler = useCallback((
-    stepIndex: number,
-    currentStep?: StateSequenceStep
-  ) => {
-    if (currentStep) {
-      removeStep(currentStep, visiblePageRef.current);
-    } else {
-      setStep({
-        channel: channelIndex,
-        stepIndex,
-      }, visiblePageRef.current);
-    }
-  }, []);
+  const onStepToggleHandler = useCallback(
+    (stepIndex: number, currentStep?: StateSequenceStep) => {
+      if (currentStep) {
+        removeStep(currentStep, visiblePageRef.current);
+      } else {
+        setStep(
+          {
+            channel: channelIndex,
+            stepIndex,
+          },
+          visiblePageRef.current
+        );
+      }
+    },
+    []
+  );
 
   const onDragStartHandler = useCallback(() => {
     setIsDraggingAlongChannel(true);
@@ -96,10 +105,37 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
     [stepPropertyCurrentlyBeingEdited]
   );
 
+  const channelControls = useMemo(
+    () => (
+      <div className="sequencer-channel__controls">
+        {!!channelConfigComponents && isConfigOpen && (
+          <Icon icon="cross" onClick={() => setIsConfigOpen(false)} />
+        )}
+        {!!channelConfigComponents && !isConfigOpen && (
+          <Icon icon="cog" onClick={() => setIsConfigOpen(true)} />
+        )}
+        {!channelConfig.isMuted && (
+          <Icon
+            icon="volume-up"
+            onClick={() => updateChannelConfig({ isMuted: true })}
+          />
+        )}
+        {channelConfig.isMuted && (
+          <Icon
+            icon="volume-off"
+            onClick={() => updateChannelConfig({ isMuted: false })}
+          />
+        )}
+      </div>
+    ),
+    [isConfigOpen, channelConfig.isMuted]
+  );
+
   return (
     <div
       className={classNames("sequencer-channel", {
-        "sequencer-channel--is-muted": channelConfig.isMuted || sequence.isMuted,
+        "sequencer-channel--is-muted":
+          channelConfig.isMuted || sequence.isMuted,
       })}
     >
       <div className="sequencer-channel__inner">
@@ -109,28 +145,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
         >
           {channelConfig.name}
         </div>
-        {showChannelControls && (
-          <div className="sequencer-channel__controls">
-            {!!channelConfigComponents && isConfigOpen && (
-              <Icon icon="cross" onClick={() => setIsConfigOpen(false)} />
-            )}
-            {!!channelConfigComponents && !isConfigOpen && (
-              <Icon icon="cog" onClick={() => setIsConfigOpen(true)} />
-            )}
-            {!channelConfig.isMuted && (
-              <Icon
-                icon="volume-up"
-                onClick={() => updateChannelConfig({ isMuted: true })}
-              />
-            )}
-            {channelConfig.isMuted && (
-              <Icon
-                icon="volume-off"
-                onClick={() => updateChannelConfig({ isMuted: false })}
-              />
-            )}
-          </div>
-        )}
+        {showChannelControls && channelControls}
         <div className="sequencer-channel__steps">
           {channelStepsByIndex.map((step, stepIndex) => (
             <SequencerChannelStep
@@ -148,7 +163,9 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
                   : undefined
               }
               onFillPercentageChange={
-                stepPropertyCurrentlyBeingEdited ? onFillPercentageChangeHandler : undefined
+                stepPropertyCurrentlyBeingEdited
+                  ? onFillPercentageChangeHandler
+                  : undefined
               }
             />
           ))}

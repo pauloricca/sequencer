@@ -1,4 +1,6 @@
-export class Metronome {
+import { useEffect, useState } from "react";
+
+class Metronome {
   private func: (scheduledTime: number) => any;
   private interval: number;
 	private now: number = -1;
@@ -42,26 +44,47 @@ export class Metronome {
 	}
 }
 
-// const metronome = new Metronome(
-// 	() => setClock((prev) => prev + 1),
-// 	getIntervalFromClockSpeed(clockSpeed)
-// );
+let clock = -1;
 
-// export const useMetronome = () => {
-//   const [isOnline, setIsOnline] = useState(true);
-//   useEffect(() => {
-//     function handleOnline() {
-//       setIsOnline(true);
-//     }
-//     function handleOffline() {
-//       setIsOnline(false);
-//     }
-//     window.addEventListener('online', handleOnline);
-//     window.addEventListener('offline', handleOffline);
-//     return () => {
-//       window.removeEventListener('online', handleOnline);
-//       window.removeEventListener('offline', handleOffline);
-//     };
-//   }, []);
-//   return isOnline;
-// }
+let metronomeListeners: ((clock: number) => void)[] = [];
+
+const metronome = new Metronome(
+	() => setClock(clock + 1),
+	1000 // arbitrary interval to initialise the metronome by
+);
+
+export const setMetronomeInterval = (interval: number) => {
+	metronome.setInterval(interval);
+}
+
+export const startMetronome = () => {
+	metronome.start();
+}
+
+export const stopMetronome = () => {
+	metronome.stop();
+	setClock(-1);
+}
+
+const setClock = (clockTime: number) => {
+	clock = clockTime;
+	metronomeListeners.forEach((listener) => listener(clock));
+}
+
+// tickLength is the number of clock units necessary to advance 1 tick
+export const useMetronome = (tickLength: number) => {
+  const [tick, setTick] = useState(-1);
+
+  useEffect(() => {
+    const metronomeHandler = () =>
+      setTick(clock === -1 ? clock : Math.floor(clock / tickLength));
+    
+		metronomeListeners.push(metronomeHandler);
+
+    return () => {
+      metronomeListeners = metronomeListeners.filter((listener) => listener !== metronomeHandler);
+    };
+  }, []);
+
+  return tick;
+}

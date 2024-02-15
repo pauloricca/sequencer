@@ -1,12 +1,10 @@
 import { Icon, InputGroup } from "@blueprintjs/core";
-import React, { ReactNode, useEffect, useState } from "react";
-import { StateSequence, StateSequenceStepProperties } from "src/state/state.types";
-import { InstrumentConfigSelectItem } from "./InstrumentConfigSelect/InstrumentConfigSelect.types";
-import { InstrumentConfigSelect } from "./InstrumentConfigSelect/InstrumentConfigSelect";
+import React, { ReactNode, useState } from "react";
+import { StateSequence } from "src/state/state.types";
 import { useSequencersState } from "../../state/state";
-import { getMidiOutputDeviceNames } from "../../utils/midi";
 import { InstrumentConfigKnob } from "./InstrumentConfigKnob/InstrumentConfigKnob";
 import classNames from "classnames";
+import { InstrumentConfigMidiOut } from "./InstrumentConfigMidiOut/InstrumentConfigMidiOut";
 require("./_InstrumentConfig.scss");
 
 export interface InstrumentConfigProps {
@@ -28,20 +26,6 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
     state.updateSequence(sequence.name)
   );
   const [isOpen, setIsOpen] = useState(false);
-  const [midiOutOptions, setMidiOutOptions] = useState<
-    InstrumentConfigSelectItem[]
-  >([]);
-
-  const getMidiOutOptions = () => [
-    { label: "none", value: undefined },
-    ...getMidiOutputDeviceNames().map((name) => ({ value: name })),
-  ];
-
-  useEffect(() => {
-    setInterval(() => {
-      setMidiOutOptions(getMidiOutOptions());
-    }, 2000);
-  }, []);
 
   return (
     <div
@@ -98,13 +82,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             value={sequence.name}
             onValueChange={(value) => updateSequence({ name: value })}
           />
-          <InstrumentConfigSelect
-            label={sequence.midiOutDeviceName || "midi out"}
-            items={midiOutOptions}
-            onSelect={({ value }) =>
-              updateSequence({ midiOutDeviceName: value })
-            }
-          />
+          <InstrumentConfigMidiOut sequence={sequence} />
           <InstrumentConfigKnob
             label={`n steps: ${sequence.nSteps}`}
             value={sequence.nSteps}

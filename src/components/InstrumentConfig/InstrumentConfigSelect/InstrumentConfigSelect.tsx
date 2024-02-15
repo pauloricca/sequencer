@@ -26,7 +26,7 @@ export const InstrumentConfigSelect: React.FC<InstrumentConfigSelectProps> = ({
     return (
       <MenuItem
         active={modifiers.active}
-        key={item.key ?? item.value ?? item.label}
+        key={item.key ?? item.label ?? item.value}
         onClick={handleClick}
         text={item.label ?? item.value}
       />
