@@ -11,8 +11,8 @@ import {
   StateSequenceChannelConfigCommon,
   StateSequenceStep,
   StateSequenceStepProperties,
-} from "../../../state/state.types";
-import { useSequencersState } from "../../../state/state";
+} from "state/state.types";
+import { useSequencersState } from "state/state";
 import { Icon } from "@blueprintjs/core";
 import classNames from "classnames";
 require("./_SequencerChannel.scss");

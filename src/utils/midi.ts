@@ -61,13 +61,11 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
         ].currentNotes.filter((note) => note.note !== message.note || message.isMonophonic);
 
         if (message.isNoteOff) {
-          // console.log('OFF', message.note, "is note off");
           (midiDevices[deviceName].output as MIDIValOutput).sendNoteOff(
             message.note,
             message.channel
           );
         } else {
-          // console.log('ON', message.note, message.duration);
           (midiDevices[deviceName].output as MIDIValOutput).sendNoteOn(
             message.note,
             message.velocity,
@@ -77,7 +75,7 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
           // Remove any previous messages for this note
           midiDevices[deviceName].messageQueue = midiDevices[
             deviceName
-          ].messageQueue.filter((message) => message.note !== message.note);
+          ].messageQueue.filter(({note}) => note !== message.note);
 
           // Schedule note off message
           const noteOffTimeout = setTimeout(() => {

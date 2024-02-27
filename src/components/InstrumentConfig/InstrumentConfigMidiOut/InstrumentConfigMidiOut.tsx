@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { StateSequence } from "src/state/state.types";
+import { StateSequence } from "state/state.types";
 import { InstrumentConfigSelectItem } from "../InstrumentConfigSelect/InstrumentConfigSelect.types";
 import { InstrumentConfigSelect } from "../InstrumentConfigSelect/InstrumentConfigSelect";
-import { useSequencersState } from "../../../state/state";
-import { getMidiOutputDeviceNames } from "../../../utils/midi";
+import { useSequencersState } from "state/state";
+import { getMidiOutputDeviceNames } from "utils/midi";
 
 export interface InstrumentConfigMidiOutProps {
   sequence: StateSequence;
@@ -26,6 +26,7 @@ export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = (
     const interval = setInterval(() => {
       setMidiOutOptions(getMidiOutOptions());
     }, 5000);
+    setMidiOutOptions(getMidiOutOptions());
 
     return () => clearInterval(interval);
   }, []);

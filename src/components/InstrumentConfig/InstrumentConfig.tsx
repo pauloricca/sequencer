@@ -1,7 +1,7 @@
 import { Icon, InputGroup } from "@blueprintjs/core";
 import React, { ReactNode, useState } from "react";
-import { StateSequence } from "src/state/state.types";
-import { useSequencersState } from "../../state/state";
+import { StateSequence } from "state/state.types";
+import { useSequencersState } from "state/state";
 import { InstrumentConfigKnob } from "./InstrumentConfigKnob/InstrumentConfigKnob";
 import classNames from "classnames";
 import { InstrumentConfigMidiOut } from "./InstrumentConfigMidiOut/InstrumentConfigMidiOut";

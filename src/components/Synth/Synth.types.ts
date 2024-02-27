@@ -1,5 +1,5 @@
-import { StateSequenceSynth } from "src/state/state.types";
-import { SequencerProps } from "../Sequencer/Sequencer";
+import { StateSequenceSynth } from "state/state.types";
+import { SequencerProps } from "components/Sequencer/Sequencer";
 
 export interface SynthProps
   extends Omit<

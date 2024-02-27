@@ -9,83 +9,86 @@ const { outputConfig, copyPluginPatterns, scssConfig, entryConfig, terserPluginC
 module.exports = (env, options) => 
 {
     return {
-        mode: options.mode,
-        entry: entryConfig,
-        module: {
-            rules: [
-                {
-                    test: /\.tsx?$/,
-                    use: "ts-loader",
-                    exclude: /node_modules/,
+      mode: options.mode,
+      entry: entryConfig,
+      module: {
+        rules: [
+          {
+            test: /\.tsx?$/,
+            use: "ts-loader",
+            exclude: /node_modules/,
+          },
+          {
+            test: /\.scss$/,
+            use: [
+              // We're in dev and want HMR, SCSS is handled in JS
+              // In production, we want our css as files
+              "style-loader",
+              "css-loader",
+              {
+                loader: "postcss-loader",
+                options: {
+                  postcssOptions: {
+                    plugins: [["postcss-preset-env"]],
+                  },
                 },
-                {
-                    test: /\.scss$/,
-                    use: [
-                        MiniCssExtractPlugin.loader,
-                        "css-loader",
-                        {
-                            loader: "postcss-loader",
-                            options: {
-                                postcssOptions: {
-                                    plugins: [
-                                        ["postcss-preset-env"],
-                                    ],
-                                },
-                            },
-                        },
-                        "sass-loader"
-                    ],
-                },
-                {
-                    test: /\.(?:ico|gif|png|jpg|jpeg|svg)$/i,
-                    type: "javascript/auto",
-                    loader: "file-loader",
-                    options: {
-                        publicPath: "../",
-                        name: "[path][name].[ext]",
-                        context: path.resolve(__dirname, "src/assets"),
-                        emitFile: false,
-                    },
-                },
-                {
-                    test: /\.(woff(2)?|eot|ttf|otf|svg|)$/,
-                    type: "javascript/auto",
-                    exclude: /images/,
-                    loader: "file-loader",
-                    options: {
-                        publicPath: "../",
-                        context: path.resolve(__dirname, "src/assets"),
-                        name: "[path][name].[ext]",
-                        emitFile: false,
-                    },
-                },
+              },
+              "sass-loader",
             ],
-        },
-        resolve: { extensions: [".tsx", ".ts", ".js"] },
-        output: {
-            filename: "js/[name].[hash:8].bundle.js",
-            path: path.resolve(__dirname, outputConfig.destPath),
-            publicPath: "",
-            sourceMapFilename: "[name].[hash:8].map",
-            chunkFilename: "[id].[hash:8].js"
-        },
-        optimization: {
-            minimizer: [
-                new TerserPlugin(terserPluginConfig)
-            ],
-            splitChunks: {
-                chunks: "all",
+          },
+          {
+            test: /\.(?:ico|gif|png|jpg|jpeg|svg)$/i,
+            type: "javascript/auto",
+            loader: "file-loader",
+            options: {
+              publicPath: "../",
+              name: "[path][name].[ext]",
+              context: path.resolve(__dirname, "src/assets"),
+              emitFile: false,
             },
+          },
+          {
+            test: /\.(woff(2)?|eot|ttf|otf|svg|)$/,
+            type: "javascript/auto",
+            exclude: /images/,
+            loader: "file-loader",
+            options: {
+              publicPath: "../",
+              context: path.resolve(__dirname, "src/assets"),
+              name: "[path][name].[ext]",
+              emitFile: false,
+            },
+          },
+        ],
+      },
+      resolve: {
+        extensions: [".tsx", ".ts", ".js"],
+        alias: {
+          components: path.resolve(__dirname, "./src/components/"),
+          state: path.resolve(__dirname, "./src/state/"),
+          utils: path.resolve(__dirname, "./src/utils/"),
         },
-        plugins: [
-            new CleanWebpackPlugin(),
-            new CopyPlugin(copyPluginPatterns),
-            new MiniCssExtractPlugin({ filename: scssConfig.destFileName }),
-            new HtmlWebpackPlugin({
-                template: "./src/index.html",
-                inject: true,
-                minify: false
-            }),
-        ]
+      },
+      output: {
+        filename: "js/[name].bundle.js",
+        path: path.resolve(__dirname, outputConfig.destPath),
+        publicPath: "",
+      },
+      optimization: {
+        minimizer: [new TerserPlugin(terserPluginConfig)],
+        splitChunks: {
+          chunks: "all",
+        },
+      },
+      plugins: [
+        new CleanWebpackPlugin(),
+        new CopyPlugin(copyPluginPatterns),
+        new MiniCssExtractPlugin({ filename: scssConfig.destFileName }),
+        new HtmlWebpackPlugin({
+          template: "./src/index.html",
+          inject: true,
+          minify: false,
+        }),
+      ],
     };
 };

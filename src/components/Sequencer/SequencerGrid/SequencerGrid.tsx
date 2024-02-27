@@ -7,8 +7,8 @@ import {
   StateSequence,
   StateSequenceChannelConfigCommon,
   StateSequenceStepProperties,
-} from "../../../state/state.types";
-import { useMetronome } from "../../../utils/metronome";
+} from "state/state.types";
+import { useMetronome } from "utils/metronome";
 require("./_SequencerGrid.scss");
 
 export interface SequencerGridProps
@@ -19,7 +19,9 @@ export interface SequencerGridProps
   sequence: StateSequence;
   channelsConfig: StateSequenceChannelConfigCommon[];
   visiblePage: number;
-  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null,
+  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
+  activePageIndex: number;
+  setActivePageIndex: (activePageIndex: number) => void;
 }
 
 export const SequencerGrid: React.FC<SequencerGridProps> = ({
@@ -28,12 +30,13 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   triggerCallback = () => {},
   visiblePage,
   stepPropertyCurrentlyBeingEdited,
+  activePageIndex,
+  setActivePageIndex,
   ...otherSequencerChannelProps
 }) => {
   const tick = useMetronome(sequence.stepLength);
   const lastTick = useRef(-1);
   const activeStepIndex = useRef(-1);
-  const activePageIndex = useRef(0);
 
   if (tick != lastTick.current) {
     lastTick.current = tick;
@@ -44,14 +47,15 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
     if (tick <= 0) {
       activeStepIndex.current = tick;
     } else if (activeStepIndex.current === 0) {
-      activePageIndex.current =
-        (activePageIndex.current + 1) %
-        sequence.patterns[sequence.currentPattern].pages.length;
+      setActivePageIndex(
+        (activePageIndex + 1) %
+          sequence.patterns[sequence.currentPattern].pages.length
+      );
     }
 
     // Trigger steps
     const stepsToTrigger = sequence.patterns[sequence.currentPattern].pages[
-      activePageIndex.current
+      activePageIndex
     ].steps.filter(({ stepIndex }) => stepIndex === activeStepIndex.current);
     stepsToTrigger.forEach((step) => {
       if (!sequence.isMuted && !channelsConfig[step.channel]?.isMuted) {
@@ -76,9 +80,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
             sequence={sequence}
             key={channelIndex}
             activeStepIndex={
-              visiblePage === activePageIndex.current
-                ? activeStepIndex.current
-                : -1
+              visiblePage === activePageIndex ? activeStepIndex.current : -1
             }
             visiblePage={visiblePage}
             triggerCallback={triggerCallback}

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { DrumMachine } from "../DrumMachine/DrumMachine";
-import { useSequencersState } from "../../state/state";
-import { Synth } from "../Synth/Synth";
+import { DrumMachine } from "components/DrumMachine/DrumMachine";
+import { useSequencersState } from "state/state";
+import { Synth } from "components/Synth/Synth";
 import { Button } from "@blueprintjs/core";
-import downloadObjectAsJson from "../../utils/downloadObjectAsJson";
-import uploadJsonFileAsObject from "../../utils/uploadJsonFileAsObject";
-import { InstrumentConfigKnob } from "../InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
-import { setMetronomeInterval, startMetronome, stopMetronome } from "../../utils/metronome";
+import downloadObjectAsJson from "utils/downloadObjectAsJson";
+import uploadJsonFileAsObject from "utils/uploadJsonFileAsObject";
+import { InstrumentConfigKnob } from "components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
+import { setMetronomeInterval, startMetronome, stopMetronome } from "utils/metronome";
 import { getIntervalFromClockSpeed } from "./Controller.utils";
 require("./_Controller.scss");
 

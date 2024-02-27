@@ -29,7 +29,9 @@ const setStep: StateAction =
             pageNumber
           ].steps.filter(
             ({ channel, stepIndex }) =>
-              channel !== step.channel || stepIndex !== step.stepIndex
+              (channel !== step.channel &&
+                (sequence as StateSequenceSynth).isPolyphonic !== false) ||
+              stepIndex !== step.stepIndex
           ),
           step,
         ];

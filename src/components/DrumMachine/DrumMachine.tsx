@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { Howl } from "howler";
-import { Sequencer } from "../Sequencer/Sequencer";
+import { Sequencer } from "components/Sequencer/Sequencer";
 import { DrumMachineProps } from "./DrumMachine.types";
-import { sendMidiMessage } from "../../utils/midi";
-import { useSequencersState } from "../../state/state";
-import { InstrumentConfigKnob } from "../InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
+import { sendMidiMessage } from "utils/midi";
+import { useSequencersState } from "state/state";
+import { InstrumentConfigKnob } from "components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
 import { InputGroup } from "@blueprintjs/core";
-import { InstrumentConfigSelect } from "../InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect";
+import { InstrumentConfigSelect } from "components/InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect";
 import { StateSequenceStep } from "state/state.types";
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({
@@ -38,6 +38,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
       1 *
       (sequence.channelsConfig[channelIndex].volume ?? 1) *
       (step?.volume ?? 1);
+
+    console.log(volume * 1);
 
     if (channel.type === "sample") {
       const sample = samples.current[channel.audioFile];

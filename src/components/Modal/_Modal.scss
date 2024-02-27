@@ -1,0 +1,22 @@
+.modal {
+	position: fixed;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	background-color: #39082fc5;
+	z-index: 100;
+
+	&__inner {
+		max-height: calc(100vh - 200px);
+		max-width: 600px;
+		overflow-y: scroll;
+	}
+}
+
+.modal-is-open {
+	overflow: hidden;
+}

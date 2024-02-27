@@ -1,5 +1,5 @@
 import React from "react";
-import { Controller } from "./components/Controller/Controller";
+import { Controller } from "components/Controller/Controller";
 import { createRoot } from "react-dom/client";
 require("./_App.scss");
 

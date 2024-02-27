@@ -1,19 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SequencerChannelProps } from "./SequencerChannel/SequencerChannel";
 import {
   StateSequence,
   StateSequenceChannelConfigCommon,
   StateSequenceStepProperties,
-} from "../../state/state.types";
-import { registerMidiOutputDevice } from "../../utils/midi";
+} from "state/state.types";
+import { registerMidiOutputDevice } from "utils/midi";
 import { Button } from "@blueprintjs/core";
-import { useSequencersState } from "../../state/state";
+import { useSequencersState } from "state/state";
 import { cloneDeep } from "lodash";
 import {
   InstrumentConfig,
   InstrumentConfigProps,
-} from "../InstrumentConfig/InstrumentConfig";
-import { getBlankPattern } from "../../state/state.utils";
+} from "components/InstrumentConfig/InstrumentConfig";
+import { getBlankPattern } from "state/state.utils";
 import classNames from "classnames";
 import { SequencerGrid } from "./SequencerGrid/SequencerGrid";
 require("./_Sequencer.scss");
@@ -42,7 +42,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   const removePage = useSequencersState((state) =>
     state.removePage(sequence.name)
   );
-  const activePageIndex = useRef(0);
+  const [activePageIndex, setActivePageIndex] = useState(0);
   const [visiblePage, setVisiblePage] = useState(0);
   const [
     stepPropertyCurrentlyBeingEdited,
@@ -90,6 +90,8 @@ export const Sequencer: React.FC<SequencerProps> = ({
           visiblePage={visiblePage}
           stepPropertyCurrentlyBeingEdited={stepPropertyCurrentlyBeingEdited}
           triggerCallback={triggerCallback}
+          activePageIndex={activePageIndex}
+          setActivePageIndex={setActivePageIndex}
           {...otherSequencerChannelProps}
         />
         <div className="sequencer__patterns">
@@ -125,7 +127,6 @@ export const Sequencer: React.FC<SequencerProps> = ({
           <Button
             icon="trash"
             onClick={() =>
-              confirm("Are you sure you want to delete this pattern?") &&
               updateSequence({
                 patterns:
                   sequence.patterns.length > 1
@@ -147,7 +148,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
             <Button
               className={classNames("sequencer__pattern-pagination-page", {
                 "sequencer__pattern-pagination-page--is-visible":
-                  pageNumber === activePageIndex.current,
+                  pageNumber === activePageIndex,
               })}
               key={pageNumber}
               onClick={() => setVisiblePage(pageNumber)}
@@ -175,9 +176,11 @@ export const Sequencer: React.FC<SequencerProps> = ({
               if (sequence.patterns[sequence.currentPattern].pages.length < 2) {
                 addPage();
               } else {
-                activePageIndex.current =
-                  activePageIndex.current %
-                  (sequence.patterns[sequence.currentPattern].pages.length - 1);
+                setActivePageIndex(
+                  activePageIndex %
+                    (sequence.patterns[sequence.currentPattern].pages.length -
+                      1)
+                );
                 setVisiblePage(
                   visiblePage %
                     (sequence.patterns[sequence.currentPattern].pages.length -

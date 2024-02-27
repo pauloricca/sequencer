@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Sequencer, SequencerProps } from "../Sequencer/Sequencer";
+import { Sequencer, SequencerProps } from "components/Sequencer/Sequencer";
 import { SynthProps } from "./Synth.types";
-import { sendMidiMessage } from "../../utils/midi";
-import { InstrumentConfigSelect } from "../InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect";
+import { sendMidiMessage } from "utils/midi";
+import { InstrumentConfigSelect } from "components/InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect";
 import { Midi, Scale, ScaleType } from "tonal";
-import { useSequencersState } from "../../state/state";
-import { InstrumentConfigSelectItem } from "../InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect.types";
-import { InstrumentConfigKnob } from "../InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
-import { StateSequenceChannelConfigMidi, StateSequenceStep } from "../../state/state.types";
-import { getIntervalFromClockSpeed } from "../Controller/Controller.utils";
+import { useSequencersState } from "state/state";
+import { InstrumentConfigSelectItem } from "components/InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect.types";
+import { InstrumentConfigKnob } from "components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
+import { StateSequenceChannelConfigMidi, StateSequenceStep } from "state/state.types";
+import { getIntervalFromClockSpeed } from "components/Controller/Controller.utils";
+import { InstrumentConfigSelectKnob } from "components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob";
 
 export const Synth: React.FC<SynthProps> = ({
   sequence,
@@ -70,8 +71,6 @@ export const Synth: React.FC<SynthProps> = ({
 
     if (!channel || !sequence.midiOutDeviceName) return;
 
-    // console.log(sequence.noteDuration * getIntervalFromClockSpeed(clockSpeed) * sequence.stepLength);
-
     sendMidiMessage(sequence.midiOutDeviceName, {
       note: synthChannels[channelIndex].midiNote,
       velocity: 127 * (step?.volume ?? 1),
@@ -116,6 +115,11 @@ export const Synth: React.FC<SynthProps> = ({
         onChange={(value) => updateSequence({ noteDuration: Math.round(value*100)/100 })}
       />
       <InstrumentConfigSelect
+        label={`scale: ${sequence.scale}`}
+        items={scaleOptions.current}
+        onSelect={({ label }) => updateSequence({ scale: label })}
+      />
+      <InstrumentConfigSelectKnob
         label={`scale: ${sequence.scale}`}
         items={scaleOptions.current}
         onSelect={({ label }) => updateSequence({ scale: label })}
