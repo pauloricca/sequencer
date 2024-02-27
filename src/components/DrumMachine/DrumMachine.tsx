@@ -39,8 +39,6 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
       (sequence.channelsConfig[channelIndex].volume ?? 1) *
       (step?.volume ?? 1);
 
-    console.log(volume * 1);
-
     if (channel.type === "sample") {
       const sample = samples.current[channel.audioFile];
 
@@ -50,11 +48,17 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
         sample.play();
       }
     } else if (channel.type === "midi" && sequence.midiOutDeviceName) {
+      if (channel.volumeCC !== undefined) {
+        sendMidiMessage(sequence.midiOutDeviceName, {
+          cc: channel.volumeCC,
+          value: volume * 127,
+          channel: channel.midiChannel,
+        });
+      }
       sendMidiMessage(sequence.midiOutDeviceName, {
         note: channel.midiNote,
         velocity: volume * 127,
         channel: channel.midiChannel,
-        duration: 0,
       });
     }
   }, [sequence]);

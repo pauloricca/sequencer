@@ -111,6 +111,10 @@ export interface StateSequenceChannelConfigMidi
   type: "midi";
   midiChannel: number;
   midiNote: number;
+  /**
+   * In some drum machines the volume is controlled by sending a cc message instead of velocity
+   */
+  volumeCC?: number;
 }
 
 export interface StateSequenceChannelConfigSample
