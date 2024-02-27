@@ -183,7 +183,7 @@ export const INITIAL_STATE: State = {
       midiChannel: 1,
       patterns: [getBlankPattern()],
       midiOutDeviceName: BASS_MIDI_OUTPUT,
-      isPolyphonic: false,
+      isPolyphonic: true,
     },
     {
       type: "synth",
@@ -198,7 +198,7 @@ export const INITIAL_STATE: State = {
       midiChannel: 1,
       patterns: [getBlankPattern()],
       midiOutDeviceName: SYNTH_MIDI_OUTPUT,
-      isPolyphonic: false,
+      isPolyphonic: true,
     },
   ],
 };
