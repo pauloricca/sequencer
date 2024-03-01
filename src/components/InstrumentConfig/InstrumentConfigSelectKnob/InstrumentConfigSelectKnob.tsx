@@ -1,21 +1,22 @@
-import React, { useState } from "react";
-import { InstrumentConfigSelectKnobProps } from "./InstrumentConfigSelectKnob.types";
-import { Icon } from "@blueprintjs/core";
-import { Modal } from "components/Modal/Modal";
-import { Button } from "components/Button/Button";
-require("./_InstrumentConfigSelectKnob.scss");
+import React, { useState } from 'react';
+import { InstrumentConfigSelectKnobProps } from './InstrumentConfigSelectKnob.types';
+import { Icon } from '@blueprintjs/core';
+import { Modal } from 'components/Modal/Modal';
+import { Button } from 'components/Button/Button';
+require('./_InstrumentConfigSelectKnob.scss');
 
 export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProps> = ({
+  type,
   items,
   label,
-  onSelect,
+  onChange
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
       <div className="instrument-config-select-knob">
-        <Button onClick={() => setIsOpen(true)}>
+        <Button onClick={() => { setIsOpen(true); }}>
           {label}
           <Icon icon="double-caret-vertical" />
         </Button>
@@ -26,7 +27,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
             <Button
               onClick={() => {
                 // setIsOpen(false);
-                onSelect(item);
+                onChange(item);
               }}
               key={item.key ?? item.label ?? item.value}
             >

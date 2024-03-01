@@ -18,7 +18,7 @@ export const InstrumentConfigSelect: React.FC<InstrumentConfigSelectProps> = ({
 }) => {
   const renderItem: ItemRenderer<InstrumentConfigSelectItem> = (
     item,
-    { handleClick, modifiers }
+    { handleClick, modifiers },
   ) => {
     if (!modifiers.matchesPredicate) {
       return null;
@@ -35,9 +35,11 @@ export const InstrumentConfigSelect: React.FC<InstrumentConfigSelectProps> = ({
 
   const filterItem: ItemPredicate<InstrumentConfigSelectItem> = (
     query,
-    item
+    item,
   ) => {
-    return (item.label ?? item.value).toLowerCase().indexOf(query.toLowerCase()) >= 0;
+    return (
+      (item.label ?? item.value).toLowerCase().indexOf(query.toLowerCase()) >= 0
+    );
   };
 
   const renderMenu: ItemListRenderer<InstrumentConfigSelectItem> = ({
