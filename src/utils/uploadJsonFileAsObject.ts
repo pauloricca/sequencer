@@ -1,13 +1,13 @@
-import { Buffer } from "buffer";
+import { Buffer } from 'buffer';
 
-const uploadJsonFileAsObject = (loadCallback: (obj: any) => void) => {
-  const fileInputNode = document.createElement("input");
-  fileInputNode.setAttribute("type", "file");
-  fileInputNode.setAttribute("id", "file-input");
-  fileInputNode.style.display = "none";
+const uploadJsonFileAsObject = <T>(loadCallback: (obj: T) => void) => {
+  const fileInputNode = document.createElement('input');
+  fileInputNode.setAttribute('type', 'file');
+  fileInputNode.setAttribute('id', 'file-input');
+  fileInputNode.style.display = 'none';
   document.body.appendChild(fileInputNode); // required for firefox
 
-  fileInputNode.addEventListener("change", (e) => {
+  fileInputNode.addEventListener('change', (e) => {
     fileInputNode.remove();
 
     if (!e.target) return;
@@ -20,16 +20,16 @@ const uploadJsonFileAsObject = (loadCallback: (obj: any) => void) => {
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      const match = /^data:(.*);base64,(.*)$/.exec((e.target as any).result);
-	
-      if (match === null) throw "Could not parse result";
+      const match = /^data:(.*);base64,(.*)$/.exec((e.target as any).result as string);
 
-      const content = JSON.parse(Buffer.from(match[2], "base64").toString());
+      if (match === null) throw new Error('Could not parse result');
 
-      loadCallback(content);
+      const content = JSON.parse(Buffer.from(match[2], 'base64').toString());
+
+      loadCallback(content as T);
     };
-	
-    reader.readAsDataURL(file);
+
+    reader.readAsDataURL(file as Blob);
   });
 
   fileInputNode.click();

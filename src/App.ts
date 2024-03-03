@@ -1,20 +1,20 @@
-import React from "react";
-import { Controller } from "components/Controller/Controller";
-import { createRoot } from "react-dom/client";
-require("./_App.scss");
+import React from 'react';
+import { Controller } from 'components/Controller/Controller';
+import { createRoot } from 'react-dom/client';
+require('./_App.scss');
 
-export class App
-{
-    constructor()
-    {
-        this.render();
-    }
+export class App {
+  constructor () {
+    this.render();
+  }
 
-    private render(): void
-    {
-        const root = createRoot(document.getElementById("app") || document.createElement("div"));
-        root.render(React.createElement(Controller));
+  private render (): void {
+    const rootEl = document.getElementById('app');
+    if (rootEl) {
+      const root = createRoot(rootEl);
+      root.render(React.createElement(Controller));
     }
+  }
 }
 
 new App();

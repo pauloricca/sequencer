@@ -1,41 +1,40 @@
-import { Button, Spinner } from "@blueprintjs/core";
-import classNames from "classnames";
-import { throttle } from "lodash";
-import React, { MouseEventHandler, useEffect, useState } from "react";
-require("./_InstrumentConfigKnob.scss");
+import { Button, Spinner } from '@blueprintjs/core';
+import classNames from 'classnames';
+import { throttle } from 'lodash';
+import React, { MouseEventHandler, useEffect, useState } from 'react';
+require('./_InstrumentConfigKnob.scss');
 
 const MOUSE_DRAG_RANGE_NORMAL = 800;
 const MOUSE_DRAG_RANGE_FAST = 50;
 const MOUSE_MOUSE_THROTTLE = 150;
 
-type InstrumentConfigKnobSpeed = "normal" | "fast";
+type InstrumentConfigKnobSpeed = 'normal' | 'fast';
 
-const MOUSE_DRAG_RANGE_SPEEDS: {[key in InstrumentConfigKnobSpeed]: number} = {
+const MOUSE_DRAG_RANGE_SPEEDS: { [key in InstrumentConfigKnobSpeed]: number } = {
   normal: MOUSE_DRAG_RANGE_NORMAL,
   fast: MOUSE_DRAG_RANGE_FAST,
 };
 
-
 interface InstrumentConfigKnobProps {
-  value: number;
-  onChange: (value: number) => void;
-  label?: string;
-  min?: number;
-  max?: number;
-  isIntegerOnly?: boolean;
-  isTransparent?: boolean;
-  speed?: InstrumentConfigKnobSpeed;
+  value: number
+  onChange: (value: number) => void
+  label?: string
+  min?: number
+  max?: number
+  isIntegerOnly?: boolean
+  isTransparent?: boolean
+  speed?: InstrumentConfigKnobSpeed
 }
 
 export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
   value,
   onChange,
-  label = "",
+  label = '',
   min = 0,
   max = 1,
   isIntegerOnly = false,
   isTransparent = false,
-  speed = "normal",
+  speed = 'normal',
 }) => {
   const [internalValue, setInternalValue] = useState(value);
   const [isDragging, setIsDragging] = useState(false);
@@ -68,24 +67,24 @@ export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
     }, MOUSE_MOUSE_THROTTLE);
     const mouseUpHandler = () => {
       setIsDragging(false);
-      window.removeEventListener("mousemove", mouseMoveHandler);
-      window.removeEventListener("mouseup", mouseUpHandler);
+      window.removeEventListener('mousemove', mouseMoveHandler);
+      window.removeEventListener('mouseup', mouseUpHandler);
     };
-    window.addEventListener("mousemove", mouseMoveHandler);
-    window.addEventListener("mouseup", mouseUpHandler);
+    window.addEventListener('mousemove', mouseMoveHandler);
+    window.addEventListener('mouseup', mouseUpHandler);
   };
 
   return (
     <div
-      className={classNames("instrument-config-knob", {
-        "instrument-config-knob--is-transparent": isTransparent,
+      className={classNames('instrument-config-knob', {
+        'instrument-config-knob--is-transparent': isTransparent,
       })}
       onMouseDown={onMouseDownHandler}
     >
       <Button text={label} fill={true}>
         <Spinner
           value={(value - min) / (max - min)}
-          intent={isDragging ? "primary" : undefined}
+          intent={isDragging ? 'primary' : undefined}
           title={`${internalValue}`}
           size={18}
         />

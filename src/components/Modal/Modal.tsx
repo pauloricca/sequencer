@@ -1,11 +1,11 @@
-import React, { ReactNode, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
-require("./_Modal.scss");
+import React, { ReactNode, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+require('./_Modal.scss');
 
 interface ModalProps {
-  children: ReactNode;
-  isOpen: boolean;
-  onClose?: () => void;
+  children: ReactNode
+  isOpen: boolean
+  onClose?: () => void
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -15,18 +15,18 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
   const container = useRef<HTMLElement>();
 
-	useEffect(() => {
-		if (isOpen) {
-			document.body.classList.add("modal-is-open");
-		} else {
-			document.body.classList.remove("modal-is-open");
-		}
-	}, [isOpen]);
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-is-open');
+    } else {
+      document.body.classList.remove('modal-is-open');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   if (!container.current) {
-    container.current = document.createElement("div");
+    container.current = document.createElement('div');
     document.body.append(container.current);
   }
 

@@ -4,29 +4,29 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from "react";
-import { SequencerChannelStep } from "./SequencerChannelStep/SequencerChannelStep";
+} from 'react';
+import { SequencerChannelStep } from './SequencerChannelStep/SequencerChannelStep';
 import {
   StateSequence,
   StateSequenceChannelConfigCommon,
   StateSequenceStep,
   StateSequenceStepProperties,
-} from "state/state.types";
-import { useSequencersState } from "state/state";
-import { Icon } from "@blueprintjs/core";
-import classNames from "classnames";
-require("./_SequencerChannel.scss");
+} from 'state/state.types';
+import { useSequencersState } from 'state/state';
+import { Icon } from '@blueprintjs/core';
+import classNames from 'classnames';
+require('./_SequencerChannel.scss');
 
 export interface SequencerChannelProps {
-  sequence: StateSequence;
-  channelConfig: StateSequenceChannelConfigCommon;
-  channelIndex: number;
-  activeStepIndex: number;
-  visiblePage: number;
-  triggerCallback?: (channel: number, step?: StateSequenceStep) => void;
-  showChannelControls?: boolean;
-  channelConfigComponents?: (channelIndex: number) => ReactNode;
-  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
+  sequence: StateSequence
+  channelConfig: StateSequenceChannelConfigCommon
+  channelIndex: number
+  activeStepIndex: number
+  visiblePage: number
+  triggerCallback?: (channel: number, step?: StateSequenceStep) => void
+  showChannelControls?: boolean
+  channelConfigComponents?: (channelIndex: number) => ReactNode
+  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null
 }
 
 export const SequencerChannel: React.FC<SequencerChannelProps> = ({
@@ -87,9 +87,9 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
     setIsDraggingAlongChannel(true);
     const mouseUpHandler = () => {
       setIsDraggingAlongChannel(false);
-      window.removeEventListener("mouseup", mouseUpHandler);
+      window.removeEventListener('mouseup', mouseUpHandler);
     };
-    window.addEventListener("mouseup", mouseUpHandler);
+    window.addEventListener('mouseup', mouseUpHandler);
   }, []);
 
   const onFillPercentageChangeHandler = useCallback(
@@ -133,8 +133,8 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
 
   return (
     <div
-      className={classNames("sequencer-channel", {
-        "sequencer-channel--is-muted":
+      className={classNames('sequencer-channel', {
+        'sequencer-channel--is-muted':
           channelConfig.isMuted || sequence.isMuted,
       })}
     >

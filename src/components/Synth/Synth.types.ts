@@ -1,10 +1,10 @@
-import { StateSequenceSynth } from "state/state.types";
-import { SequencerProps } from "components/Sequencer/Sequencer";
+import { StateSequenceSynth } from 'state/state.types';
+import { SequencerProps } from 'components/Sequencer/Sequencer';
 
 export interface SynthProps
   extends Omit<
-    SequencerProps,
-    "triggerCallback" | "channelsConfig" | "sequence"
+  SequencerProps,
+  'triggerCallback' | 'channelsConfig' | 'sequence'
   > {
-  sequence: StateSequenceSynth;
+  sequence: StateSequenceSynth
 }

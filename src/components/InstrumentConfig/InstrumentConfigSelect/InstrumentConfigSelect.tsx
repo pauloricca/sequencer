@@ -1,15 +1,15 @@
-import { Button, Menu, MenuItem } from "@blueprintjs/core";
+import { Button, Menu, MenuItem } from '@blueprintjs/core';
 import {
   ItemListRenderer,
   ItemPredicate,
   ItemRenderer,
   Select,
-} from "@blueprintjs/select";
-import React from "react";
+} from '@blueprintjs/select';
+import React from 'react';
 import {
   InstrumentConfigSelectItem,
   InstrumentConfigSelectProps,
-} from "./InstrumentConfigSelect.types";
+} from './InstrumentConfigSelect.types';
 
 export const InstrumentConfigSelect: React.FC<InstrumentConfigSelectProps> = ({
   items,
@@ -18,7 +18,7 @@ export const InstrumentConfigSelect: React.FC<InstrumentConfigSelectProps> = ({
 }) => {
   const renderItem: ItemRenderer<InstrumentConfigSelectItem> = (
     item,
-    { handleClick, modifiers },
+    { handleClick, modifiers }
   ) => {
     if (!modifiers.matchesPredicate) {
       return null;
@@ -35,7 +35,7 @@ export const InstrumentConfigSelect: React.FC<InstrumentConfigSelectProps> = ({
 
   const filterItem: ItemPredicate<InstrumentConfigSelectItem> = (
     query,
-    item,
+    item
   ) => {
     return (
       (item.label ?? item.value).toLowerCase().indexOf(query.toLowerCase()) >= 0

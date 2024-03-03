@@ -1,25 +1,25 @@
-import classnames from "classnames";
-import { throttle } from "lodash";
-import React, { MouseEventHandler, memo, useEffect, useState } from "react";
-import { StateSequenceStep } from "state/state.types";
-require("./_SequencerChannelStep.scss");
+import classnames from 'classnames';
+import { throttle } from 'lodash';
+import React, { MouseEventHandler, memo, useEffect, useState } from 'react';
+import { StateSequenceStep } from 'state/state.types';
+require('./_SequencerChannelStep.scss');
 
 const MOUSE_DRAG_RANGE = 50;
 const MOUSE_MOUSE_THROTTLE = 150;
 
 export interface SequencerChannelStepProps {
-  stepIndex: number;
+  stepIndex: number
   step: StateSequenceStep | undefined
-  isActive: boolean;
-  onToggle: (stepIndex: number, currentStep?: StateSequenceStep) => void;
-  onDragStart: () => void;
-  isDraggingAlongChannel: boolean;
-  isControllingFillPercentage?: boolean;
+  isActive: boolean
+  onToggle: (stepIndex: number, currentStep?: StateSequenceStep) => void
+  onDragStart: () => void
+  isDraggingAlongChannel: boolean
+  isControllingFillPercentage?: boolean
   /**
    * 0 - 1 value for the step height fill. this can be used for velocity and other parameters.
    */
-  fillPercentage?: number;
-  onFillPercentageChange?: (fillPercentage: number, step?: StateSequenceStep) => void;
+  fillPercentage?: number
+  onFillPercentageChange?: (fillPercentage: number, step?: StateSequenceStep) => void
 }
 
 export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(({
@@ -74,14 +74,14 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(({
         mouseHasMoved = true;
       }, MOUSE_MOUSE_THROTTLE);
       const mouseUpHandler = () => {
-        window.removeEventListener("mousemove", mouseMoveHandler);
-        window.removeEventListener("mouseup", mouseUpHandler);
+        window.removeEventListener('mousemove', mouseMoveHandler);
+        window.removeEventListener('mouseup', mouseUpHandler);
         if (!mouseHasMoved) {
           onToggle(stepIndex, step);
         }
       };
-      window.addEventListener("mousemove", mouseMoveHandler);
-      window.addEventListener("mouseup", mouseUpHandler);
+      window.addEventListener('mousemove', mouseMoveHandler);
+      window.addEventListener('mouseup', mouseUpHandler);
     }
   };
 
@@ -93,16 +93,16 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(({
 
   return (
     <div
-      className={classnames("sequencer-channel-step", {
-        "sequencer-channel-step--is-toggled": isToggled,
-        "sequencer-channel-step--is-active": isActive,
+      className={classnames('sequencer-channel-step', {
+        'sequencer-channel-step--is-toggled': isToggled,
+        'sequencer-channel-step--is-active': isActive,
       })}
       onMouseDown={onMouseDownHandler}
       onMouseEnter={onMouseEnterHandler}
     >
-      <div className="sequencer-channel-step__fill" style={{height: `calc(${fillPercentage * 100}% - 1px)`}} />
+      <div className="sequencer-channel-step__fill" style={{ height: `calc(${fillPercentage * 100}% - 1px)` }} />
     </div>
   );
 });
 
-SequencerChannelStep.displayName = "SequencerChannelStep";
+SequencerChannelStep.displayName = 'SequencerChannelStep';

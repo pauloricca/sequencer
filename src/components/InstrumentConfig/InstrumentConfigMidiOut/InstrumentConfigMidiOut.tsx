@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { StateSequence } from "state/state.types";
-import { InstrumentConfigSelectItem } from "../InstrumentConfigSelect/InstrumentConfigSelect.types";
-import { InstrumentConfigSelect } from "../InstrumentConfigSelect/InstrumentConfigSelect";
-import { useSequencersState } from "state/state";
-import { getMidiOutputDeviceNames } from "utils/midi";
+import React, { useEffect, useState } from 'react';
+import { StateSequence } from 'state/state.types';
+import { InstrumentConfigSelectItem } from '../InstrumentConfigSelect/InstrumentConfigSelect.types';
+import { InstrumentConfigSelect } from '../InstrumentConfigSelect/InstrumentConfigSelect';
+import { useSequencersState } from 'state/state';
+import { getMidiOutputDeviceNames } from 'utils/midi';
 
 export interface InstrumentConfigMidiOutProps {
-  sequence: StateSequence;
+  sequence: StateSequence
 }
 
 export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = ({ sequence }) => {
@@ -14,11 +14,11 @@ export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = (
     state.updateSequence(sequence.name)
   );
   const [midiOutOptions, setMidiOutOptions] = useState<
-    InstrumentConfigSelectItem[]
+  InstrumentConfigSelectItem[]
   >([]);
 
   const getMidiOutOptions = () => [
-    { label: "none", value: undefined },
+    { label: 'none', value: undefined },
     ...getMidiOutputDeviceNames().map((name) => ({ value: name })),
   ];
 
@@ -33,7 +33,7 @@ export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = (
 
   return (
     <InstrumentConfigSelect
-      label={sequence.midiOutDeviceName || "midi out"}
+      label={sequence.midiOutDeviceName || 'midi out'}
       items={midiOutOptions}
       onSelect={({ value }) => updateSequence({ midiOutDeviceName: value })}
     />

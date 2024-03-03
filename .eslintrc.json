@@ -15,19 +15,26 @@
   },
   "plugins": ["react"],
   "rules": {
-    "semi": "off",
+    "no-new": "off",
     "@typescript-eslint/semi": [2, "always"],
     "@typescript-eslint/explicit-function-return-type": 0,
     "@typescript-eslint/consistent-type-imports": 0,
     "@typescript-eslint/no-confusing-void-expression": 0,
-    "@typescript-eslint/comma-dangle": ["error", {
+    "@typescript-eslint/comma-dangle": [
+      "error",
+      {
         "arrays": "only-multiline",
         "objects": "only-multiline",
         "imports": "only-multiline",
         "exports": "only-multiline",
         "functions": "never"
-    }],
+      }
+    ],
     "@typescript-eslint/consistent-type-assertions": 0,
-    "@typescript-eslint/strict-boolean-expressions": 0
+    "@typescript-eslint/strict-boolean-expressions": 0,
+    "@typescript-eslint/prefer-nullish-coalescing": 0,
+    "@typescript-eslint/no-dynamic-delete": 0,
+    "@typescript-eslint/no-non-null-assertion": 0,
+    "react/prop-types": 0
   }
 }

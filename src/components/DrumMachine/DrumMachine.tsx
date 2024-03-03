@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import { Howl } from "howler";
-import { Sequencer } from "components/Sequencer/Sequencer";
-import { DrumMachineProps } from "./DrumMachine.types";
-import { sendMidiMessage } from "utils/midi";
-import { useSequencersState } from "state/state";
-import { InstrumentConfigKnob } from "components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
-import { InputGroup } from "@blueprintjs/core";
-import { InstrumentConfigSelect } from "components/InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect";
-import { StateSequenceStep } from "state/state.types";
+import React, { useCallback, useEffect, useRef } from 'react';
+import { Howl } from 'howler';
+import { Sequencer } from 'components/Sequencer/Sequencer';
+import { DrumMachineProps } from './DrumMachine.types';
+import { sendMidiMessage } from 'utils/midi';
+import { useSequencersState } from 'state/state';
+import { InstrumentConfigKnob } from 'components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob';
+import { InputGroup } from '@blueprintjs/core';
+import { InstrumentConfigSelect } from 'components/InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect';
+import { StateSequenceStep } from 'state/state.types';
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({
   sequence,
@@ -17,11 +17,11 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
     state.updateChannelConfig(sequence.name)
   );
   // Sample objects indexed by file name
-  const samples = useRef<{[key: string]: Howl}>({});
+  const samples = useRef<Record<string, Howl>>({});
 
   useEffect(() => {
     sequence.channelsConfig.forEach((channel) => {
-      if (channel.type === "sample" && !samples.current[channel.audioFile]) {
+      if (channel.type === 'sample' && !samples.current[channel.audioFile]) {
         samples.current[channel.audioFile] = new Howl({
           src: [`/sounds/${channel.audioFile}`],
         });
@@ -39,7 +39,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
       (sequence.channelsConfig[channelIndex].volume ?? 1) *
       (step?.volume ?? 1);
 
-    if (channel.type === "sample") {
+    if (channel.type === 'sample') {
       const sample = samples.current[channel.audioFile];
 
       if (sample) {
@@ -47,7 +47,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
         sample.volume(volume);
         sample.play();
       }
-    } else if (channel.type === "midi" && sequence.midiOutDeviceName) {
+    } else if (channel.type === 'midi' && sequence.midiOutDeviceName) {
       if (channel.volumeCC !== undefined) {
         sendMidiMessage(sequence.midiOutDeviceName, {
           cc: channel.volumeCC,
@@ -80,10 +80,10 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
         />
         <InstrumentConfigSelect
           label={`${channelConfig.type}`}
-          items={[{ value: "midi" }, { value: "sample" }]}
+          items={[{ value: 'midi' }, { value: 'sample' }]}
           onSelect={({ value }) => update({ type: value })}
         />
-        {channelConfig.type === "midi" && (<>
+        {channelConfig.type === 'midi' && (<>
           <InstrumentConfigKnob
             label={`midi channel: ${channelConfig.midiChannel ?? 'none'}`}
             value={channelConfig.midiChannel}
@@ -101,7 +101,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({
             onChange={(value) => update({ midiNote: value })}
           /></>
         )}
-        {channelConfig.type === "sample" && (
+        {channelConfig.type === 'sample' && (
           <InputGroup
             value={channelConfig.audioFile ?? 'audio file'}
             onValueChange={(value) => update({ audioFile: value })}

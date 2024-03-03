@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { DrumMachine } from "components/DrumMachine/DrumMachine";
-import { useSequencersState } from "state/state";
-import { Synth } from "components/Synth/Synth";
-import { Button } from "@blueprintjs/core";
-import downloadObjectAsJson from "utils/downloadObjectAsJson";
-import uploadJsonFileAsObject from "utils/uploadJsonFileAsObject";
-import { InstrumentConfigKnob } from "components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob";
-import { setMetronomeInterval, startMetronome, stopMetronome } from "utils/metronome";
-import { getIntervalFromClockSpeed } from "./Controller.utils";
-require("./_Controller.scss");
+import React, { useEffect, useState } from 'react';
+import { DrumMachine } from 'components/DrumMachine/DrumMachine';
+import { useSequencersState } from 'state/state';
+import { Synth } from 'components/Synth/Synth';
+import { Button } from '@blueprintjs/core';
+import downloadObjectAsJson from 'utils/downloadObjectAsJson';
+import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
+import { InstrumentConfigKnob } from 'components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob';
+import { setMetronomeInterval, startMetronome, stopMetronome } from 'utils/metronome';
+import { getIntervalFromClockSpeed } from './Controller.utils';
+import { State } from 'state/state.types';
+require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -44,13 +45,13 @@ export const Controller: React.FC = () => {
           text="load"
           rightIcon="export"
           fill={true}
-          onClick={() => uploadJsonFileAsObject((obj) => resetState(obj))}
+          onClick={() => uploadJsonFileAsObject<State>((obj) => resetState(obj))}
         />
         <Button
           text="save"
           rightIcon="import"
           fill={true}
-          onClick={() => downloadObjectAsJson(state, "sequencer")}
+          onClick={() => downloadObjectAsJson(state, 'sequencer')}
         />
         <InstrumentConfigKnob
           label={`bpm: ${state.clockSpeed / 4}`}
@@ -80,8 +81,8 @@ export const Controller: React.FC = () => {
       </div>
       {sequences.map((sequence, sequenceIndex) => (
         <div key={sequenceIndex}>
-          {sequence.type === "drum-machine" && <DrumMachine sequence={sequence} />}
-          {sequence.type === "synth" && <Synth sequence={sequence} />}
+          {sequence.type === 'drum-machine' && <DrumMachine sequence={sequence} />}
+          {sequence.type === 'synth' && <Synth sequence={sequence} />}
         </div>
       ))}
     </div>

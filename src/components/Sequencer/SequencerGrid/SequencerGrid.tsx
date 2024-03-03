@@ -1,27 +1,27 @@
-import React, { useRef } from "react";
+import React, { useRef } from 'react';
 import {
   SequencerChannel,
   SequencerChannelProps,
-} from "../SequencerChannel/SequencerChannel";
+} from '../SequencerChannel/SequencerChannel';
 import {
   StateSequence,
   StateSequenceChannelConfigCommon,
   StateSequenceStepProperties,
-} from "state/state.types";
-import { useMetronome } from "utils/metronome";
-require("./_SequencerGrid.scss");
+} from 'state/state.types';
+import { useMetronome } from 'utils/metronome';
+require('./_SequencerGrid.scss');
 
 export interface SequencerGridProps
   extends Pick<
-      SequencerChannelProps,
-      "triggerCallback" | "showChannelControls" | "channelConfigComponents"
-    > {
-  sequence: StateSequence;
-  channelsConfig: StateSequenceChannelConfigCommon[];
-  visiblePage: number;
-  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
-  activePageIndex: number;
-  setActivePageIndex: (activePageIndex: number) => void;
+  SequencerChannelProps,
+  'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
+  > {
+  sequence: StateSequence
+  channelsConfig: StateSequenceChannelConfigCommon[]
+  visiblePage: number
+  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null
+  activePageIndex: number
+  setActivePageIndex: (activePageIndex: number) => void
 }
 
 export const SequencerGrid: React.FC<SequencerGridProps> = ({
@@ -38,7 +38,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   const lastTick = useRef(-1);
   const activeStepIndex = useRef(-1);
 
-  if (tick != lastTick.current) {
+  if (tick !== lastTick.current) {
     lastTick.current = tick;
 
     activeStepIndex.current =
@@ -60,8 +60,9 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
     stepsToTrigger.forEach((step) => {
       if (!sequence.isMuted && !channelsConfig[step.channel]?.isMuted) {
         if (
-          [1, undefined].includes(step.probability) ||
-          Math.random() < step.probability!
+          step.probability === undefined ||
+          step.probability === 1 ||
+          Math.random() < step.probability
         ) {
           triggerCallback(step.channel, step);
         }

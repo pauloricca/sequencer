@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { SequencerChannelProps } from "./SequencerChannel/SequencerChannel";
+import React, { useEffect, useState } from 'react';
+import { SequencerChannelProps } from './SequencerChannel/SequencerChannel';
 import {
   StateSequence,
   StateSequenceChannelConfigCommon,
   StateSequenceStepProperties,
-} from "state/state.types";
-import { registerMidiOutputDevice } from "utils/midi";
-import { Button } from "@blueprintjs/core";
-import { useSequencersState } from "state/state";
-import { cloneDeep } from "lodash";
+} from 'state/state.types';
+import { registerMidiOutputDevice } from 'utils/midi';
+import { Button } from '@blueprintjs/core';
+import { useSequencersState } from 'state/state';
+import { cloneDeep } from 'lodash';
 import {
   InstrumentConfig,
   InstrumentConfigProps,
-} from "components/InstrumentConfig/InstrumentConfig";
-import { getBlankPattern } from "state/state.utils";
-import classNames from "classnames";
-import { SequencerGrid } from "./SequencerGrid/SequencerGrid";
-require("./_Sequencer.scss");
+} from 'components/InstrumentConfig/InstrumentConfig';
+import { getBlankPattern } from 'state/state.utils';
+import classNames from 'classnames';
+import { SequencerGrid } from './SequencerGrid/SequencerGrid';
+require('./_Sequencer.scss');
 
 export interface SequencerProps
   extends Pick<
-      SequencerChannelProps,
-      "triggerCallback" | "showChannelControls" | "channelConfigComponents"
-    >,
-    Pick<InstrumentConfigProps, "instrumentConfigCallback"> {
-  sequence: StateSequence;
-  channelsConfig: StateSequenceChannelConfigCommon[];
+  SequencerChannelProps,
+  'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
+  >,
+  Pick<InstrumentConfigProps, 'instrumentConfigCallback'> {
+  sequence: StateSequence
+  channelsConfig: StateSequenceChannelConfigCommon[]
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -50,8 +50,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   ] = useState<keyof StateSequenceStepProperties | null>(null);
 
   useEffect(() => {
-    if (sequence.midiOutDeviceName)
-      registerMidiOutputDevice(sequence.midiOutDeviceName);
+    if (sequence.midiOutDeviceName) { registerMidiOutputDevice(sequence.midiOutDeviceName); }
   }, [sequence.midiOutDeviceName]);
 
   return (
@@ -61,19 +60,19 @@ export const Sequencer: React.FC<SequencerProps> = ({
         instrumentConfigCallback={instrumentConfigCallback}
         tools={[
           {
-            name: "default",
+            name: 'default',
             value: null,
-            icon: "heat-grid",
+            icon: 'heat-grid',
           },
           {
-            name: "volume",
-            value: "volume",
-            icon: "vertical-bar-chart-asc",
+            name: 'volume',
+            value: 'volume',
+            icon: 'vertical-bar-chart-asc',
           },
           {
-            name: "probability",
-            value: "probability",
-            icon: "heatmap",
+            name: 'probability',
+            value: 'probability',
+            icon: 'heatmap',
           },
         ]}
         selectedTool={stepPropertyCurrentlyBeingEdited}
@@ -131,8 +130,8 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 patterns:
                   sequence.patterns.length > 1
                     ? sequence.patterns.filter(
-                        (_, index) => index !== sequence.currentPattern
-                      )
+                      (_, index) => index !== sequence.currentPattern
+                    )
                     : [getBlankPattern()],
                 currentPattern: Math.max(0, sequence.currentPattern - 1),
               })
@@ -146,8 +145,8 @@ export const Sequencer: React.FC<SequencerProps> = ({
             ...Array(sequence.patterns[sequence.currentPattern].pages.length),
           ].map((_, pageNumber) => (
             <Button
-              className={classNames("sequencer__pattern-pagination-page", {
-                "sequencer__pattern-pagination-page--is-visible":
+              className={classNames('sequencer__pattern-pagination-page', {
+                'sequencer__pattern-pagination-page--is-visible':
                   pageNumber === activePageIndex,
               })}
               key={pageNumber}

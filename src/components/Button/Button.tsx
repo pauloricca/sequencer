@@ -1,9 +1,9 @@
-import React, { ReactNode } from "react";
-require("./_Button.scss");
+import React, { ReactNode } from 'react';
+require('./_Button.scss');
 
 interface ButtonProps {
-  children: ReactNode;
-  onClick?: () => void;
+  children: ReactNode
+  onClick?: () => void
 }
 
 export const Button: React.FC<ButtonProps> = ({

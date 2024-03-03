@@ -1,18 +1,18 @@
-import { Icon, InputGroup } from "@blueprintjs/core";
-import React, { ReactNode, useState } from "react";
-import { StateSequence } from "state/state.types";
-import { useSequencersState } from "state/state";
-import { InstrumentConfigKnob } from "./InstrumentConfigKnob/InstrumentConfigKnob";
-import classNames from "classnames";
-import { InstrumentConfigMidiOut } from "./InstrumentConfigMidiOut/InstrumentConfigMidiOut";
-require("./_InstrumentConfig.scss");
+import { Icon, InputGroup } from '@blueprintjs/core';
+import React, { ReactNode, useState } from 'react';
+import { StateSequence } from 'state/state.types';
+import { useSequencersState } from 'state/state';
+import { InstrumentConfigKnob } from './InstrumentConfigKnob/InstrumentConfigKnob';
+import classNames from 'classnames';
+import { InstrumentConfigMidiOut } from './InstrumentConfigMidiOut/InstrumentConfigMidiOut';
+require('./_InstrumentConfig.scss');
 
 export interface InstrumentConfigProps {
-  sequence: StateSequence;
-  tools?: { name: string; value: string | null; icon: string }[];
-  selectedTool?: string | null;
-  onSelectTool?: (value: string | null) => void;
-  instrumentConfigCallback?: () => ReactNode;
+  sequence: StateSequence
+  tools?: Array<{ name: string, value: string | null, icon: string }>
+  selectedTool?: string | null
+  onSelectTool?: (value: string | null) => void
+  instrumentConfigCallback?: () => ReactNode
 }
 
 export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
@@ -29,8 +29,8 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
 
   return (
     <div
-      className={classNames("instrument-config", {
-        "instrument-config--is-open": isOpen,
+      className={classNames('instrument-config', {
+        'instrument-config--is-open': isOpen,
       })}
     >
       <div className="instrument-config__header">
@@ -40,8 +40,8 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             <Icon
               icon={icon}
               key={name ?? value}
-              className={classNames("instrument-config__tool", {
-                "instrument-config__tool--is-active": value === selectedTool,
+              className={classNames('instrument-config__tool', {
+                'instrument-config__tool--is-active': value === selectedTool,
               })}
               onClick={() => onSelectTool(value)}
             />
@@ -52,7 +52,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
                 className="instrument-config__tool instrument-config__tool--is-active"
                 onClick={() => updateSequence({ isMuted: true })}
               />
-            )}
+          )}
             {sequence.isMuted && (
               <Icon
                 icon="volume-off"

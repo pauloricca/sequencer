@@ -1,29 +1,27 @@
-import { IMIDIAccess, MIDIVal, MIDIValOutput } from "@midival/core";
+import { IMIDIAccess, MIDIVal, MIDIValOutput } from '@midival/core';
 
 const MIDI_SEND_QUEUE_INTERVAL = 10;
 
 interface MidiMessage {
-  channel: number;
-  note?: number;
-  cc?: number;
-  value?: number;
-  velocity?: number;
-  duration?: number;
-  isNoteOff?: boolean;
-  isMonophonic?: boolean;
+  channel: number
+  note?: number
+  cc?: number
+  value?: number
+  velocity?: number
+  duration?: number
+  isNoteOff?: boolean
+  isMonophonic?: boolean
 }
 
 interface MidiDevice {
-  type: "input" | "output";
-  messageQueue: MidiMessage[];
-  output: MIDIValOutput | null;
-  queueInterval: number | null;
-  currentNotes: {note: number; noteOffTimeout: number}[];
+  type: 'input' | 'output'
+  messageQueue: MidiMessage[]
+  output: MIDIValOutput | null
+  queueInterval: number | null
+  currentNotes: Array<{ note: number, noteOffTimeout: number }>
 }
 
-interface MidiDevices {
-  [name: string]: MidiDevice;
-}
+type MidiDevices = Record<string, MidiDevice>;
 
 let midiAccess: IMIDIAccess | null = null;
 const midiDevices: MidiDevices = {};
@@ -64,12 +62,12 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
           ].currentNotes.filter((note) => note.note !== message.note || message.isMonophonic);
 
           if (message.isNoteOff) {
-            (midiDevices[deviceName].output as MIDIValOutput).sendNoteOff(
+            (midiDevices[deviceName].output!).sendNoteOff(
               message.note,
               message.channel
             );
           } else {
-            (midiDevices[deviceName].output as MIDIValOutput).sendNoteOn(
+            (midiDevices[deviceName].output!).sendNoteOn(
               message.note,
               message.velocity ?? 127,
               message.channel
@@ -78,7 +76,7 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
             // Remove any previous messages for this note
             midiDevices[deviceName].messageQueue = midiDevices[
               deviceName
-            ].messageQueue.filter(({note}) => note !== message.note);
+            ].messageQueue.filter(({ note }) => note !== message.note);
 
             // Schedule note off message
             if (message.duration) {
@@ -92,14 +90,14 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
             }
           }
         } else if (message.cc && message.value) {
-          (midiDevices[deviceName].output as MIDIValOutput).sendControlChange(
+          (midiDevices[deviceName].output!).sendControlChange(
             message.cc,
             message.value,
             message.channel
           );
         }
       } else {
-        clearInterval(midiDevices[deviceName].queueInterval as number);
+        clearInterval(midiDevices[deviceName].queueInterval!);
         midiDevices[deviceName].queueInterval = null;
       }
     }, MIDI_SEND_QUEUE_INTERVAL) as unknown as number;
@@ -125,7 +123,7 @@ const setupMidiOutputDevice = (deviceName: string) => {
 };
 
 const getMidiDevideDefaults = (): MidiDevice => ({
-  type: "output",
+  type: 'output',
   messageQueue: [],
   output: null,
   queueInterval: null,
@@ -135,15 +133,15 @@ const getMidiDevideDefaults = (): MidiDevice => ({
 MIDIVal.connect().then((access) => {
   midiAccess = access;
   console.log(
-    "MIDI Output Devices",
+    'MIDI Output Devices',
     access.outputs.map(({ name }) => name)
   );
 
   Object.keys(midiDevices).forEach((deviceName) => {
-    if (midiDevices[deviceName].type === "output") {
+    if (midiDevices[deviceName].type === 'output') {
       setupMidiOutputDevice(deviceName);
     }
   });
 
   // output.sendControlChange(5, 50);
-});
+}).catch((e) => console.log(e));
