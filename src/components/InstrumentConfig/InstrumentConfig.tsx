@@ -8,11 +8,11 @@ import { InstrumentConfigMidiOut } from './InstrumentConfigMidiOut/InstrumentCon
 require('./_InstrumentConfig.scss');
 
 export interface InstrumentConfigProps {
-  sequence: StateSequence
-  tools?: Array<{ name: string, value: string | null, icon: string }>
-  selectedTool?: string | null
-  onSelectTool?: (value: string | null) => void
-  instrumentConfigCallback?: () => ReactNode
+  sequence: StateSequence;
+  tools?: Array<{ name: string; value: string | null; icon: string }>;
+  selectedTool?: string | null;
+  onSelectTool?: (value: string | null) => void;
+  instrumentConfigCallback?: () => ReactNode;
 }
 
 export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
@@ -22,9 +22,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
   onSelectTool = () => {},
   instrumentConfigCallback,
 }) => {
-  const updateSequence = useSequencersState((state) =>
-    state.updateSequence(sequence.name)
-  );
+  const updateSequence = useSequencersState((state) => state.updateSequence(sequence.name));
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -47,19 +45,19 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             />
           ))}
           {!sequence.isMuted && (
-              <Icon
-                icon="volume-up"
-                className="instrument-config__tool instrument-config__tool--is-active"
-                onClick={() => updateSequence({ isMuted: true })}
-              />
+            <Icon
+              icon="volume-up"
+              className="instrument-config__tool instrument-config__tool--is-active"
+              onClick={() => updateSequence({ isMuted: true })}
+            />
           )}
-            {sequence.isMuted && (
-              <Icon
-                icon="volume-off"
-                className="instrument-config__tool"
-                onClick={() => updateSequence({ isMuted: false })}
-              />
-            )}
+          {sequence.isMuted && (
+            <Icon
+              icon="volume-off"
+              className="instrument-config__tool"
+              onClick={() => updateSequence({ isMuted: false })}
+            />
+          )}
           {isOpen && (
             <Icon
               icon="cross"
@@ -68,11 +66,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             />
           )}
           {!isOpen && (
-            <Icon
-              icon="cog"
-              className="instrument-config__tool"
-              onClick={() => setIsOpen(true)}
-            />
+            <Icon icon="cog" className="instrument-config__tool" onClick={() => setIsOpen(true)} />
           )}
         </div>
       </div>

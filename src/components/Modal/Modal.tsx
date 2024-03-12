@@ -3,16 +3,12 @@ import { createPortal } from 'react-dom';
 require('./_Modal.scss');
 
 interface ModalProps {
-  children: ReactNode
-  isOpen: boolean
-  onClose?: () => void
+  children: ReactNode;
+  isOpen: boolean;
+  onClose?: () => void;
 }
 
-export const Modal: React.FC<ModalProps> = ({
-  children,
-  isOpen,
-  onClose = () => {},
-}) => {
+export const Modal: React.FC<ModalProps> = ({ children, isOpen, onClose = () => {} }) => {
   const container = useRef<HTMLElement>();
 
   useEffect(() => {
@@ -32,7 +28,9 @@ export const Modal: React.FC<ModalProps> = ({
 
   return createPortal(
     <div className="modal" onClick={onClose}>
-      <div className="modal__inner" onClick={(event) => event.stopPropagation()}>{children}</div>
+      <div className="modal__inner" onClick={(event) => event.stopPropagation()}>
+        {children}
+      </div>
     </div>,
     container.current
   );

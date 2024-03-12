@@ -6,16 +6,12 @@ import { useSequencersState } from 'state/state';
 import { getMidiOutputDeviceNames } from 'utils/midi';
 
 export interface InstrumentConfigMidiOutProps {
-  sequence: StateSequence
+  sequence: StateSequence;
 }
 
 export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = ({ sequence }) => {
-  const updateSequence = useSequencersState((state) =>
-    state.updateSequence(sequence.name)
-  );
-  const [midiOutOptions, setMidiOutOptions] = useState<
-  InstrumentConfigSelectItem[]
-  >([]);
+  const updateSequence = useSequencersState((state) => state.updateSequence(sequence.name));
+  const [midiOutOptions, setMidiOutOptions] = useState<InstrumentConfigSelectItem[]>([]);
 
   const getMidiOutOptions = () => [
     { label: 'none', value: undefined },
@@ -26,6 +22,7 @@ export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = (
     const interval = setInterval(() => {
       setMidiOutOptions(getMidiOutOptions());
     }, 5000);
+
     setMidiOutOptions(getMidiOutOptions());
 
     return () => clearInterval(interval);

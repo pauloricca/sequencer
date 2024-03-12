@@ -1,0 +1,11 @@
+*.*
+!*.js
+!*.jsx
+!*.ts
+!*.tsx
+!*.test.ts
+!*.test.tsx
+config
+cypress
+cypress/*.*
+cypress.config.ts

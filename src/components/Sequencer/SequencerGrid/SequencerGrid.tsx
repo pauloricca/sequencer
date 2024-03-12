@@ -1,8 +1,5 @@
 import React, { useRef } from 'react';
-import {
-  SequencerChannel,
-  SequencerChannelProps,
-} from '../SequencerChannel/SequencerChannel';
+import { SequencerChannel, SequencerChannelProps } from '../SequencerChannel/SequencerChannel';
 import {
   StateSequence,
   StateSequenceChannelConfigCommon,
@@ -13,15 +10,15 @@ require('./_SequencerGrid.scss');
 
 export interface SequencerGridProps
   extends Pick<
-  SequencerChannelProps,
-  'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
+    SequencerChannelProps,
+    'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
   > {
-  sequence: StateSequence
-  channelsConfig: StateSequenceChannelConfigCommon[]
-  visiblePage: number
-  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null
-  activePageIndex: number
-  setActivePageIndex: (activePageIndex: number) => void
+  sequence: StateSequence;
+  channelsConfig: StateSequenceChannelConfigCommon[];
+  visiblePage: number;
+  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
+  activePageIndex: number;
+  setActivePageIndex: (activePageIndex: number) => void;
 }
 
 export const SequencerGrid: React.FC<SequencerGridProps> = ({
@@ -41,15 +38,13 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   if (tick !== lastTick.current) {
     lastTick.current = tick;
 
-    activeStepIndex.current =
-      tick <= 0 ? tick : (activeStepIndex.current + 1) % sequence.nSteps;
+    activeStepIndex.current = tick <= 0 ? tick : (activeStepIndex.current + 1) % sequence.nSteps;
 
     if (tick <= 0) {
       activeStepIndex.current = tick;
     } else if (activeStepIndex.current === 0) {
       setActivePageIndex(
-        (activePageIndex + 1) %
-          sequence.patterns[sequence.currentPattern].pages.length
+        (activePageIndex + 1) % sequence.patterns[sequence.currentPattern].pages.length
       );
     }
 
@@ -57,6 +52,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
     const stepsToTrigger = sequence.patterns[sequence.currentPattern].pages[
       activePageIndex
     ].steps.filter(({ stepIndex }) => stepIndex === activeStepIndex.current);
+
     stepsToTrigger.forEach((step) => {
       if (!sequence.isMuted && !channelsConfig[step.channel]?.isMuted) {
         if (
@@ -80,9 +76,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
             channelConfig={channelConfig}
             sequence={sequence}
             key={channelIndex}
-            activeStepIndex={
-              visiblePage === activePageIndex ? activeStepIndex.current : -1
-            }
+            activeStepIndex={visiblePage === activePageIndex ? activeStepIndex.current : -1}
             visiblePage={visiblePage}
             triggerCallback={triggerCallback}
             stepPropertyCurrentlyBeingEdited={stepPropertyCurrentlyBeingEdited}

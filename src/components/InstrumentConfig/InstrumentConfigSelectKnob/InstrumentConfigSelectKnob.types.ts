@@ -1,27 +1,20 @@
 export interface InstrumentConfigSelectKnobItem {
-  value: any
-  key?: number | string
-  label?: string
+  value: any;
+  key?: number | string;
+  label?: string;
 }
 
-export interface InstrumentConfigSelectKnobProps extends InstrumentConfigSelectKnobPropsDiscrete {
-  label: string | number
-}
-
-export interface InstrumentConfigSelectKnobPropsDiscrete {
-  type: 'discrete'
-  items: InstrumentConfigSelectKnobItem[]
-  onChange: (item: InstrumentConfigSelectKnobItem) => void
+export interface InstrumentConfigSelectKnobProps {
+  label: string;
+  onChange: (value: any, item?: InstrumentConfigSelectKnobItem) => void;
+  type: 'discrete' | 'numeric';
+  value: any;
+  items?: InstrumentConfigSelectKnobItem[];
+  min?: number;
+  max?: number;
+  speed?: InstrumentConfigSelectKnobSpeed;
+  step?: number;
+  clickOnModalButtonClosesModal?: boolean;
 }
 
 export type InstrumentConfigSelectKnobSpeed = 'normal' | 'fast';
-
-export interface InstrumentConfigSelectKnobPropsNumeric {
-  type: 'numeric'
-  value: number
-  min?: number
-  max?: number
-  isIntegerOnly?: boolean
-  speed?: InstrumentConfigSelectKnobSpeed
-  onChange: (value: number) => void
-}

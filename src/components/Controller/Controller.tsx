@@ -35,12 +35,7 @@ export const Controller: React.FC = () => {
     // <StrictMode>
     <div className="controller">
       <div className="controller__controls">
-        <Button
-          text="reset"
-          rightIcon="delete"
-          fill={true}
-          onClick={() => resetState()}
-        />
+        <Button text="reset" rightIcon="delete" fill={true} onClick={() => resetState()} />
         <Button
           text="load"
           rightIcon="export"
@@ -71,12 +66,7 @@ export const Controller: React.FC = () => {
           />
         )}
         {!isPlaying && (
-          <Button
-            text="play"
-            rightIcon="play"
-            fill={true}
-            onClick={() => setIsPlaying(true)}
-          />
+          <Button text="play" rightIcon="play" fill={true} onClick={() => setIsPlaying(true)} />
         )}
       </div>
       {sequences.map((sequence, sequenceIndex) => (

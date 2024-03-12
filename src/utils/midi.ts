@@ -3,22 +3,22 @@ import { IMIDIAccess, MIDIVal, MIDIValOutput } from '@midival/core';
 const MIDI_SEND_QUEUE_INTERVAL = 10;
 
 interface MidiMessage {
-  channel: number
-  note?: number
-  cc?: number
-  value?: number
-  velocity?: number
-  duration?: number
-  isNoteOff?: boolean
-  isMonophonic?: boolean
+  channel: number;
+  note?: number;
+  cc?: number;
+  value?: number;
+  velocity?: number;
+  duration?: number;
+  isNoteOff?: boolean;
+  isMonophonic?: boolean;
 }
 
 interface MidiDevice {
-  type: 'input' | 'output'
-  messageQueue: MidiMessage[]
-  output: MIDIValOutput | null
-  queueInterval: number | null
-  currentNotes: Array<{ note: number, noteOffTimeout: number }>
+  type: 'input' | 'output';
+  messageQueue: MidiMessage[];
+  output: MIDIValOutput | null;
+  queueInterval: number | null;
+  currentNotes: Array<{ note: number; noteOffTimeout: number }>;
 }
 
 type MidiDevices = Record<string, MidiDevice>;
@@ -57,32 +57,30 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
             .forEach(({ noteOffTimeout }) => clearTimeout(noteOffTimeout));
 
           // Remove from currently played notes
-          midiDevices[deviceName].currentNotes = midiDevices[
-            deviceName
-          ].currentNotes.filter((note) => note.note !== message.note || message.isMonophonic);
+          midiDevices[deviceName].currentNotes = midiDevices[deviceName].currentNotes.filter(
+            (note) => note.note !== message.note || message.isMonophonic
+          );
 
           if (message.isNoteOff) {
-            (midiDevices[deviceName].output!).sendNoteOff(
-              message.note,
-              message.channel
-            );
+            midiDevices[deviceName].output!.sendNoteOff(message.note, message.channel);
           } else {
-            (midiDevices[deviceName].output!).sendNoteOn(
+            midiDevices[deviceName].output!.sendNoteOn(
               message.note,
               message.velocity ?? 127,
               message.channel
             );
 
             // Remove any previous messages for this note
-            midiDevices[deviceName].messageQueue = midiDevices[
-              deviceName
-            ].messageQueue.filter(({ note }) => note !== message.note);
+            midiDevices[deviceName].messageQueue = midiDevices[deviceName].messageQueue.filter(
+              ({ note }) => note !== message.note
+            );
 
             // Schedule note off message
             if (message.duration) {
               const noteOffTimeout = setTimeout(() => {
                 sendMidiMessage(deviceName, { ...message, isNoteOff: true });
               }, message.duration) as any as number;
+
               midiDevices[deviceName].currentNotes.push({
                 note: message.note,
                 noteOffTimeout,
@@ -90,7 +88,7 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
             }
           }
         } else if (message.cc && message.value) {
-          (midiDevices[deviceName].output!).sendControlChange(
+          midiDevices[deviceName].output!.sendControlChange(
             message.cc,
             message.value,
             message.channel
@@ -106,9 +104,7 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
 
 const setupMidiOutputDevice = (deviceName: string) => {
   if (midiAccess) {
-    const midiOutputToUse = midiAccess.outputs.find(
-      ({ name }) => name === deviceName
-    );
+    const midiOutputToUse = midiAccess.outputs.find(({ name }) => name === deviceName);
 
     if (midiOutputToUse) {
       if (!midiDevices[deviceName]) {
@@ -130,18 +126,20 @@ const getMidiDevideDefaults = (): MidiDevice => ({
   currentNotes: [],
 });
 
-MIDIVal.connect().then((access) => {
-  midiAccess = access;
-  console.log(
-    'MIDI Output Devices',
-    access.outputs.map(({ name }) => name)
-  );
+MIDIVal.connect()
+  .then((access) => {
+    midiAccess = access;
+    console.log(
+      'MIDI Output Devices',
+      access.outputs.map(({ name }) => name)
+    );
 
-  Object.keys(midiDevices).forEach((deviceName) => {
-    if (midiDevices[deviceName].type === 'output') {
-      setupMidiOutputDevice(deviceName);
-    }
-  });
+    Object.keys(midiDevices).forEach((deviceName) => {
+      if (midiDevices[deviceName].type === 'output') {
+        setupMidiOutputDevice(deviceName);
+      }
+    });
 
-  // output.sendControlChange(5, 50);
-}).catch((e) => console.log(e));
+    // output.sendControlChange(5, 50);
+  })
+  .catch((e) => console.log(e));

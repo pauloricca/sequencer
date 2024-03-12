@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 
 const uploadJsonFileAsObject = <T>(loadCallback: (obj: T) => void) => {
   const fileInputNode = document.createElement('input');
+
   fileInputNode.setAttribute('type', 'file');
   fileInputNode.setAttribute('id', 'file-input');
   fileInputNode.style.display = 'none';

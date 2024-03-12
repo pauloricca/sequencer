@@ -8,8 +8,17 @@
 	gap: 4px;
 	min-height: 30px;
 	cursor: pointer;
+	padding: 0 10px;
 
 	&:hover {
 		background-color: #0000002b;
+	}
+
+	&--is-active {
+		background-color: rgb(116, 195, 0);
+
+		&:hover {
+			background-color: rgb(94, 158, 0);
+		}
 	}
 }

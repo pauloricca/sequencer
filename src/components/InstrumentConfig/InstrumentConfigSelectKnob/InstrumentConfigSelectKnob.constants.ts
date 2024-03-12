@@ -6,5 +6,5 @@ export const MOUSE_MOUSE_THROTTLE = 150;
 
 export const MOUSE_DRAG_RANGE_SPEEDS: { [key in InstrumentConfigSelectKnobSpeed]: number } = {
   normal: MOUSE_DRAG_RANGE_NORMAL,
-  fast: MOUSE_DRAG_RANGE_FAST
+  fast: MOUSE_DRAG_RANGE_FAST,
 };

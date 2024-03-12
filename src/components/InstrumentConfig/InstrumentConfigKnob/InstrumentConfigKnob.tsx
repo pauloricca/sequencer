@@ -16,14 +16,14 @@ const MOUSE_DRAG_RANGE_SPEEDS: { [key in InstrumentConfigKnobSpeed]: number } = 
 };
 
 interface InstrumentConfigKnobProps {
-  value: number
-  onChange: (value: number) => void
-  label?: string
-  min?: number
-  max?: number
-  isIntegerOnly?: boolean
-  isTransparent?: boolean
-  speed?: InstrumentConfigKnobSpeed
+  value: number;
+  onChange: (value: number) => void;
+  label?: string;
+  min?: number;
+  max?: number;
+  isIntegerOnly?: boolean;
+  isTransparent?: boolean;
+  speed?: InstrumentConfigKnobSpeed;
 }
 
 export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
@@ -50,18 +50,17 @@ export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
   const onMouseDownHandler: MouseEventHandler = (ev) => {
     let lastMouseX = ev.screenX;
     let lastMouseY = ev.screenY;
+
     setIsDragging(true);
     const mouseMoveHandler = throttle((ev: MouseEvent) => {
       const mouseYDif = lastMouseY - ev.screenY + ev.screenX - lastMouseX;
+
       lastMouseX = ev.screenX;
       lastMouseY = ev.screenY;
       setInternalValue((prevValue) =>
         Math.max(
           min,
-          Math.min(
-            max,
-            prevValue + ((max - min) * mouseYDif) / MOUSE_DRAG_RANGE_SPEEDS[speed]
-          )
+          Math.min(max, prevValue + ((max - min) * mouseYDif) / MOUSE_DRAG_RANGE_SPEEDS[speed])
         )
       );
     }, MOUSE_MOUSE_THROTTLE);
@@ -70,6 +69,7 @@ export const InstrumentConfigKnob: React.FC<InstrumentConfigKnobProps> = ({
       window.removeEventListener('mousemove', mouseMoveHandler);
       window.removeEventListener('mouseup', mouseUpHandler);
     };
+
     window.addEventListener('mousemove', mouseMoveHandler);
     window.addEventListener('mouseup', mouseUpHandler);
   };

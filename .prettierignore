@@ -1,0 +1,8 @@
+*.*
+!*.js
+!*.jsx
+!*.ts
+!*.tsx
+!*.test.ts
+!*.test.tsx
+ 

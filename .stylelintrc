@@ -1,0 +1,47 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-prettier/recommended",
+    "stylelint-config-standard-scss"
+  ],
+  "files": ["**/*.{css,scss}"],
+  "rules": {
+    "prettier/prettier": true,
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["extend", "include", "mixin", "if", "each", "for", "else"]
+      }
+    ],
+    "no-descending-specificity": null,
+    "property-no-unknown": [
+      true,
+      {
+        "ignoreSelectors": [":export"]
+      }
+    ],
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": [
+          "export"
+        ]
+      }
+    ],
+    "import-notation": "string",
+    "shorthand-property-no-redundant-values": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "no-invalid-double-slash-comments": null,
+    "selector-class-pattern": null,
+    "selector-id-pattern": null,
+    "font-family-name-quotes": "always-unless-keyword",
+    "no-invalid-position-at-import-rule": null,
+    "alpha-value-notation": "percentage",
+    "color-function-notation": "modern",
+    "scss/double-slash-comment-empty-line-before": null,
+    "scss/dollar-variable-empty-line-before": null,
+    "scss/at-mixin-pattern": null,
+    "scss/dollar-variable-pattern": null
+  }
+}
+ 

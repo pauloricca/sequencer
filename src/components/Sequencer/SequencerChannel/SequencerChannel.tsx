@@ -1,10 +1,4 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { SequencerChannelStep } from './SequencerChannelStep/SequencerChannelStep';
 import {
   StateSequence,
@@ -18,15 +12,15 @@ import classNames from 'classnames';
 require('./_SequencerChannel.scss');
 
 export interface SequencerChannelProps {
-  sequence: StateSequence
-  channelConfig: StateSequenceChannelConfigCommon
-  channelIndex: number
-  activeStepIndex: number
-  visiblePage: number
-  triggerCallback?: (channel: number, step?: StateSequenceStep) => void
-  showChannelControls?: boolean
-  channelConfigComponents?: (channelIndex: number) => ReactNode
-  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null
+  sequence: StateSequence;
+  channelConfig: StateSequenceChannelConfigCommon;
+  channelIndex: number;
+  activeStepIndex: number;
+  visiblePage: number;
+  triggerCallback?: (channel: number, step?: StateSequenceStep) => void;
+  showChannelControls?: boolean;
+  channelConfigComponents?: (channelIndex: number) => ReactNode;
+  stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
 }
 
 export const SequencerChannel: React.FC<SequencerChannelProps> = ({
@@ -41,47 +35,40 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   stepPropertyCurrentlyBeingEdited,
 }) => {
   const setStep = useSequencersState((state) => state.setStep(sequence.name));
-  const removeStep = useSequencersState((state) =>
-    state.removeStep(sequence.name)
-  );
+  const removeStep = useSequencersState((state) => state.removeStep(sequence.name));
   const updateChannelConfig = useSequencersState((state) =>
     state.updateChannelConfig(sequence.name)(channelIndex)
   );
-  const updateStep = useSequencersState((state) =>
-    state.updateStep(sequence.name)
-  );
+  const updateStep = useSequencersState((state) => state.updateStep(sequence.name));
   const [isDraggingAlongChannel, setIsDraggingAlongChannel] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   // To use inside the callback
   const visiblePageRef = useRef(visiblePage);
+
   visiblePageRef.current = visiblePage;
 
   if (channelConfig.isHidden) return null;
 
-  const channelStepsByIndex = [...Array(sequence.nSteps).keys()].map(
-    (stepIndex) =>
-      sequence.patterns[sequence.currentPattern].pages[visiblePage].steps.find(
-        (step) => step.stepIndex === stepIndex && step.channel === channelIndex
-      )
+  const channelStepsByIndex = [...Array(sequence.nSteps).keys()].map((stepIndex) =>
+    sequence.patterns[sequence.currentPattern].pages[visiblePage].steps.find(
+      (step) => step.stepIndex === stepIndex && step.channel === channelIndex
+    )
   );
 
-  const onStepToggleHandler = useCallback(
-    (stepIndex: number, currentStep?: StateSequenceStep) => {
-      if (currentStep) {
-        removeStep(currentStep, visiblePageRef.current);
-      } else {
-        setStep(
-          {
-            channel: channelIndex,
-            stepIndex,
-          },
-          visiblePageRef.current
-        );
-      }
-    },
-    []
-  );
+  const onStepToggleHandler = useCallback((stepIndex: number, currentStep?: StateSequenceStep) => {
+    if (currentStep) {
+      removeStep(currentStep, visiblePageRef.current);
+    } else {
+      setStep(
+        {
+          channel: channelIndex,
+          stepIndex,
+        },
+        visiblePageRef.current
+      );
+    }
+  }, []);
 
   const onDragStartHandler = useCallback(() => {
     setIsDraggingAlongChannel(true);
@@ -89,6 +76,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
       setIsDraggingAlongChannel(false);
       window.removeEventListener('mouseup', mouseUpHandler);
     };
+
     window.addEventListener('mouseup', mouseUpHandler);
   }, []);
 
@@ -115,16 +103,10 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
           <Icon icon="cog" onClick={() => setIsConfigOpen(true)} />
         )}
         {!channelConfig.isMuted && (
-          <Icon
-            icon="volume-up"
-            onClick={() => updateChannelConfig({ isMuted: true })}
-          />
+          <Icon icon="volume-up" onClick={() => updateChannelConfig({ isMuted: true })} />
         )}
         {channelConfig.isMuted && (
-          <Icon
-            icon="volume-off"
-            onClick={() => updateChannelConfig({ isMuted: false })}
-          />
+          <Icon icon="volume-off" onClick={() => updateChannelConfig({ isMuted: false })} />
         )}
       </div>
     ),
@@ -134,15 +116,11 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   return (
     <div
       className={classNames('sequencer-channel', {
-        'sequencer-channel--is-muted':
-          channelConfig.isMuted || sequence.isMuted,
+        'sequencer-channel--is-muted': channelConfig.isMuted || sequence.isMuted,
       })}
     >
       <div className="sequencer-channel__inner">
-        <div
-          className="sequencer-channel__name"
-          onClick={() => triggerCallback(channelIndex)}
-        >
+        <div className="sequencer-channel__name" onClick={() => triggerCallback(channelIndex)}>
           {channelConfig.name}
         </div>
         {showChannelControls && channelControls}
@@ -163,18 +141,14 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
                   : undefined
               }
               onFillPercentageChange={
-                stepPropertyCurrentlyBeingEdited
-                  ? onFillPercentageChangeHandler
-                  : undefined
+                stepPropertyCurrentlyBeingEdited ? onFillPercentageChangeHandler : undefined
               }
             />
           ))}
         </div>
       </div>
       {isConfigOpen && channelConfigComponents && (
-        <div className="sequencer-channel__config">
-          {channelConfigComponents(channelIndex)}
-        </div>
+        <div className="sequencer-channel__config">{channelConfigComponents(channelIndex)}</div>
       )}
     </div>
   );

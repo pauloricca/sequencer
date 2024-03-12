@@ -1,5 +1,3 @@
 import { StateSequencePattern } from './state.types';
 
-export const getBlankPattern = (): StateSequencePattern => (
-  { pages: [{ steps: [] }] }
-);
+export const getBlankPattern = (): StateSequencePattern => ({ pages: [{ steps: [] }] });

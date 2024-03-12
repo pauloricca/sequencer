@@ -4,14 +4,16 @@ import { createRoot } from 'react-dom/client';
 require('./_App.scss');
 
 export class App {
-  constructor () {
+  constructor() {
     this.render();
   }
 
-  private render (): void {
+  private render(): void {
     const rootEl = document.getElementById('app');
+
     if (rootEl) {
       const root = createRoot(rootEl);
+
       root.render(React.createElement(Controller));
     }
   }
