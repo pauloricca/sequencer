@@ -9,4 +9,21 @@
     grid-row-gap: 8px;
     grid-column-gap: 8px;
   }
+
+  &__dial-outer {
+    position: relative;
+    margin-left: 4px;
+    width: 6px;
+    height: 12px;
+    border: 1px solid white;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  &__dial {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    background: white;
+  }
 }

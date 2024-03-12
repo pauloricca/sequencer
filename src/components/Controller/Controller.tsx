@@ -5,10 +5,10 @@ import { Synth } from 'components/Synth/Synth';
 import { Button } from '@blueprintjs/core';
 import downloadObjectAsJson from 'utils/downloadObjectAsJson';
 import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
-import { InstrumentConfigKnob } from 'components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob';
 import { setMetronomeInterval, startMetronome, stopMetronome } from 'utils/metronome';
 import { getIntervalFromClockSpeed } from './Controller.utils';
 import { State } from 'state/state.types';
+import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
 require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
@@ -48,12 +48,12 @@ export const Controller: React.FC = () => {
           fill={true}
           onClick={() => downloadObjectAsJson(state, 'sequencer')}
         />
-        <InstrumentConfigKnob
+        <InstrumentConfigSelectKnob
           label={`bpm: ${state.clockSpeed / 4}`}
           value={state.clockSpeed / 4}
+          type="numeric"
           min={5}
           max={600}
-          isIntegerOnly={true}
           onChange={(value) => setClockSpeed(value * 4)}
         />
         {isPlaying && (

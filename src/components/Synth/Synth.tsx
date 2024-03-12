@@ -4,8 +4,6 @@ import { SynthProps } from './Synth.types';
 import { sendMidiMessage } from 'utils/midi';
 import { Midi, Scale, ScaleType } from 'tonal';
 import { useSequencersState } from 'state/state';
-import { InstrumentConfigSelectItem } from 'components/InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect.types';
-import { InstrumentConfigKnob } from 'components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob';
 import { StateSequenceChannelConfigMidi, StateSequenceStep } from 'state/state.types';
 import { getIntervalFromClockSpeed } from 'components/Controller/Controller.utils';
 import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
@@ -29,7 +27,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
       label: scale.name,
     }))
   );
-  const polyphonyOptions = useRef<InstrumentConfigSelectItem[]>([
+  const polyphonyOptions = useRef<InstrumentConfigSelectKnobItem[]>([
     {
       value: false,
       label: 'monophonic',
@@ -80,29 +78,20 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
 
   const instrumentConfigCallback: SequencerProps['instrumentConfigCallback'] = () => (
     <>
-      <InstrumentConfigKnob
+      <InstrumentConfigSelectKnob
         label={`midi channel: ${sequence.midiChannel}`}
-        value={sequence.midiChannel}
+        type="numeric"
         min={0}
         max={32}
-        isIntegerOnly={true}
         onChange={(value) => updateSequence({ midiChannel: value })}
-      />
-      <InstrumentConfigKnob
-        label={`range: ${sequence.range}`}
-        value={sequence.range}
-        min={1}
-        max={32}
-        isIntegerOnly={true}
-        onChange={(value) => updateSequence({ range: value })}
+        value={sequence.midiChannel}
       />
       <InstrumentConfigSelectKnob
         label={`range: ${sequence.range}`}
         type="numeric"
         min={1}
         max={32}
-        // onChange={(value) => updateSequence({ range: value })}
-        onChange={() => {}}
+        onChange={(value) => updateSequence({ range: value })}
         value={sequence.range}
       />
       <InstrumentConfigSelectKnob
@@ -112,13 +101,16 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         onChange={(value) => updateSequence({ rootNote: value })}
         value={sequence.rootNote}
       />
-      <InstrumentConfigKnob
+      <InstrumentConfigSelectKnob
         label={`note duration: ${Math.round(sequence.noteDuration * 100) / 100}`}
-        value={sequence.noteDuration}
+        type="numeric"
         min={0}
         max={sequence.nSteps}
-        isIntegerOnly={false}
+        step={0.1}
+        speed={100}
         onChange={(value) => updateSequence({ noteDuration: Math.round(value * 100) / 100 })}
+        value={sequence.noteDuration}
+        showDial
       />
       <InstrumentConfigSelectKnob
         label={`scale: ${sequence.scale}`}
@@ -134,7 +126,6 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         onChange={(value) => updateSequence({ isPolyphonic: value })}
         value={sequence.isPolyphonic}
         clickOnModalButtonClosesModal
-        speed="fast"
       />
     </>
   );

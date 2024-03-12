@@ -12,9 +12,8 @@ export interface InstrumentConfigSelectKnobProps {
   items?: InstrumentConfigSelectKnobItem[];
   min?: number;
   max?: number;
-  speed?: InstrumentConfigSelectKnobSpeed;
+  speed?: number;
   step?: number;
+  showDial?: boolean;
   clickOnModalButtonClosesModal?: boolean;
 }
-
-export type InstrumentConfigSelectKnobSpeed = 'normal' | 'fast';

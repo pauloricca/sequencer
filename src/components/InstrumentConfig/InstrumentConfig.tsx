@@ -2,9 +2,9 @@ import { Icon, InputGroup } from '@blueprintjs/core';
 import React, { ReactNode, useState } from 'react';
 import { StateSequence } from 'state/state.types';
 import { useSequencersState } from 'state/state';
-import { InstrumentConfigKnob } from './InstrumentConfigKnob/InstrumentConfigKnob';
 import classNames from 'classnames';
 import { InstrumentConfigMidiOut } from './InstrumentConfigMidiOut/InstrumentConfigMidiOut';
+import { InstrumentConfigSelectKnob } from './InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
 require('./_InstrumentConfig.scss');
 
 export interface InstrumentConfigProps {
@@ -77,21 +77,21 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             onValueChange={(value) => updateSequence({ name: value })}
           />
           <InstrumentConfigMidiOut sequence={sequence} />
-          <InstrumentConfigKnob
+          <InstrumentConfigSelectKnob
             label={`n steps: ${sequence.nSteps}`}
-            value={sequence.nSteps}
+            type="numeric"
             min={1}
             max={64}
-            isIntegerOnly={true}
             onChange={(value) => updateSequence({ nSteps: value })}
+            value={sequence.nSteps}
           />
-          <InstrumentConfigKnob
+          <InstrumentConfigSelectKnob
             label={`step length: ${sequence.stepLength}`}
-            value={sequence.stepLength}
+            type="numeric"
             min={1}
             max={32}
-            isIntegerOnly={true}
             onChange={(value) => updateSequence({ stepLength: value })}
+            value={sequence.stepLength}
           />
           {!!instrumentConfigCallback && instrumentConfigCallback()}
         </div>

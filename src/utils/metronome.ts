@@ -58,10 +58,12 @@ const metronome = new Metronome(
 );
 
 export const setMetronomeInterval = (interval: number) => {
+  console.log('paulo clock interval', interval);
   metronome.setInterval(interval);
 };
 
 export const startMetronome = () => {
+  console.log('paulo start');
   metronome.start();
 };
 

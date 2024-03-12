@@ -4,10 +4,9 @@ import { Sequencer } from 'components/Sequencer/Sequencer';
 import { DrumMachineProps } from './DrumMachine.types';
 import { sendMidiMessage } from 'utils/midi';
 import { useSequencersState } from 'state/state';
-import { InstrumentConfigKnob } from 'components/InstrumentConfig/InstrumentConfigKnob/InstrumentConfigKnob';
 import { InputGroup } from '@blueprintjs/core';
-import { InstrumentConfigSelect } from 'components/InstrumentConfig/InstrumentConfigSelect/InstrumentConfigSelect';
 import { StateSequenceStep } from 'state/state.types';
+import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencerProps }) => {
   const updateChannelConfig = useSequencersState((state) =>
@@ -71,33 +70,37 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
             value={channelConfig.name}
             onValueChange={(value) => update({ name: value })}
           />
-          <InstrumentConfigKnob
+          <InstrumentConfigSelectKnob
             label="volume"
-            value={channelConfig.volume ?? 1}
-            speed="fast"
+            type="numeric"
+            step={0.05}
             onChange={(value) => update({ volume: value })}
+            value={channelConfig.volume ?? 1}
+            showDial
           />
-          <InstrumentConfigSelect
+          <InstrumentConfigSelectKnob
             label={`${channelConfig.type}`}
             items={[{ value: 'midi' }, { value: 'sample' }]}
-            onSelect={({ value }) => update({ type: value })}
+            type="discrete"
+            onChange={(value) => update({ type: value })}
+            value={channelConfig.type}
           />
           {channelConfig.type === 'midi' && (
             <>
-              <InstrumentConfigKnob
+              <InstrumentConfigSelectKnob
                 label={`midi channel: ${channelConfig.midiChannel ?? 'none'}`}
                 value={channelConfig.midiChannel}
+                type="numeric"
                 min={0}
                 max={32}
-                isIntegerOnly={true}
                 onChange={(value) => update({ midiChannel: value })}
               />
-              <InstrumentConfigKnob
+              <InstrumentConfigSelectKnob
                 label={`midi note: ${channelConfig.midiNote ?? 'none'}`}
                 value={channelConfig.midiNote}
+                type="numeric"
                 min={0}
                 max={101}
-                isIntegerOnly={true}
                 onChange={(value) => update({ midiNote: value })}
               />
             </>
