@@ -12,6 +12,7 @@ import {
 import { INITIAL_STATE } from './state.initial';
 import { unregisterMidiOutputDevice } from '../utils/midi';
 import { getBlankPattern } from './state.utils';
+import { Draft } from 'immer';
 
 const setStep: StateAction =
   (set): StateActions['setStep'] =>
@@ -122,66 +123,97 @@ const updateChannelConfig: StateAction =
       }
     });
 
+const updateSequenceAction = (
+  state: Draft<State & StateActions>,
+  sequenceName: string,
+  newSequenceSettings: Partial<StateSequence>
+) => {
+  const sequence = getSequenceByName(state.sequences, sequenceName);
+
+  if (sequence) {
+    // Check if we need to unregister midi devices
+    if (
+      newSequenceSettings.midiOutDeviceName &&
+      sequence.midiOutDeviceName &&
+      newSequenceSettings.midiOutDeviceName !== sequence.midiOutDeviceName
+    ) {
+      // No other sequence using the midi device that was being used on this sequence?
+      if (
+        !state.sequences.filter(
+          (otherSequence) =>
+            otherSequence !== sequence &&
+            otherSequence.midiOutDeviceName === sequence.midiOutDeviceName
+        ).length
+      ) {
+        unregisterMidiOutputDevice(sequence.midiOutDeviceName);
+      }
+    }
+
+    // Check if we need to shift the steps because of a range change
+    if (
+      (newSequenceSettings as StateSequenceSynth).range &&
+      (newSequenceSettings as StateSequenceSynth).range !== (sequence as StateSequenceSynth).range
+    ) {
+      const rangeDifference =
+        (newSequenceSettings as StateSequenceSynth).range - (sequence as StateSequenceSynth).range;
+
+      sequence.patterns.forEach((pattern) =>
+        pattern.pages.forEach((page) =>
+          page.steps.forEach((step) => {
+            if ((sequence as StateSequenceSynth).range % 2 === 0) {
+              step.channel += Math.floor(rangeDifference / 2);
+            } else {
+              step.channel += Math.ceil(rangeDifference / 2);
+            }
+          })
+        )
+      );
+    }
+
+    Object.keys(newSequenceSettings).forEach(
+      (key) => ((sequence as any)[key] = (newSequenceSettings as any)[key])
+    );
+  }
+};
+
 const updateSequence: StateAction =
   (set): StateActions['updateSequence'] =>
   (sequenceName) =>
   (newSequenceSettings) =>
-    set((state) => {
-      const sequence = getSequenceByName(state.sequences, sequenceName);
-
-      if (sequence) {
-        // Check if we need to unregister midi devices
-        if (
-          newSequenceSettings.midiOutDeviceName &&
-          sequence.midiOutDeviceName &&
-          newSequenceSettings.midiOutDeviceName !== sequence.midiOutDeviceName
-        ) {
-          // No other sequence using the midi device that was being used on this sequence?
-          if (
-            !state.sequences.filter(
-              (otherSequence) =>
-                otherSequence !== sequence &&
-                otherSequence.midiOutDeviceName === sequence.midiOutDeviceName
-            ).length
-          ) {
-            unregisterMidiOutputDevice(sequence.midiOutDeviceName);
-          }
-        }
-
-        // Check if we need to shift the steps because of a range change
-        if (
-          (newSequenceSettings as StateSequenceSynth).range &&
-          (newSequenceSettings as StateSequenceSynth).range !==
-            (sequence as StateSequenceSynth).range
-        ) {
-          const rangeDifference =
-            (newSequenceSettings as StateSequenceSynth).range -
-            (sequence as StateSequenceSynth).range;
-
-          sequence.patterns.forEach((pattern) =>
-            pattern.pages.forEach((page) =>
-              page.steps.forEach((step) => {
-                if ((sequence as StateSequenceSynth).range % 2 === 0) {
-                  step.channel += Math.floor(rangeDifference / 2);
-                } else {
-                  step.channel += Math.ceil(rangeDifference / 2);
-                }
-              })
-            )
-          );
-        }
-
-        Object.keys(newSequenceSettings).forEach(
-          (key) => ((sequence as any)[key] = (newSequenceSettings as any)[key])
-        );
-      }
-    });
+    set((state) => updateSequenceAction(state, sequenceName, newSequenceSettings));
 
 const setClockSpeed: StateAction =
   (set): StateActions['setClockSpeed'] =>
   (clockSpeed) =>
     set((state) => {
       state.clockSpeed = clockSpeed;
+    });
+
+const performAction: StateAction =
+  (set): StateActions['performAction'] =>
+  (action) =>
+    set((state) => {
+      switch (action.type) {
+        case 'Sequence Param Change':
+          updateSequenceAction(state, action.sequenceName, {
+            [action.param]: action.value,
+          });
+          break;
+      }
+    });
+
+const startListeningToNewShortcut: StateAction =
+  (set): StateActions['startListeningToNewShortcut'] =>
+  (action) =>
+    set((state) => {
+      state.actionCurrentlyListeningForShortcut = action;
+    });
+
+const stopListeningToNewShortcut: StateAction =
+  (set): StateActions['stopListeningToNewShortcut'] =>
+  () =>
+    set((state) => {
+      state.actionCurrentlyListeningForShortcut = undefined;
     });
 
 const reset: StateAction =
@@ -201,6 +233,9 @@ export const useSequencersState = create<State & StateActions>()(
       updateChannelConfig: updateChannelConfig(set, get),
       updateSequence: updateSequence(set, get),
       setClockSpeed: setClockSpeed(set, get),
+      performAction: performAction(set, get),
+      startListeningToNewShortcut: startListeningToNewShortcut(set, get),
+      stopListeningToNewShortcut: stopListeningToNewShortcut(set, get),
       reset: reset(set, get),
     })),
     {

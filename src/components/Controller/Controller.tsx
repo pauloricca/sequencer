@@ -9,6 +9,7 @@ import { setMetronomeInterval, startMetronome, stopMetronome } from 'utils/metro
 import { getIntervalFromClockSpeed } from './Controller.utils';
 import { State } from 'state/state.types';
 import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
+import { ShortcutController } from 'components/ShortcutController/ShortcutController';
 require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
@@ -75,6 +76,7 @@ export const Controller: React.FC = () => {
           {sequence.type === 'synth' && <Synth sequence={sequence} />}
         </div>
       ))}
+      <ShortcutController />
     </div>
     // </StrictMode>
   );

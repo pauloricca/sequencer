@@ -98,8 +98,10 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         label={`root: ${Midi.midiToNoteName(sequence.rootNote)}`}
         type="discrete"
         items={rootOptions.current}
-        onChange={(value) => updateSequence({ rootNote: value })}
+        // onChange={(value) => updateSequence({ rootNote: value })}
+        action={{ type: 'Sequence Param Change', sequenceName: sequence.name, param: 'rootNote' }}
         value={sequence.rootNote}
+        speed={0.2}
       />
       <InstrumentConfigSelectKnob
         label={`note duration: ${Math.round(sequence.noteDuration * 100) / 100}`}

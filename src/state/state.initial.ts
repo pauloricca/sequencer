@@ -201,4 +201,5 @@ export const INITIAL_STATE: State = {
       isPolyphonic: true,
     },
   ],
+  shortcuts: [],
 };
