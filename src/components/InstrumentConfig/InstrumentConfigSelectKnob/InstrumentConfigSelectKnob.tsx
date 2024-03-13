@@ -5,6 +5,7 @@ import { Modal } from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
 import { throttle } from 'lodash';
 import { MOUSE_MOUSE_THROTTLE } from './InstrumentConfigSelectKnob.constants';
+import { countDecimalPlaces } from 'utils/countDecimalPlaces';
 require('./_InstrumentConfigSelectKnob.scss');
 
 export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProps> = ({
@@ -31,18 +32,24 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
     valueRef.current = value;
   }, [value]);
 
+  const stepDecimalPlaces = countDecimalPlaces(step);
   const items =
     useMemo<InstrumentConfigSelectKnobProps['items']>(
       () =>
         type === 'discrete'
           ? itemsProp
-          : [...Array(1 + (maxProp - minProp) / step).keys()].map((value) => ({
-              value: minProp + value * step,
-              key: minProp + value * step,
-              label: `${minProp + value * step}`,
-            })),
+          : [...Array(1 + (maxProp - minProp) / step).keys()].map((valueIndex) => {
+              const values = (minProp + valueIndex * step).toFixed(stepDecimalPlaces);
+
+              return {
+                value: Number(values),
+                key: values,
+                label: `${values}`,
+              };
+            }),
       [itemsProp, minProp, maxProp]
     ) ?? [];
+
   const min = type === 'numeric' ? minProp : 0;
   const max = type === 'numeric' ? maxProp : items?.length - 1;
 
