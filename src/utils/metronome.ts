@@ -28,12 +28,13 @@ class Metronome {
   }
 
   public setInterval(newInterval: number) {
-    if (this.nextAt !== 0) {
-      this.nextAt += newInterval - this.interval;
-    }
     this.interval = newInterval;
-    clearTimeout(this.timeout);
-    this.timeout = this.scheduleNext();
+
+    if (this.nextAt >= 0) {
+      this.nextAt += newInterval - this.interval;
+      clearTimeout(this.timeout);
+      this.timeout = this.scheduleNext();
+    }
   }
 
   public stop() {
@@ -58,12 +59,10 @@ const metronome = new Metronome(
 );
 
 export const setMetronomeInterval = (interval: number) => {
-  console.log('paulo clock interval', interval);
   metronome.setInterval(interval);
 };
 
 export const startMetronome = () => {
-  console.log('paulo start');
   metronome.start();
 };
 

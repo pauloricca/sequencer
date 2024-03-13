@@ -1,11 +1,10 @@
-import React, { MouseEventHandler, useEffect, useMemo, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
 import { InstrumentConfigSelectKnobProps } from './InstrumentConfigSelectKnob.types';
 import { Icon } from '@blueprintjs/core';
 import { Modal } from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
 import { throttle } from 'lodash';
 import { MOUSE_MOUSE_THROTTLE } from './InstrumentConfigSelectKnob.constants';
-import classNames from 'classnames';
 require('./_InstrumentConfigSelectKnob.scss');
 
 export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProps> = ({
@@ -21,52 +20,38 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
   clickOnModalButtonClosesModal = false,
   onChange,
 }) => {
-  // internalNumericValue holds the numeric value or the index of discrete items
-  const [internalNumericValue, setInternalNumericValue] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const isDragging = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [_, setTriggerRender] = useState(false);
+
+  // Keep a copy of the value prop in ref to be accessible inside event handlers
+  const valueRef = useRef(value);
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
 
   const items =
     useMemo<InstrumentConfigSelectKnobProps['items']>(
       () =>
         type === 'discrete'
           ? itemsProp
-          : [...Array((maxProp - minProp) / step).keys()].map((value) => ({
-              value: value * step,
-              key: value * step,
-              label: `${value * step}`,
+          : [...Array(1 + (maxProp - minProp) / step).keys()].map((value) => ({
+              value: minProp + value * step,
+              key: minProp + value * step,
+              label: `${minProp + value * step}`,
             })),
       [itemsProp, minProp, maxProp]
     ) ?? [];
   const min = type === 'numeric' ? minProp : 0;
-  const max = type === 'numeric' ? maxProp : items?.length;
-
-  useEffect(() => {
-    const newInternalNumericValue =
-      type === 'numeric' ? (value as number) : items.findIndex((item) => item.value === value) ?? 0;
-
-    if (newInternalNumericValue !== internalNumericValue) {
-      setInternalNumericValue(newInternalNumericValue);
-    }
-  }, [value]);
-
-  useEffect(() => {
-    const newExternalValue =
-      type === 'numeric'
-        ? internalNumericValue
-        : items[Math.min(internalNumericValue, items.length - 1)]?.value;
-
-    if (value !== newExternalValue && newExternalValue !== undefined) {
-      onChange(newExternalValue, items[Math.min(internalNumericValue, items.length - 1)]);
-    }
-  }, [internalNumericValue]);
+  const max = type === 'numeric' ? maxProp : items?.length - 1;
 
   const onMouseDownHandler: MouseEventHandler = (ev) => {
     let lastMouseX = ev.screenX;
     let lastMouseY = ev.screenY;
 
     const mouseMoveHandler = throttle((ev: MouseEvent) => {
-      setIsDragging(true);
+      isDragging.current = true;
 
       const mouseDif = (lastMouseY - ev.screenY + ev.screenX - lastMouseX) * speed;
 
@@ -74,14 +59,33 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
         lastMouseX = ev.screenX;
         lastMouseY = ev.screenY;
 
-        setInternalNumericValue((prevValue) =>
-          Math.max(min, Math.min(max, mouseDif < 0 ? prevValue - step : prevValue + step))
+        let currentValueOrIndex: number = 0;
+
+        if (type === 'numeric') {
+          currentValueOrIndex = valueRef.current as number;
+        } else {
+          currentValueOrIndex = items.findIndex(({ value }) => value === valueRef.current);
+          if (currentValueOrIndex < 0) return;
+        }
+
+        const newValue = Math.max(
+          min,
+          Math.min(max, mouseDif < 0 ? currentValueOrIndex - step : currentValueOrIndex + step)
         );
+
+        if (type === 'numeric' && newValue !== valueRef.current) {
+          onChange(newValue);
+        } else if (type === 'discrete' && items[newValue]?.value !== valueRef.current) {
+          onChange(items[newValue]?.value, items[newValue]);
+        }
       }
     }, MOUSE_MOUSE_THROTTLE);
     const mouseUpHandler = () => {
       // Delay setting isDragging to false so that we can avoid triggering the onClick handler
-      setTimeout(() => setIsDragging(false), 100);
+      setTimeout(() => {
+        isDragging.current = false;
+        setTriggerRender((prev) => !prev);
+      }, 100);
       window.removeEventListener('mousemove', mouseMoveHandler);
       window.removeEventListener('mouseup', mouseUpHandler);
     };
@@ -92,22 +96,20 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
 
   return (
     <>
-      <div
-        className={classNames('instrument-config-select-knob', {
-          'instrument-config-select-knob--is-dragging': isDragging,
-        })}
-        onMouseDown={onMouseDownHandler}
-      >
-        <Button onClick={() => !isDragging && setIsOpen(true)} isActive={isDragging}>
+      <div className="instrument-config-select-knob" onMouseDown={onMouseDownHandler}>
+        <Button
+          onClick={() => !isDragging.current && setIsOpen(true)}
+          isActive={isDragging.current}
+        >
           {label}
           {type === 'discrete' && (
             <Icon
               icon={
-                internalNumericValue === 0
+                value === items[0]?.value
                   ? 'caret-up'
-                  : internalNumericValue < max - 1
-                    ? 'double-caret-vertical'
-                    : 'caret-down'
+                  : value === items[items.length - 1]?.value
+                    ? 'caret-down'
+                    : 'double-caret-vertical'
               }
             />
           )}
