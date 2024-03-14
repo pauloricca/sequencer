@@ -13,6 +13,7 @@ import { INITIAL_STATE } from './state.initial';
 import { unregisterMidiOutputDevice } from '../utils/midi';
 import { getBlankPattern } from './state.utils';
 import { Draft } from 'immer';
+import { isEqual } from 'lodash';
 
 const setStep: StateAction =
   (set): StateActions['setStep'] =>
@@ -204,16 +205,35 @@ const performAction: StateAction =
 
 const startListeningToNewShortcut: StateAction =
   (set): StateActions['startListeningToNewShortcut'] =>
-  (action) =>
+  (shortcut) =>
     set((state) => {
-      state.actionCurrentlyListeningForShortcut = action;
+      state.shortcuts.push({
+        ...shortcut,
+        type: 'currently-being-assigned',
+      });
+    });
+
+const saveNewShortcut: StateAction =
+  (set): StateActions['saveNewShortcut'] =>
+  (shortcut) =>
+    set((state) => {
+      state.shortcuts.push(shortcut);
     });
 
 const stopListeningToNewShortcut: StateAction =
   (set): StateActions['stopListeningToNewShortcut'] =>
   () =>
     set((state) => {
-      state.actionCurrentlyListeningForShortcut = undefined;
+      state.shortcuts = state.shortcuts.filter(({ type }) => type !== 'currently-being-assigned');
+    });
+
+const removeShortcut: StateAction =
+  (set): StateActions['removeShortcut'] =>
+  (shortcut) =>
+    set((state) => {
+      state.shortcuts = state.shortcuts.filter(
+        (existingShortcut) => !isEqual(shortcut, existingShortcut)
+      );
     });
 
 const reset: StateAction =
@@ -236,6 +256,8 @@ export const useSequencersState = create<State & StateActions>()(
       performAction: performAction(set, get),
       startListeningToNewShortcut: startListeningToNewShortcut(set, get),
       stopListeningToNewShortcut: stopListeningToNewShortcut(set, get),
+      saveNewShortcut: saveNewShortcut(set, get),
+      removeShortcut: removeShortcut(set, get),
       reset: reset(set, get),
     })),
     {

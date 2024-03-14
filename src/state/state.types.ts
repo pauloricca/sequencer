@@ -6,26 +6,7 @@ export interface State {
    */
   clockSpeed: number;
   sequences: StateSequence[];
-  /**
-   * When set, it means it's waiting for a keyboard press or midi control, to attach a shortcut to this action
-   */
-  actionCurrentlyListeningForShortcut?: Partial<StateActionMessage>;
-  shortcuts: {
-    type: 'keyboard' | 'midi-note' | 'midi-cc';
-    /**
-     * Action can have an undefined value, so that it's defined by the midi-note or the midi-cc
-     */
-    action: Partial<StateActionMessage>;
-    key?: number;
-    /**
-     * Minimum value, to be mapped to 0 when using midi-cc
-     */
-    valueRangeMin?: number;
-    /**
-     * Maximum value, to be mapped to 127 when using midi-cc
-     */
-    valueRangeMax?: number;
-  }[];
+  shortcuts: StateShortcut[];
 }
 
 export interface StateActions {
@@ -45,19 +26,12 @@ export interface StateActions {
   updateSequence: (sequenceName: string) => (newSequenceSettings: Partial<StateSequence>) => void;
   setClockSpeed: (clockSpeed: number) => void;
   performAction: (action: StateActionMessage) => void;
-  startListeningToNewShortcut: (action: Partial<StateActionMessage>) => void;
+  startListeningToNewShortcut: (shortcut: Omit<StateShortcut, 'type' | 'key'>) => void;
   stopListeningToNewShortcut: () => void;
+  saveNewShortcut: (shortcut: StateShortcut) => void;
+  removeShortcut: (shortcut: StateShortcut) => void;
   reset: (state?: State) => void;
 }
-
-export type StateActionMessage = StateActionMessageSequenceParameterChange;
-
-type StateActionMessageSequenceParameterChange = {
-  type: 'Sequence Param Change';
-  sequenceName: string;
-  param: keyof StateSequenceDrumMachine | keyof StateSequenceSynth;
-  value: number | string | boolean;
-};
 
 type StateSetter = (
   nextStateOrUpdater:
@@ -149,4 +123,36 @@ export interface StateSequenceStep extends StateSequenceStepProperties {
 export interface StateSequenceStepProperties {
   volume?: number;
   probability?: number;
+}
+
+export type StateActionMessage = StateActionMessageSequenceParameterChange;
+
+type StateActionMessageSequenceParameterChange = {
+  type: 'Sequence Param Change';
+  sequenceName: string;
+  param: keyof StateSequenceDrumMachine | keyof StateSequenceSynth;
+  value?: number | string | boolean;
+};
+
+export interface StateShortcut {
+  /**
+   * Action can have an undefined value, so that it's defined by the midi-note or the midi-cc
+   */
+  action: StateActionMessage;
+  /**
+   * When not set, it means it's waiting for a keyboard press or midi control, to attach a shortcut to this action
+   */
+  type: 'currently-being-assigned' | 'keyboard' | 'midi-note' | 'midi-cc';
+  /**
+   * Keyboard key that triggers the action
+   */
+  key?: string;
+  /**
+   * Minimum value, to be mapped to 0 when using midi-cc
+   */
+  valueRangeMin?: number;
+  /**
+   * Maximum value, to be mapped to 127 when using midi-cc
+   */
+  valueRangeMax?: number;
 }

@@ -6,7 +6,6 @@ import { Button } from 'components/Button/Button';
 import { throttle } from 'lodash';
 import { MOUSE_MOUSE_THROTTLE } from './InstrumentConfigSelectKnob.constants';
 import { countDecimalPlaces } from 'utils/countDecimalPlaces';
-import { StateActionMessage } from 'state/state.types';
 import { useSequencersState } from 'state/state';
 import { PRESS_AND_HOLD_TIME } from 'components/ShortcutController/ShortcutController.constants';
 require('./_InstrumentConfigSelectKnob.scss');
@@ -28,6 +27,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
   const isDragging = useRef(false);
   const [isListeningForShortcut, setIsListeningForShortcut] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [_, setTriggerRender] = useState(false);
   const performAction = useSequencersState((state) => state.performAction);
   const stopListeningToNewShortcut = useSequencersState(
     (state) => state.stopListeningToNewShortcut
@@ -69,7 +69,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
 
     action &&
       performAction({
-        ...(action as StateActionMessage),
+        ...action,
         value,
       });
   };
@@ -82,7 +82,11 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
       ? setTimeout(() => {
           window.removeEventListener('mousemove', mouseMoveHandler);
           setIsListeningForShortcut(true);
-          startListeningToNewShortcut(action);
+          startListeningToNewShortcut({
+            action,
+            valueRangeMin: min,
+            valueRangeMax: max,
+          });
         }, PRESS_AND_HOLD_TIME)
       : -1;
 
@@ -127,6 +131,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
       setTimeout(() => {
         isDragging.current = false;
         setIsListeningForShortcut(false);
+        setTriggerRender((prev) => !prev);
       }, 100);
 
       window.removeEventListener('mousemove', mouseMoveHandler);

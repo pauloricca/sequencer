@@ -11,7 +11,7 @@ export interface InstrumentConfigSelectKnobProps {
   type: 'discrete' | 'numeric';
   value: any;
   onChange?: (value: any, item?: InstrumentConfigSelectKnobItem) => void;
-  action?: Partial<StateActionMessage>;
+  action?: StateActionMessage;
   items?: InstrumentConfigSelectKnobItem[];
   min?: number;
   max?: number;
