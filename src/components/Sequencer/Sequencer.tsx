@@ -5,7 +5,7 @@ import {
   StateSequenceChannelConfigCommon,
   StateSequenceStepProperties,
 } from 'state/state.types';
-import { registerMidiOutputDevice } from 'utils/midi';
+import { registerMidiDevice } from 'utils/midi';
 import { Button } from '@blueprintjs/core';
 import { useSequencersState } from 'state/state';
 import { cloneDeep } from 'lodash';
@@ -46,7 +46,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
 
   useEffect(() => {
     if (sequence.midiOutDeviceName) {
-      registerMidiOutputDevice(sequence.midiOutDeviceName);
+      registerMidiDevice(sequence.midiOutDeviceName, 'output');
     }
   }, [sequence.midiOutDeviceName]);
 

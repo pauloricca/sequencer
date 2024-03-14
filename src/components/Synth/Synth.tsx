@@ -40,7 +40,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
 
   useEffect(() => {
     // Get indexes of the scale per channel e.g. [-3, -2, -1, 0, 1, 2, 3]
-    const scaleIndexes = [...Array(sequence.range).keys()].map(
+    const scaleIndexes = [...Array(Math.floor(sequence.range)).keys()].map(
       (i) => Math.floor(sequence.range / 2) - i
     );
 
@@ -91,26 +91,36 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         type="numeric"
         min={1}
         max={32}
-        onChange={(value) => updateSequence({ range: value })}
+        actionMessage={{
+          type: 'Sequence Param Change',
+          sequenceName: sequence.name,
+          param: 'range',
+        }}
         value={sequence.range}
       />
       <InstrumentConfigSelectKnob
         label={`root: ${Midi.midiToNoteName(sequence.rootNote)}`}
         type="discrete"
         items={rootOptions.current}
-        // onChange={(value) => updateSequence({ rootNote: value })}
-        action={{ type: 'Sequence Param Change', sequenceName: sequence.name, param: 'rootNote' }}
+        actionMessage={{
+          type: 'Sequence Param Change',
+          sequenceName: sequence.name,
+          param: 'rootNote',
+        }}
         value={sequence.rootNote}
-        speed={0.2}
       />
       <InstrumentConfigSelectKnob
-        label={`note duration: ${Math.round(sequence.noteDuration * 100) / 100}`}
+        label={`note duration: ${sequence.noteDuration}`}
         type="numeric"
         min={0}
         max={sequence.nSteps}
         step={0.1}
-        speed={100}
-        onChange={(value) => updateSequence({ noteDuration: Math.round(value * 100) / 100 })}
+        speed={5}
+        actionMessage={{
+          type: 'Sequence Param Change',
+          sequenceName: sequence.name,
+          param: 'noteDuration',
+        }}
         value={sequence.noteDuration}
         showDial
       />
@@ -118,7 +128,11 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         label={`scale: ${sequence.scale}`}
         type="discrete"
         items={scaleOptions.current}
-        onChange={(value) => updateSequence({ scale: value })}
+        actionMessage={{
+          type: 'Sequence Param Change',
+          sequenceName: sequence.name,
+          param: 'scale',
+        }}
         value={sequence.scale}
       />
       <InstrumentConfigSelectKnob

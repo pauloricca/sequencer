@@ -82,7 +82,11 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             type="numeric"
             min={1}
             max={64}
-            onChange={(value) => updateSequence({ nSteps: value })}
+            actionMessage={{
+              type: 'Sequence Param Change',
+              sequenceName: sequence.name,
+              param: 'nSteps',
+            }}
             value={sequence.nSteps}
           />
           <InstrumentConfigSelectKnob
@@ -90,7 +94,11 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             type="numeric"
             min={1}
             max={32}
-            onChange={(value) => updateSequence({ stepLength: value })}
+            actionMessage={{
+              type: 'Sequence Param Change',
+              sequenceName: sequence.name,
+              param: 'stepLength',
+            }}
             value={sequence.stepLength}
           />
           {!!instrumentConfigCallback && instrumentConfigCallback()}

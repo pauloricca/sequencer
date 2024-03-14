@@ -7,6 +7,7 @@ export interface State {
   clockSpeed: number;
   sequences: StateSequence[];
   shortcuts: StateShortcut[];
+  activeMidiInputDevices: string[];
 }
 
 export interface StateActions {
@@ -25,11 +26,13 @@ export interface StateActions {
   ) => (channelIndex: number) => (newChannelConfig: Partial<StateSequenceChannelConfig>) => void;
   updateSequence: (sequenceName: string) => (newSequenceSettings: Partial<StateSequence>) => void;
   setClockSpeed: (clockSpeed: number) => void;
-  performAction: (action: StateActionMessage) => void;
+  performAction: (actionMessage: StateActionMessage) => void;
   startListeningToNewShortcut: (shortcut: Omit<StateShortcut, 'type' | 'key'>) => void;
   stopListeningToNewShortcut: () => void;
   saveNewShortcut: (shortcut: StateShortcut) => void;
   removeShortcut: (shortcut: StateShortcut) => void;
+  addActiveMidiInputDevice: (midiInputDevice: string) => void;
+  removeActiveMidiInputDevice: (midiInputDevice: string) => void;
   reset: (state?: State) => void;
 }
 
@@ -125,12 +128,23 @@ export interface StateSequenceStepProperties {
   probability?: number;
 }
 
-export type StateActionMessage = StateActionMessageSequenceParameterChange;
+export type StateActionMessage =
+  | StateActionMessageSequenceParameterChange
+  | StateActionMessageChannelParameterChange;
 
 type StateActionMessageSequenceParameterChange = {
   type: 'Sequence Param Change';
   sequenceName: string;
   param: keyof StateSequenceDrumMachine | keyof StateSequenceSynth;
+  decimalPlaces?: number;
+  value?: number | string | boolean;
+};
+
+type StateActionMessageChannelParameterChange = {
+  type: 'Channel Param Change';
+  sequenceName: string;
+  channelIndex: number;
+  param: keyof StateSequenceChannelConfig;
   value?: number | string | boolean;
 };
 
@@ -138,7 +152,7 @@ export interface StateShortcut {
   /**
    * Action can have an undefined value, so that it's defined by the midi-note or the midi-cc
    */
-  action: StateActionMessage;
+  actionMessage: StateActionMessage;
   /**
    * When not set, it means it's waiting for a keyboard press or midi control, to attach a shortcut to this action
    */
@@ -147,6 +161,10 @@ export interface StateShortcut {
    * Keyboard key that triggers the action
    */
   key?: string;
+  midiDevice?: string;
+  midiNote?: number;
+  midiChannel?: number;
+  midiControl?: number;
   /**
    * Minimum value, to be mapped to 0 when using midi-cc
    */
@@ -155,4 +173,8 @@ export interface StateShortcut {
    * Maximum value, to be mapped to 127 when using midi-cc
    */
   valueRangeMax?: number;
+  /**
+   * How many decimal places the value should be triggered with
+   */
+  decimalPlaces?: number;
 }

@@ -74,9 +74,15 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
             label="volume"
             type="numeric"
             step={0.05}
-            onChange={(value) => update({ volume: value })}
+            actionMessage={{
+              type: 'Channel Param Change',
+              sequenceName: sequence.name,
+              channelIndex,
+              param: 'volume',
+            }}
             value={channelConfig.volume ?? 1}
             showDial
+            speed={15}
           />
           <InstrumentConfigSelectKnob
             label={`${channelConfig.type}`}

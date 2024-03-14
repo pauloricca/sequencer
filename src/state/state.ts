@@ -8,9 +8,10 @@ import {
   StateSequenceDrumMachine,
   StateSequenceSynth,
   StateAction,
+  StateSequenceChannelConfig,
 } from './state.types';
 import { INITIAL_STATE } from './state.initial';
-import { unregisterMidiOutputDevice } from '../utils/midi';
+import { unregisterMidiDevice } from '../utils/midi';
 import { getBlankPattern } from './state.utils';
 import { Draft } from 'immer';
 import { isEqual } from 'lodash';
@@ -107,22 +108,29 @@ const updateStep: StateAction =
       }
     });
 
+const updateChannelConfigAction = (
+  state: Draft<State & StateActions>,
+  sequenceName: string,
+  channelIndex: number,
+  newChannelConfig: Partial<StateSequenceChannelConfig>
+) => {
+  const channelConfig = (
+    getSequenceByName(state.sequences, sequenceName) as StateSequenceDrumMachine
+  )?.channelsConfig[channelIndex];
+
+  if (channelConfig) {
+    Object.keys(newChannelConfig).forEach(
+      (key) => ((channelConfig as any)[key] = (newChannelConfig as any)[key])
+    );
+  }
+};
+
 const updateChannelConfig: StateAction =
   (set): StateActions['updateChannelConfig'] =>
   (sequenceName) =>
   (channelIndex) =>
   (newChannelConfig) =>
-    set((state) => {
-      const channelConfig = (
-        getSequenceByName(state.sequences, sequenceName) as StateSequenceDrumMachine
-      )?.channelsConfig[channelIndex];
-
-      if (channelConfig) {
-        Object.keys(newChannelConfig).forEach(
-          (key) => ((channelConfig as any)[key] = (newChannelConfig as any)[key])
-        );
-      }
-    });
+    set((state) => updateChannelConfigAction(state, sequenceName, channelIndex, newChannelConfig));
 
 const updateSequenceAction = (
   state: Draft<State & StateActions>,
@@ -146,7 +154,7 @@ const updateSequenceAction = (
             otherSequence.midiOutDeviceName === sequence.midiOutDeviceName
         ).length
       ) {
-        unregisterMidiOutputDevice(sequence.midiOutDeviceName);
+        unregisterMidiDevice(sequence.midiOutDeviceName, 'output');
       }
     }
 
@@ -192,12 +200,17 @@ const setClockSpeed: StateAction =
 
 const performAction: StateAction =
   (set): StateActions['performAction'] =>
-  (action) =>
+  (actionMessage) =>
     set((state) => {
-      switch (action.type) {
+      switch (actionMessage.type) {
         case 'Sequence Param Change':
-          updateSequenceAction(state, action.sequenceName, {
-            [action.param]: action.value,
+          updateSequenceAction(state, actionMessage.sequenceName, {
+            [actionMessage.param]: actionMessage.value,
+          });
+          break;
+        case 'Channel Param Change':
+          updateChannelConfigAction(state, actionMessage.sequenceName, actionMessage.channelIndex, {
+            [actionMessage.param]: actionMessage.value,
           });
           break;
       }
@@ -236,6 +249,25 @@ const removeShortcut: StateAction =
       );
     });
 
+const addActiveMidiInputDevice: StateAction =
+  (set): StateActions['addActiveMidiInputDevice'] =>
+  (midiInputDevice) =>
+    set((state) => {
+      !state.activeMidiInputDevices.includes(midiInputDevice) &&
+        state.activeMidiInputDevices.push(midiInputDevice);
+    });
+
+const removeActiveMidiInputDevice: StateAction =
+  (set): StateActions['addActiveMidiInputDevice'] =>
+  (midiInputDevice) =>
+    set((state) => {
+      if (state.activeMidiInputDevices.includes(midiInputDevice)) {
+        state.activeMidiInputDevices = state.activeMidiInputDevices.filter(
+          (device) => device !== midiInputDevice
+        );
+      }
+    });
+
 const reset: StateAction =
   (set): StateActions['reset'] =>
   (state = INITIAL_STATE) =>
@@ -258,6 +290,8 @@ export const useSequencersState = create<State & StateActions>()(
       stopListeningToNewShortcut: stopListeningToNewShortcut(set, get),
       saveNewShortcut: saveNewShortcut(set, get),
       removeShortcut: removeShortcut(set, get),
+      addActiveMidiInputDevice: addActiveMidiInputDevice(set, get),
+      removeActiveMidiInputDevice: removeActiveMidiInputDevice(set, get),
       reset: reset(set, get),
     })),
     {

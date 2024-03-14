@@ -1,1 +1,1 @@
-export const MOUSE_MOUSE_THROTTLE = 150;
+export const MOUSE_MOVE_THROTTLE = 100;

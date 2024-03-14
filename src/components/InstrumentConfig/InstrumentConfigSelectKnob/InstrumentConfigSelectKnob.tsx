@@ -4,7 +4,7 @@ import { Icon } from '@blueprintjs/core';
 import { Modal } from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
 import { throttle } from 'lodash';
-import { MOUSE_MOUSE_THROTTLE } from './InstrumentConfigSelectKnob.constants';
+import { MOUSE_MOVE_THROTTLE } from './InstrumentConfigSelectKnob.constants';
 import { countDecimalPlaces } from 'utils/countDecimalPlaces';
 import { useSequencersState } from 'state/state';
 import { PRESS_AND_HOLD_TIME } from 'components/ShortcutController/ShortcutController.constants';
@@ -22,7 +22,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
   showDial = false,
   clickOnModalButtonClosesModal = false,
   onChange,
-  action,
+  actionMessage,
 }) => {
   const isDragging = useRef(false);
   const [isListeningForShortcut, setIsListeningForShortcut] = useState(false);
@@ -50,12 +50,13 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
         type === 'discrete'
           ? itemsProp
           : [...Array(1 + (maxProp - minProp) / step).keys()].map((valueIndex) => {
-              const values = (minProp + valueIndex * step).toFixed(stepDecimalPlaces);
+              // Prevent odd rounding errors
+              const value = (minProp + valueIndex * step).toFixed(stepDecimalPlaces);
 
               return {
-                value: Number(values),
-                key: values,
-                label: `${values}`,
+                value: Number(value),
+                key: value,
+                label: `${value}`,
               };
             }),
       [itemsProp, minProp, maxProp]
@@ -67,9 +68,9 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
   const setNewValue: InstrumentConfigSelectKnobProps['onChange'] = (value, item) => {
     onChange && onChange(value, item);
 
-    action &&
+    actionMessage &&
       performAction({
-        ...action,
+        ...actionMessage,
         value,
       });
   };
@@ -78,14 +79,15 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
     let lastMouseX = ev.screenX;
     let lastMouseY = ev.screenY;
 
-    const pressAndHoldCounterTimeout = action
+    const pressAndHoldCounterTimeout = actionMessage
       ? setTimeout(() => {
           window.removeEventListener('mousemove', mouseMoveHandler);
           setIsListeningForShortcut(true);
           startListeningToNewShortcut({
-            action,
+            actionMessage: actionMessage,
             valueRangeMin: min,
             valueRangeMax: max,
+            decimalPlaces: stepDecimalPlaces,
           });
         }, PRESS_AND_HOLD_TIME)
       : -1;
@@ -96,8 +98,9 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
       isDragging.current = true;
 
       const mouseDif = (lastMouseY - ev.screenY + ev.screenX - lastMouseX) * speed;
+      const movementAmount = (mouseDif * step) / 10;
 
-      if (Math.abs(mouseDif) >= step) {
+      if (Math.abs(movementAmount) >= step) {
         lastMouseX = ev.screenX;
         lastMouseY = ev.screenY;
 
@@ -110,10 +113,25 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
           if (currentValueOrIndex < 0) return;
         }
 
-        const newValue = Math.max(
+        const decimalPlacesMultiplier = stepDecimalPlaces > 0 ? stepDecimalPlaces * 10 : 1;
+        const numberOfStepsToAdvance =
+          Math.floor((Math.abs(movementAmount) / step) * decimalPlacesMultiplier) /
+          decimalPlacesMultiplier;
+
+        let newValue = Math.max(
           min,
-          Math.min(max, mouseDif < 0 ? currentValueOrIndex - step : currentValueOrIndex + step)
+          Math.min(
+            max,
+            movementAmount < 0
+              ? currentValueOrIndex - step * numberOfStepsToAdvance
+              : currentValueOrIndex + step * numberOfStepsToAdvance
+          )
         );
+
+        // Prevent odd rounding errors
+        if (stepDecimalPlaces > 0) {
+          newValue = Number(newValue.toFixed(stepDecimalPlaces));
+        }
 
         if (type === 'numeric' && newValue !== valueRef.current) {
           setNewValue(newValue);
@@ -121,7 +139,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
           setNewValue(items[newValue]?.value, items[newValue]);
         }
       }
-    }, MOUSE_MOUSE_THROTTLE);
+    }, MOUSE_MOVE_THROTTLE);
 
     const mouseUpHandler = () => {
       clearInterval(pressAndHoldCounterTimeout);
@@ -177,8 +195,10 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
             <Button
               onClick={() => {
                 clickOnModalButtonClosesModal && setIsOpen(false);
-                setNewValue(item.value, item);
+                !actionMessage && setNewValue(item.value, item);
               }}
+              actionMessage={actionMessage ? { ...actionMessage, value: item.value } : undefined}
+              actionMessageDecimalPlaces={stepDecimalPlaces}
               key={item.key ?? item.label ?? item.value}
               isActive={item.value === value}
             >

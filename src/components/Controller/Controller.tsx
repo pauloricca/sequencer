@@ -10,6 +10,7 @@ import { getIntervalFromClockSpeed } from './Controller.utils';
 import { State } from 'state/state.types';
 import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
 import { ShortcutController } from 'components/ShortcutController/ShortcutController';
+import { allSoundsOff } from 'utils/midi';
 require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
@@ -28,6 +29,7 @@ export const Controller: React.FC = () => {
     if (isPlaying) {
       startMetronome();
     } else {
+      allSoundsOff();
       stopMetronome();
     }
   }, [isPlaying]);
