@@ -35,9 +35,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
   instrumentConfigCallback,
   ...otherSequencerChannelProps
 }) => {
-  const updateSequence = useSequencersState((state) => state.updateSequence(sequence.name));
-  const addPage = useSequencersState((state) => state.addPage(sequence.name));
-  const removePage = useSequencersState((state) => state.removePage(sequence.name));
+  const updateSequence = useSequencersState((state) => state.updateSequence);
+  const addPage = useSequencersState((state) => state.addPage);
+  const removePage = useSequencersState((state) => state.removePage);
   const [activePageIndex, setActivePageIndex] = useState(0);
   const [visiblePage, setVisiblePage] = useState(0);
   const [stepPropertyCurrentlyBeingEdited, setStepPropertyCurrentlyBeingEdited] = useState<
@@ -93,14 +93,14 @@ export const Sequencer: React.FC<SequencerProps> = ({
             <Button
               text={patternIndex}
               key={patternIndex}
-              onClick={() => updateSequence({ currentPattern: patternIndex })}
+              onClick={() => updateSequence(sequence.name)({ currentPattern: patternIndex })}
               active={sequence.currentPattern === patternIndex}
             />
           ))}
           <Button
             icon="plus"
             onClick={() =>
-              updateSequence({
+              updateSequence(sequence.name)({
                 patterns: [...sequence.patterns, getBlankPattern()],
                 currentPattern: sequence.patterns.length,
               })
@@ -109,7 +109,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
           <Button
             icon="duplicate"
             onClick={() =>
-              updateSequence({
+              updateSequence(sequence.name)({
                 patterns: [
                   ...sequence.patterns,
                   cloneDeep(sequence.patterns[sequence.currentPattern]),
@@ -121,7 +121,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
           <Button
             icon="trash"
             onClick={() =>
-              updateSequence({
+              updateSequence(sequence.name)({
                 patterns:
                   sequence.patterns.length > 1
                     ? sequence.patterns.filter((_, index) => index !== sequence.currentPattern)
@@ -149,19 +149,21 @@ export const Sequencer: React.FC<SequencerProps> = ({
           <Button
             icon="plus"
             className="sequencer__pattern-pagination-control"
-            onClick={() => addPage()}
+            onClick={() => addPage(sequence.name)()}
           />
           <Button
             icon="duplicate"
             className="sequencer__pattern-pagination-control"
-            onClick={() => addPage(sequence.patterns[sequence.currentPattern].pages[visiblePage])}
+            onClick={() =>
+              addPage(sequence.name)(sequence.patterns[sequence.currentPattern].pages[visiblePage])
+            }
           />
           <Button
             icon="trash"
             className="sequencer__pattern-pagination-control"
             onClick={() => {
               if (sequence.patterns[sequence.currentPattern].pages.length < 2) {
-                addPage();
+                addPage(sequence.name)();
               } else {
                 setActivePageIndex(
                   activePageIndex % (sequence.patterns[sequence.currentPattern].pages.length - 1)
@@ -170,7 +172,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   visiblePage % (sequence.patterns[sequence.currentPattern].pages.length - 1)
                 );
               }
-              removePage(visiblePage);
+              removePage(sequence.name)(visiblePage);
             }}
           />
         </div>

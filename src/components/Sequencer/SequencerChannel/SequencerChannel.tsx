@@ -34,12 +34,10 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   channelConfigComponents,
   stepPropertyCurrentlyBeingEdited,
 }) => {
-  const setStep = useSequencersState((state) => state.setStep(sequence.name));
-  const removeStep = useSequencersState((state) => state.removeStep(sequence.name));
-  const updateChannelConfig = useSequencersState((state) =>
-    state.updateChannelConfig(sequence.name)(channelIndex)
-  );
-  const updateStep = useSequencersState((state) => state.updateStep(sequence.name));
+  const setStep = useSequencersState((state) => state.setStep);
+  const removeStep = useSequencersState((state) => state.removeStep);
+  const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
+  const updateStep = useSequencersState((state) => state.updateStep);
   const [isDraggingAlongChannel, setIsDraggingAlongChannel] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
@@ -58,9 +56,9 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
 
   const onStepToggleHandler = useCallback((stepIndex: number, currentStep?: StateSequenceStep) => {
     if (currentStep) {
-      removeStep(currentStep, visiblePageRef.current);
+      removeStep(sequence.name)(currentStep, visiblePageRef.current);
     } else {
-      setStep(
+      setStep(sequence.name)(
         {
           channel: channelIndex,
           stepIndex,
@@ -84,10 +82,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
     (value: number, step?: StateSequenceStep) =>
       step &&
       stepPropertyCurrentlyBeingEdited &&
-      updateStep(
-        step,
-        visiblePageRef.current
-      )({
+      updateStep(sequence.name)(step, visiblePageRef.current)({
         [stepPropertyCurrentlyBeingEdited]: value,
       }),
     [stepPropertyCurrentlyBeingEdited]
@@ -103,10 +98,16 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
           <Icon icon="cog" onClick={() => setIsConfigOpen(true)} />
         )}
         {!channelConfig.isMuted && (
-          <Icon icon="volume-up" onClick={() => updateChannelConfig({ isMuted: true })} />
+          <Icon
+            icon="volume-up"
+            onClick={() => updateChannelConfig(sequence.name)(channelIndex)({ isMuted: true })}
+          />
         )}
         {channelConfig.isMuted && (
-          <Icon icon="volume-off" onClick={() => updateChannelConfig({ isMuted: false })} />
+          <Icon
+            icon="volume-off"
+            onClick={() => updateChannelConfig(sequence.name)(channelIndex)({ isMuted: false })}
+          />
         )}
       </div>
     ),

@@ -1,29 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { DrumMachine } from 'components/DrumMachine/DrumMachine';
 import { useSequencersState } from 'state/state';
-import { Synth } from 'components/Synth/Synth';
 import { Button } from '@blueprintjs/core';
-import downloadObjectAsJson from 'utils/downloadObjectAsJson';
+// import downloadObjectAsJson from 'utils/downloadObjectAsJson';
 import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
-import { setMetronomeInterval, startMetronome, stopMetronome } from 'utils/metronome';
-import { getIntervalFromClockSpeed } from './Controller.utils';
+import { startMetronome, stopMetronome } from 'utils/metronome';
 import { State } from 'state/state.types';
 import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
 import { ShortcutController } from 'components/ShortcutController/ShortcutController';
 import { allSoundsOff } from 'utils/midi';
+import { isEqual } from 'lodash';
+import { ControllerInstrument } from './ControllerInstrument/ControllerInstrument';
 require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const state = useSequencersState((state) => state);
-  const sequences = useSequencersState((state) => state.sequences);
+  // const state = useSequencersState((state) => state);
+  const sequenceNames = useSequencersState(
+    (state) => state.sequences.map(({ name }) => name),
+    isEqual
+  );
   const clockSpeed = useSequencersState((state) => state.clockSpeed);
   const setClockSpeed = useSequencersState((state) => state.setClockSpeed);
   const resetState = useSequencersState((state) => state.reset);
-
-  useEffect(() => {
-    setMetronomeInterval(getIntervalFromClockSpeed(clockSpeed));
-  }, [clockSpeed]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -45,15 +43,15 @@ export const Controller: React.FC = () => {
           fill={true}
           onClick={() => uploadJsonFileAsObject<State>((obj) => resetState(obj))}
         />
-        <Button
+        {/* <Button
           text="save"
           rightIcon="import"
           fill={true}
           onClick={() => downloadObjectAsJson(state, 'sequencer')}
-        />
+        /> */}
         <InstrumentConfigSelectKnob
-          label={`bpm: ${state.clockSpeed / 4}`}
-          value={state.clockSpeed / 4}
+          label={`bpm: ${clockSpeed / 4}`}
+          value={clockSpeed / 4}
           type="numeric"
           min={5}
           max={600}
@@ -72,11 +70,8 @@ export const Controller: React.FC = () => {
           <Button text="play" rightIcon="play" fill={true} onClick={() => setIsPlaying(true)} />
         )}
       </div>
-      {sequences.map((sequence, sequenceIndex) => (
-        <div key={sequenceIndex}>
-          {sequence.type === 'drum-machine' && <DrumMachine sequence={sequence} />}
-          {sequence.type === 'synth' && <Synth sequence={sequence} />}
-        </div>
+      {sequenceNames.map((sequenceName) => (
+        <ControllerInstrument sequenceName={sequenceName} key={sequenceName} />
       ))}
       <ShortcutController />
     </div>

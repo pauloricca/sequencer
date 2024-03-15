@@ -11,7 +11,7 @@ import { InstrumentConfigSelectKnobItem } from 'components/InstrumentConfig/Inst
 
 export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => {
   const clockSpeed = useSequencersState(({ clockSpeed }) => clockSpeed);
-  const updateSequence = useSequencersState((state) => state.updateSequence(sequence.name));
+  const updateSequence = useSequencersState((state) => state.updateSequence);
   const [synthChannels, setSynthChannels] = useState<StateSequenceChannelConfigMidi[]>([]);
   const rootOptions = useRef<InstrumentConfigSelectKnobItem[]>(
     [...Array(101).keys()].map((note) => ({
@@ -83,7 +83,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         type="numeric"
         min={0}
         max={32}
-        onChange={(value) => updateSequence({ midiChannel: value })}
+        onChange={(value) => updateSequence(sequence.name)({ midiChannel: value })}
         value={sequence.midiChannel}
       />
       <InstrumentConfigSelectKnob
@@ -139,7 +139,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         label={sequence.isPolyphonic ? 'polyphonic' : 'monophonic'}
         type="discrete"
         items={polyphonyOptions.current}
-        onChange={(value) => updateSequence({ isPolyphonic: value })}
+        onChange={(value) => updateSequence(sequence.name)({ isPolyphonic: value })}
         value={sequence.isPolyphonic}
         clickOnModalButtonClosesModal
       />

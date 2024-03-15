@@ -9,9 +9,7 @@ import { StateSequenceStep } from 'state/state.types';
 import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencerProps }) => {
-  const updateChannelConfig = useSequencersState((state) =>
-    state.updateChannelConfig(sequence.name)
-  );
+  const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
   // Sample objects indexed by file name
   const samples = useRef<Record<string, Howl>>({});
 
@@ -62,7 +60,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
   const getChannelConfigComponents = useCallback(
     (channelIndex: number) => {
       const channelConfig = sequence.channelsConfig[channelIndex];
-      const update = updateChannelConfig(channelIndex);
+      const update = updateChannelConfig(sequence.name)(channelIndex);
 
       return (
         <>
