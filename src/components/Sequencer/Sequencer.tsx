@@ -93,14 +93,14 @@ export const Sequencer: React.FC<SequencerProps> = ({
             <Button
               text={patternIndex}
               key={patternIndex}
-              onClick={() => updateSequence(sequence.name)({ currentPattern: patternIndex })}
+              onClick={() => updateSequence(sequence.name, { currentPattern: patternIndex })}
               active={sequence.currentPattern === patternIndex}
             />
           ))}
           <Button
             icon="plus"
             onClick={() =>
-              updateSequence(sequence.name)({
+              updateSequence(sequence.name, {
                 patterns: [...sequence.patterns, getBlankPattern()],
                 currentPattern: sequence.patterns.length,
               })
@@ -109,7 +109,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
           <Button
             icon="duplicate"
             onClick={() =>
-              updateSequence(sequence.name)({
+              updateSequence(sequence.name, {
                 patterns: [
                   ...sequence.patterns,
                   cloneDeep(sequence.patterns[sequence.currentPattern]),
@@ -121,7 +121,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
           <Button
             icon="trash"
             onClick={() =>
-              updateSequence(sequence.name)({
+              updateSequence(sequence.name, {
                 patterns:
                   sequence.patterns.length > 1
                     ? sequence.patterns.filter((_, index) => index !== sequence.currentPattern)
@@ -149,13 +149,13 @@ export const Sequencer: React.FC<SequencerProps> = ({
           <Button
             icon="plus"
             className="sequencer__pattern-pagination-control"
-            onClick={() => addPage(sequence.name)()}
+            onClick={() => addPage(sequence.name)}
           />
           <Button
             icon="duplicate"
             className="sequencer__pattern-pagination-control"
             onClick={() =>
-              addPage(sequence.name)(sequence.patterns[sequence.currentPattern].pages[visiblePage])
+              addPage(sequence.name, sequence.patterns[sequence.currentPattern].pages[visiblePage])
             }
           />
           <Button
@@ -163,7 +163,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
             className="sequencer__pattern-pagination-control"
             onClick={() => {
               if (sequence.patterns[sequence.currentPattern].pages.length < 2) {
-                addPage(sequence.name)();
+                addPage(sequence.name);
               } else {
                 setActivePageIndex(
                   activePageIndex % (sequence.patterns[sequence.currentPattern].pages.length - 1)
@@ -172,7 +172,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   visiblePage % (sequence.patterns[sequence.currentPattern].pages.length - 1)
                 );
               }
-              removePage(sequence.name)(visiblePage);
+              removePage(sequence.name, visiblePage);
             }}
           />
         </div>

@@ -56,9 +56,10 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
 
   const onStepToggleHandler = useCallback((stepIndex: number, currentStep?: StateSequenceStep) => {
     if (currentStep) {
-      removeStep(sequence.name)(currentStep, visiblePageRef.current);
+      removeStep(sequence.name, currentStep, visiblePageRef.current);
     } else {
-      setStep(sequence.name)(
+      setStep(
+        sequence.name,
         {
           channel: channelIndex,
           stepIndex,
@@ -82,7 +83,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
     (value: number, step?: StateSequenceStep) =>
       step &&
       stepPropertyCurrentlyBeingEdited &&
-      updateStep(sequence.name)(step, visiblePageRef.current)({
+      updateStep(sequence.name, step, visiblePageRef.current, {
         [stepPropertyCurrentlyBeingEdited]: value,
       }),
     [stepPropertyCurrentlyBeingEdited]
@@ -100,13 +101,13 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
         {!channelConfig.isMuted && (
           <Icon
             icon="volume-up"
-            onClick={() => updateChannelConfig(sequence.name)(channelIndex)({ isMuted: true })}
+            onClick={() => updateChannelConfig(sequence.name, channelIndex, { isMuted: true })}
           />
         )}
         {channelConfig.isMuted && (
           <Icon
             icon="volume-off"
-            onClick={() => updateChannelConfig(sequence.name)(channelIndex)({ isMuted: false })}
+            onClick={() => updateChannelConfig(sequence.name, channelIndex, { isMuted: false })}
           />
         )}
       </div>

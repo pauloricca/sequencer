@@ -10,7 +10,7 @@ export interface InstrumentConfigMidiOutProps {
 }
 
 export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = ({ sequence }) => {
-  const updateSequence = useSequencersState((state) => state.updateSequence(sequence.name));
+  const updateSequence = useSequencersState((state) => state.updateSequence);
   const [midiOutOptions, setMidiOutOptions] = useState<InstrumentConfigSelectKnobItem[]>([]);
 
   const getMidiOutOptions = () => [
@@ -33,7 +33,7 @@ export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = (
       label={sequence.midiOutDeviceName || 'midi out'}
       type="discrete"
       items={midiOutOptions}
-      onChange={(value) => updateSequence({ midiOutDeviceName: value })}
+      onChange={(value) => updateSequence(sequence.name, { midiOutDeviceName: value })}
       value={sequence.midiOutDeviceName}
     />
   );

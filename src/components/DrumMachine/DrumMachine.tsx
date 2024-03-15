@@ -5,7 +5,7 @@ import { DrumMachineProps } from './DrumMachine.types';
 import { sendMidiMessage } from 'utils/midi';
 import { useSequencersState } from 'state/state';
 import { InputGroup } from '@blueprintjs/core';
-import { StateSequenceStep } from 'state/state.types';
+import { StateSequenceChannelConfig, StateSequenceStep } from 'state/state.types';
 import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencerProps }) => {
@@ -60,7 +60,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
   const getChannelConfigComponents = useCallback(
     (channelIndex: number) => {
       const channelConfig = sequence.channelsConfig[channelIndex];
-      const update = updateChannelConfig(sequence.name)(channelIndex);
+      const update = (newChannelConfig: Partial<StateSequenceChannelConfig>) =>
+        updateChannelConfig(sequence.name, channelIndex, newChannelConfig);
 
       return (
         <>

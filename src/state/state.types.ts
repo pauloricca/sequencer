@@ -11,20 +11,22 @@ export interface State {
 }
 
 export interface StateActions {
-  setStep: (sequenceName: string) => (step: StateSequenceStep, pageNumber: number) => void;
-  removeStep: (sequenceName: string) => (step: StateSequenceStep, pageNumber: number) => void;
+  setStep: (sequenceName: string, step: StateSequenceStep, pageNumber: number) => void;
+  removeStep: (sequenceName: string, step: StateSequenceStep, pageNumber: number) => void;
   updateStep: (
-    sequenceName: string
-  ) => (
+    sequenceName: string,
     step: StateSequenceStep,
-    pageNumber: number
-  ) => (newSequenceSettings: Partial<StateSequenceStep>) => void;
-  addPage: (sequenceName: string) => (page?: StateSequencePatternPage) => void;
-  removePage: (sequenceName: string) => (pageNumber: number) => void;
+    pageNumber: number,
+    newSequenceSettings: Partial<StateSequenceStep>
+  ) => void;
+  addPage: (sequenceName: string, page?: StateSequencePatternPage) => void;
+  removePage: (sequenceName: string, pageNumber: number) => void;
   updateChannelConfig: (
-    sequenceName: string
-  ) => (channelIndex: number) => (newChannelConfig: Partial<StateSequenceChannelConfig>) => void;
-  updateSequence: (sequenceName: string) => (newSequenceSettings: Partial<StateSequence>) => void;
+    sequenceName: string,
+    channelIndex: number,
+    newChannelConfig: Partial<StateSequenceChannelConfig>
+  ) => void;
+  updateSequence: (sequenceName: string, newSequenceSettings: Partial<StateSequence>) => void;
   setClockSpeed: (clockSpeed: number) => void;
   performAction: (actionMessage: StateActionMessage) => void;
   startListeningToNewShortcut: (shortcut: Omit<StateShortcut, 'type' | 'key'>) => void;

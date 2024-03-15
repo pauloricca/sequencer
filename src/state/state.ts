@@ -18,8 +18,7 @@ import { isEqual } from 'lodash';
 
 const setStep: StateAction =
   (set): StateActions['setStep'] =>
-  (sequenceName) =>
-  (step, pageNumber) =>
+  (sequenceName, step, pageNumber) =>
     set((state) => {
       const sequence = getSequenceByName(state.sequences, sequenceName);
 
@@ -41,8 +40,7 @@ const setStep: StateAction =
 
 const removeStep: StateAction =
   (set): StateActions['removeStep'] =>
-  (sequenceName) =>
-  (step, pageNumber) =>
+  (sequenceName, step, pageNumber) =>
     set((state) => {
       const sequence = getSequenceByName(state.sequences, sequenceName);
 
@@ -60,8 +58,7 @@ const removeStep: StateAction =
 
 const addPage: StateAction =
   (set): StateActions['addPage'] =>
-  (sequenceName) =>
-  (page) =>
+  (sequenceName, page) =>
     set((state) => {
       const sequence = getSequenceByName(state.sequences, sequenceName);
 
@@ -72,8 +69,7 @@ const addPage: StateAction =
 
 const removePage: StateAction =
   (set): StateActions['removePage'] =>
-  (sequenceName) =>
-  (pageNumber) =>
+  (sequenceName, pageNumber) =>
     set((state) => {
       const sequence = getSequenceByName(state.sequences, sequenceName);
 
@@ -84,9 +80,7 @@ const removePage: StateAction =
 
 const updateStep: StateAction =
   (set): StateActions['updateStep'] =>
-  (sequenceName) =>
-  (step, pageNumber) =>
-  (newSequenceSettings) =>
+  (sequenceName, step, pageNumber, newSequenceSettings) =>
     set((state) => {
       const sequence = getSequenceByName(state.sequences, sequenceName);
 
@@ -127,9 +121,7 @@ const updateChannelConfigAction = (
 
 const updateChannelConfig: StateAction =
   (set): StateActions['updateChannelConfig'] =>
-  (sequenceName) =>
-  (channelIndex) =>
-  (newChannelConfig) =>
+  (sequenceName, channelIndex, newChannelConfig) =>
     set((state) => updateChannelConfigAction(state, sequenceName, channelIndex, newChannelConfig));
 
 const updateSequenceAction = (
@@ -187,8 +179,7 @@ const updateSequenceAction = (
 
 const updateSequence: StateAction =
   (set): StateActions['updateSequence'] =>
-  (sequenceName) =>
-  (newSequenceSettings) =>
+  (sequenceName, newSequenceSettings) =>
     set((state) => updateSequenceAction(state, sequenceName, newSequenceSettings));
 
 const setClockSpeed: StateAction =

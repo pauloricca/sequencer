@@ -22,7 +22,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
   onSelectTool = () => {},
   instrumentConfigCallback,
 }) => {
-  const updateSequence = useSequencersState((state) => state.updateSequence(sequence.name));
+  const updateSequence = useSequencersState((state) => state.updateSequence);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -48,14 +48,14 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             <Icon
               icon="volume-up"
               className="instrument-config__tool instrument-config__tool--is-active"
-              onClick={() => updateSequence({ isMuted: true })}
+              onClick={() => updateSequence(sequence.name, { isMuted: true })}
             />
           )}
           {sequence.isMuted && (
             <Icon
               icon="volume-off"
               className="instrument-config__tool"
-              onClick={() => updateSequence({ isMuted: false })}
+              onClick={() => updateSequence(sequence.name, { isMuted: false })}
             />
           )}
           {isOpen && (
@@ -74,7 +74,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
         <div className="instrument-config__controls">
           <InputGroup
             value={sequence.name}
-            onValueChange={(value) => updateSequence({ name: value })}
+            onValueChange={(value) => updateSequence(sequence.name, { name: value })}
           />
           <InstrumentConfigMidiOut sequence={sequence} />
           <InstrumentConfigSelectKnob
