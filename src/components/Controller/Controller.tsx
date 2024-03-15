@@ -3,13 +3,14 @@ import { useSequencersState } from 'state/state';
 import { Button } from '@blueprintjs/core';
 // import downloadObjectAsJson from 'utils/downloadObjectAsJson';
 import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
-import { startMetronome, stopMetronome } from 'utils/metronome';
+import { setMetronomeInterval, startMetronome, stopMetronome } from 'utils/metronome';
 import { State } from 'state/state.types';
 import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
 import { ShortcutController } from 'components/ShortcutController/ShortcutController';
 import { allSoundsOff } from 'utils/midi';
 import { isEqual } from 'lodash';
 import { ControllerInstrument } from './ControllerInstrument/ControllerInstrument';
+import { getIntervalFromClockSpeed } from './Controller.utils';
 require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
@@ -22,6 +23,10 @@ export const Controller: React.FC = () => {
   const clockSpeed = useSequencersState((state) => state.clockSpeed);
   const setClockSpeed = useSequencersState((state) => state.setClockSpeed);
   const resetState = useSequencersState((state) => state.reset);
+
+  useEffect(() => {
+    setMetronomeInterval(getIntervalFromClockSpeed(clockSpeed));
+  }, [clockSpeed]);
 
   useEffect(() => {
     if (isPlaying) {
