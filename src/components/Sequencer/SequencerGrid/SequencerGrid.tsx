@@ -1,11 +1,8 @@
 import React, { useRef } from 'react';
 import { SequencerChannel, SequencerChannelProps } from '../SequencerChannel/SequencerChannel';
-import {
-  StateSequence,
-  StateSequenceChannelConfigCommon,
-  StateSequenceStepProperties,
-} from 'state/state.types';
+import { StateSequenceChannelConfigCommon, StateSequenceStepProperties } from 'state/state.types';
 import { useMetronome } from 'utils/metronome';
+import { useSequencersState } from 'state/state';
 require('./_SequencerGrid.scss');
 
 export interface SequencerGridProps
@@ -13,7 +10,7 @@ export interface SequencerGridProps
     SequencerChannelProps,
     'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
   > {
-  sequence: StateSequence;
+  sequenceName: string;
   channelsConfig: StateSequenceChannelConfigCommon[];
   visiblePage: number;
   stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
@@ -22,7 +19,7 @@ export interface SequencerGridProps
 }
 
 export const SequencerGrid: React.FC<SequencerGridProps> = ({
-  sequence,
+  sequenceName,
   channelsConfig,
   triggerCallback = () => {},
   visiblePage,
@@ -31,9 +28,14 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   setActivePageIndex,
   ...otherSequencerChannelProps
 }) => {
-  const tick = useMetronome(sequence.stepLength);
+  const sequence = useSequencersState((state) =>
+    state.sequences.find(({ name }) => name === sequenceName)
+  );
+  const tick = useMetronome(sequence?.stepLength ?? 1);
   const lastTick = useRef(-1);
   const activeStepIndex = useRef(-1);
+
+  if (!sequence) return null;
 
   if (tick !== lastTick.current) {
     lastTick.current = tick;

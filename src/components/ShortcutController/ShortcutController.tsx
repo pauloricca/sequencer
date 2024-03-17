@@ -68,6 +68,7 @@ export const ShortcutController: React.FC = () => {
     );
 
     if (!shortcutCurrentlyBeingAssigned) {
+      // CC
       shortcutsRef.current
         .filter(
           ({ type, midiDevice, midiChannel, midiControl }) =>
@@ -94,6 +95,19 @@ export const ShortcutController: React.FC = () => {
             value,
           });
         });
+
+      // Note
+      shortcutsRef.current
+        .filter(
+          ({ type, midiDevice, midiChannel }) =>
+            type === 'midi-note' && midiDevice === event.deviceName && midiChannel === event.channel
+        )
+        .forEach(({ actionMessage }) =>
+          performAction({
+            ...actionMessage,
+            value: event.note,
+          })
+        );
     } else {
       saveNewShortcut({
         ...shortcutCurrentlyBeingAssigned,

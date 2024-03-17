@@ -1,14 +1,14 @@
-import { Icon, InputGroup } from '@blueprintjs/core';
+import { Icon } from '@blueprintjs/core';
 import React, { ReactNode, useState } from 'react';
-import { StateSequence } from 'state/state.types';
 import { useSequencersState } from 'state/state';
 import classNames from 'classnames';
 import { SequencerConfigMidiOut } from './SequencerConfigMidiOut/SequencerConfigMidiOut';
-import { SelectKnob } from '../../SelectKnob/SelectKnob';
+import { ControllerParameter } from 'components/Controller/ControllerParameter/ControllerParameter';
+import { getSequencerConfigParameterConfig } from './SequencerConfig.config';
 require('./_SequencerConfig.scss');
 
 export interface SequencerConfigProps {
-  sequence: StateSequence;
+  sequenceName: string;
   tools?: Array<{ name: string; value: string | null; icon: string }>;
   selectedTool?: string | null;
   onSelectTool?: (value: string | null) => void;
@@ -16,12 +16,15 @@ export interface SequencerConfigProps {
 }
 
 export const SequencerConfig: React.FC<SequencerConfigProps> = ({
-  sequence,
+  sequenceName,
   tools,
   selectedTool,
   onSelectTool = () => {},
   sequencerConfigCallback,
 }) => {
+  const isMuted = useSequencersState(
+    (state) => state.sequences.find(({ name }) => name === sequenceName)?.isMuted
+  );
   const updateSequence = useSequencersState((state) => state.updateSequence);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -32,7 +35,7 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
       })}
     >
       <div className="sequencer-config__header">
-        <p className="sequencer-config__instrument-name">{sequence.name}</p>
+        <p className="sequencer-config__instrument-name">{sequenceName}</p>
         <div className="sequencer-config__tools">
           {tools?.map(({ name, value, icon }) => (
             <Icon
@@ -44,18 +47,18 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
               onClick={() => onSelectTool(value)}
             />
           ))}
-          {!sequence.isMuted && (
+          {!isMuted && (
             <Icon
               icon="volume-up"
               className="sequencer-config__tool sequencer-config__tool--is-active"
-              onClick={() => updateSequence(sequence.name, { isMuted: true })}
+              onClick={() => updateSequence(sequenceName, { isMuted: true })}
             />
           )}
-          {sequence.isMuted && (
+          {isMuted && (
             <Icon
               icon="volume-off"
               className="sequencer-config__tool"
-              onClick={() => updateSequence(sequence.name, { isMuted: false })}
+              onClick={() => updateSequence(sequenceName, { isMuted: false })}
             />
           )}
           {isOpen && (
@@ -72,35 +75,13 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
       </div>
       {isOpen && (
         <div className="sequencer-config__controls">
-          <InputGroup
-            value={sequence.name}
-            onValueChange={(value) => updateSequence(sequence.name, { name: value })}
-          />
-          <SequencerConfigMidiOut sequence={sequence} />
-          <SelectKnob
-            label={`n steps: ${sequence.nSteps}`}
-            type="numeric"
-            min={1}
-            max={64}
-            actionMessage={{
-              type: 'Sequence Param Change',
-              sequenceName: sequence.name,
-              param: 'nSteps',
-            }}
-            value={sequence.nSteps}
-          />
-          <SelectKnob
-            label={`step length: ${sequence.stepLength}`}
-            type="numeric"
-            min={1}
-            max={32}
-            actionMessage={{
-              type: 'Sequence Param Change',
-              sequenceName: sequence.name,
-              param: 'stepLength',
-            }}
-            value={sequence.stepLength}
-          />
+          <SequencerConfigMidiOut sequenceName={sequenceName} />
+          {getSequencerConfigParameterConfig(sequenceName).map((parameterConfig) => (
+            <ControllerParameter
+              key={parameterConfig.actionMessage.parameter}
+              {...parameterConfig}
+            />
+          ))}
           {!!sequencerConfigCallback && sequencerConfigCallback()}
         </div>
       )}

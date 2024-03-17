@@ -14,7 +14,7 @@ import { INITIAL_STATE } from './state.initial';
 import { unregisterMidiDevice } from '../utils/midi';
 import { getBlankPattern } from './state.utils';
 import { Draft } from 'immer';
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 
 const setStep: StateAction =
   (set): StateActions['setStep'] =>
@@ -58,12 +58,17 @@ const removeStep: StateAction =
 
 const addPage: StateAction =
   (set): StateActions['addPage'] =>
-  (sequenceName, page) =>
+  (sequenceName, page, duplicatePageByIndex) =>
     set((state) => {
       const sequence = getSequenceByName(state.sequences, sequenceName);
 
       if (sequence?.patterns[sequence.currentPattern]) {
-        sequence.patterns[sequence.currentPattern].pages.push(page ?? getBlankPattern().pages[0]);
+        sequence.patterns[sequence.currentPattern].pages.push(
+          page ??
+            (duplicatePageByIndex !== undefined
+              ? sequence.patterns[sequence.currentPattern].pages[duplicatePageByIndex]
+              : getBlankPattern().pages[0])
+        );
       }
     });
 
@@ -182,6 +187,42 @@ const updateSequence: StateAction =
   (sequenceName, newSequenceSettings) =>
     set((state) => updateSequenceAction(state, sequenceName, newSequenceSettings));
 
+const addSequencePattern: StateAction =
+  (set): StateActions['addSequencePattern'] =>
+  (sequenceName, doDuplicateCurrentPattern) =>
+    set((state) => {
+      const sequence = getSequenceByName(state.sequences, sequenceName);
+
+      if (!sequence) return;
+
+      updateSequenceAction(state, sequenceName, {
+        patterns: [
+          ...sequence.patterns,
+          doDuplicateCurrentPattern
+            ? cloneDeep(sequence.patterns[sequence.currentPattern])
+            : getBlankPattern(),
+        ],
+        currentPattern: sequence.patterns.length,
+      });
+    });
+
+const removeCurrentSequencePattern: StateAction =
+  (set): StateActions['removeCurrentSequencePattern'] =>
+  (sequenceName) =>
+    set((state) => {
+      const sequence = getSequenceByName(state.sequences, sequenceName);
+
+      if (!sequence) return;
+
+      updateSequenceAction(state, sequenceName, {
+        patterns:
+          sequence.patterns.length > 1
+            ? sequence.patterns.filter((_, index) => index !== sequence.currentPattern)
+            : [getBlankPattern()],
+        currentPattern: Math.max(0, sequence.currentPattern - 1),
+      });
+    });
+
 const setClockSpeed: StateAction =
   (set): StateActions['setClockSpeed'] =>
   (clockSpeed) =>
@@ -196,12 +237,12 @@ const performAction: StateAction =
       switch (actionMessage.type) {
         case 'Sequence Param Change':
           updateSequenceAction(state, actionMessage.sequenceName, {
-            [actionMessage.param]: actionMessage.value,
+            [actionMessage.parameter]: actionMessage.value,
           });
           break;
         case 'Channel Param Change':
           updateChannelConfigAction(state, actionMessage.sequenceName, actionMessage.channelIndex, {
-            [actionMessage.param]: actionMessage.value,
+            [actionMessage.parameter]: actionMessage.value,
           });
           break;
       }
@@ -275,6 +316,8 @@ export const useSequencersState = create<State & StateActions>()(
       removePage: removePage(set, get),
       updateChannelConfig: updateChannelConfig(set, get),
       updateSequence: updateSequence(set, get),
+      addSequencePattern: addSequencePattern(set, get),
+      removeCurrentSequencePattern: removeCurrentSequencePattern(set, get),
       setClockSpeed: setClockSpeed(set, get),
       performAction: performAction(set, get),
       startListeningToNewShortcut: startListeningToNewShortcut(set, get),

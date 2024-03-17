@@ -19,7 +19,11 @@ export interface StateActions {
     pageNumber: number,
     newSequenceSettings: Partial<StateSequenceStep>
   ) => void;
-  addPage: (sequenceName: string, page?: StateSequencePatternPage) => void;
+  addPage: (
+    sequenceName: string,
+    page?: StateSequencePatternPage,
+    duplicatePageByIndex?: number
+  ) => void;
   removePage: (sequenceName: string, pageNumber: number) => void;
   updateChannelConfig: (
     sequenceName: string,
@@ -27,6 +31,8 @@ export interface StateActions {
     newChannelConfig: Partial<StateSequenceChannelConfig>
   ) => void;
   updateSequence: (sequenceName: string, newSequenceSettings: Partial<StateSequence>) => void;
+  addSequencePattern: (sequenceName: string, doDuplicateCurrentPattern?: boolean) => void;
+  removeCurrentSequencePattern: (sequenceName: string) => void;
   setClockSpeed: (clockSpeed: number) => void;
   performAction: (actionMessage: StateActionMessage) => void;
   startListeningToNewShortcut: (shortcut: Omit<StateShortcut, 'type' | 'key'>) => void;
@@ -137,7 +143,7 @@ export type StateActionMessage =
 type StateActionMessageSequenceParameterChange = {
   type: 'Sequence Param Change';
   sequenceName: string;
-  param: keyof StateSequenceDrumMachine | keyof StateSequenceSynth;
+  parameter: keyof StateSequenceDrumMachine | keyof StateSequenceSynth;
   decimalPlaces?: number;
   value?: number | string | boolean;
 };
@@ -146,7 +152,7 @@ type StateActionMessageChannelParameterChange = {
   type: 'Channel Param Change';
   sequenceName: string;
   channelIndex: number;
-  param: keyof StateSequenceChannelConfig;
+  parameter: keyof StateSequenceChannelConfig;
   value?: number | string | boolean;
 };
 

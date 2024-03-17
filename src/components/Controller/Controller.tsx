@@ -9,14 +9,15 @@ import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 import { ShortcutController } from 'components/ShortcutController/ShortcutController';
 import { allSoundsOff } from 'utils/midi';
 import { isEqual } from 'lodash';
-import { ControllerInstrument } from './ControllerInstrument/ControllerInstrument';
 import { getIntervalFromClockSpeed } from './Controller.utils';
+import { DrumMachine } from 'components/DrumMachine/DrumMachine';
+import { Synth } from 'components/Synth/Synth';
 require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const sequenceNames = useSequencersState(
-    (state) => state.sequences.map(({ name }) => name),
+  const sequences = useSequencersState(
+    (state) => state.sequences.map(({ name, type }) => ({ name, type })),
     isEqual
   );
   const clockSpeed = useSequencersState((state) => state.clockSpeed);
@@ -74,8 +75,11 @@ export const Controller: React.FC = () => {
           <Button text="play" rightIcon="play" fill={true} onClick={() => setIsPlaying(true)} />
         )}
       </div>
-      {sequenceNames.map((sequenceName) => (
-        <ControllerInstrument sequenceName={sequenceName} key={sequenceName} />
+      {sequences.map(({ name, type }) => (
+        <>
+          {type === 'drum-machine' && <DrumMachine sequenceName={name} />}
+          {type === 'synth' && <Synth sequenceName={name} />}
+        </>
       ))}
       <ShortcutController />
     </div>

@@ -1,35 +1,51 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Howl } from 'howler';
 import { Sequencer } from 'components/Sequencer/Sequencer';
-import { DrumMachineProps } from './DrumMachine.types';
 import { sendMidiMessage } from 'utils/midi';
 import { useSequencersState } from 'state/state';
 import { InputGroup } from '@blueprintjs/core';
-import { StateSequenceChannelConfig, StateSequenceStep } from 'state/state.types';
+import {
+  StateSequenceChannelConfig,
+  StateSequenceDrumMachine,
+  StateSequenceStep,
+} from 'state/state.types';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 
-export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencerProps }) => {
+export interface DrumMachineProps {
+  sequenceName: string;
+}
+
+export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
+  const channelsConfig = useSequencersState(
+    (state) =>
+      (state.sequences.find(({ name }) => name === sequenceName) as StateSequenceDrumMachine)
+        .channelsConfig
+  );
   const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
   // Sample objects indexed by file name
   const samples = useRef<Record<string, Howl>>({});
 
   useEffect(() => {
-    sequence.channelsConfig.forEach((channel) => {
+    channelsConfig.forEach((channel) => {
       if (channel.type === 'sample' && !samples.current[channel.audioFile]) {
         samples.current[channel.audioFile] = new Howl({
           src: [`/sounds/${channel.audioFile}`],
         });
       }
     });
-  }, [sequence.channelsConfig]);
+  }, [channelsConfig]);
 
   const triggerSample = useCallback(
     (channelIndex: number, step?: StateSequenceStep) => {
+      const sequence = useSequencersState
+        .getState()
+        .sequences.find(({ name }) => name === sequenceName) as StateSequenceDrumMachine;
+
       const channel = sequence.channelsConfig[channelIndex];
 
       if (!channel) return;
 
-      const volume = 1 * (sequence.channelsConfig[channelIndex].volume ?? 1) * (step?.volume ?? 1);
+      const volume = 1 * (channelsConfig[channelIndex].volume ?? 1) * (step?.volume ?? 1);
 
       if (channel.type === 'sample') {
         const sample = samples.current[channel.audioFile];
@@ -54,14 +70,14 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
         });
       }
     },
-    [sequence]
+    [sequenceName]
   );
 
   const getChannelConfigComponents = useCallback(
     (channelIndex: number) => {
-      const channelConfig = sequence.channelsConfig[channelIndex];
+      const channelConfig = channelsConfig[channelIndex];
       const update = (newChannelConfig: Partial<StateSequenceChannelConfig>) =>
-        updateChannelConfig(sequence.name, channelIndex, newChannelConfig);
+        updateChannelConfig(sequenceName, channelIndex, newChannelConfig);
 
       return (
         <>
@@ -75,9 +91,9 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
             step={0.05}
             actionMessage={{
               type: 'Channel Param Change',
-              sequenceName: sequence.name,
+              sequenceName,
               channelIndex,
-              param: 'volume',
+              parameter: 'volume',
             }}
             value={channelConfig.volume ?? 1}
             showDial
@@ -119,15 +135,14 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
         </>
       );
     },
-    [sequence.channelsConfig]
+    [channelsConfig]
   );
 
   return (
     <div className="drum-machine controller__instrument">
       <Sequencer
-        {...sequencerProps}
-        sequence={sequence}
-        channelsConfig={sequence.channelsConfig}
+        sequenceName={sequenceName}
+        channelsConfig={channelsConfig}
         triggerCallback={triggerSample}
         showChannelControls={true}
         channelConfigComponents={getChannelConfigComponents}

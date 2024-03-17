@@ -1,21 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { SequencerChannelProps } from './SequencerChannel/SequencerChannel';
-import {
-  StateSequence,
-  StateSequenceChannelConfigCommon,
-  StateSequenceStepProperties,
-} from 'state/state.types';
-import { registerMidiDevice } from 'utils/midi';
+import { StateSequenceChannelConfigCommon, StateSequenceStepProperties } from 'state/state.types';
 import { Button } from '@blueprintjs/core';
 import { useSequencersState } from 'state/state';
-import { cloneDeep } from 'lodash';
 import {
   SequencerConfig,
   SequencerConfigProps,
 } from 'components/Sequencer/SequencerConfig/SequencerConfig';
-import { getBlankPattern } from 'state/state.utils';
 import classNames from 'classnames';
 import { SequencerGrid } from './SequencerGrid/SequencerGrid';
+import { isEqual } from 'lodash';
 require('./_Sequencer.scss');
 
 export interface SequencerProps
@@ -24,18 +18,31 @@ export interface SequencerProps
       'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
     >,
     Pick<SequencerConfigProps, 'sequencerConfigCallback'> {
-  sequence: StateSequence;
+  sequenceName: string;
   channelsConfig: StateSequenceChannelConfigCommon[];
 }
 
 export const Sequencer: React.FC<SequencerProps> = ({
-  sequence,
+  sequenceName,
   channelsConfig,
   triggerCallback = () => {},
   sequencerConfigCallback,
   ...otherSequencerChannelProps
 }) => {
+  const { currentPatternPageLength, patternCount, currentPattern } = useSequencersState((state) => {
+    const sequence = state.sequences.find(({ name }) => name === sequenceName)!;
+
+    return {
+      currentPatternPageLength: sequence.patterns[sequence.currentPattern].pages.length,
+      currentPattern: sequence.currentPattern,
+      patternCount: sequence.patterns.length,
+    };
+  }, isEqual);
   const updateSequence = useSequencersState((state) => state.updateSequence);
+  const addSequencePattern = useSequencersState((state) => state.addSequencePattern);
+  const removeCurrentSequencePattern = useSequencersState(
+    (state) => state.removeCurrentSequencePattern
+  );
   const addPage = useSequencersState((state) => state.addPage);
   const removePage = useSequencersState((state) => state.removePage);
   const [activePageIndex, setActivePageIndex] = useState(0);
@@ -44,16 +51,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
     keyof StateSequenceStepProperties | null
   >(null);
 
-  useEffect(() => {
-    if (sequence.midiOutDeviceName) {
-      registerMidiDevice(sequence.midiOutDeviceName, 'output');
-    }
-  }, [sequence.midiOutDeviceName]);
-
   return (
     <div className="sequencer">
       <SequencerConfig
-        sequence={sequence}
+        sequenceName={sequenceName}
         sequencerConfigCallback={sequencerConfigCallback}
         tools={[
           {
@@ -79,7 +80,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
       />
       <div className="sequencer__body">
         <SequencerGrid
-          sequence={sequence}
+          sequenceName={sequenceName}
           channelsConfig={channelsConfig}
           visiblePage={visiblePage}
           stepPropertyCurrentlyBeingEdited={stepPropertyCurrentlyBeingEdited}
@@ -89,90 +90,52 @@ export const Sequencer: React.FC<SequencerProps> = ({
           {...otherSequencerChannelProps}
         />
         <div className="sequencer__patterns">
-          {sequence.patterns.map((_, patternIndex) => (
+          {[...Array(patternCount).keys()].map((_, patternIndex) => (
             <Button
               text={patternIndex}
               key={patternIndex}
-              onClick={() => updateSequence(sequence.name, { currentPattern: patternIndex })}
-              active={sequence.currentPattern === patternIndex}
+              onClick={() => updateSequence(sequenceName, { currentPattern: patternIndex })}
+              active={currentPattern === patternIndex}
             />
           ))}
-          <Button
-            icon="plus"
-            onClick={() =>
-              updateSequence(sequence.name, {
-                patterns: [...sequence.patterns, getBlankPattern()],
-                currentPattern: sequence.patterns.length,
-              })
-            }
-          />
-          <Button
-            icon="duplicate"
-            onClick={() =>
-              updateSequence(sequence.name, {
-                patterns: [
-                  ...sequence.patterns,
-                  cloneDeep(sequence.patterns[sequence.currentPattern]),
-                ],
-                currentPattern: sequence.patterns.length,
-              })
-            }
-          />
-          <Button
-            icon="trash"
-            onClick={() =>
-              updateSequence(sequence.name, {
-                patterns:
-                  sequence.patterns.length > 1
-                    ? sequence.patterns.filter((_, index) => index !== sequence.currentPattern)
-                    : [getBlankPattern()],
-                currentPattern: Math.max(0, sequence.currentPattern - 1),
-              })
-            }
-          />
+          <Button icon="plus" onClick={() => addSequencePattern(sequenceName)} />
+          <Button icon="duplicate" onClick={() => addSequencePattern(sequenceName, true)} />
+          <Button icon="trash" onClick={() => removeCurrentSequencePattern(sequenceName)} />
         </div>
       </div>
       <div className="sequencer__footer">
         <div className="sequencer__pattern-pagination">
-          {[...Array(sequence.patterns[sequence.currentPattern].pages.length)].map(
-            (_, pageNumber) => (
-              <Button
-                className={classNames('sequencer__pattern-pagination-page', {
-                  'sequencer__pattern-pagination-page--is-visible': pageNumber === activePageIndex,
-                })}
-                key={pageNumber}
-                onClick={() => setVisiblePage(pageNumber)}
-                active={pageNumber === visiblePage}
-              />
-            )
-          )}
+          {[...Array(currentPatternPageLength)].map((_, pageNumber) => (
+            <Button
+              className={classNames('sequencer__pattern-pagination-page', {
+                'sequencer__pattern-pagination-page--is-visible': pageNumber === activePageIndex,
+              })}
+              key={pageNumber}
+              onClick={() => setVisiblePage(pageNumber)}
+              active={pageNumber === visiblePage}
+            />
+          ))}
           <Button
             icon="plus"
             className="sequencer__pattern-pagination-control"
-            onClick={() => addPage(sequence.name)}
+            onClick={() => addPage(sequenceName)}
           />
           <Button
             icon="duplicate"
             className="sequencer__pattern-pagination-control"
-            onClick={() =>
-              addPage(sequence.name, sequence.patterns[sequence.currentPattern].pages[visiblePage])
-            }
+            onClick={() => addPage(sequenceName, undefined, visiblePage)}
           />
           <Button
             icon="trash"
             className="sequencer__pattern-pagination-control"
             onClick={() => {
-              if (sequence.patterns[sequence.currentPattern].pages.length < 2) {
-                addPage(sequence.name);
+              if (currentPatternPageLength < 2) {
+                addPage(sequenceName);
               } else {
-                setActivePageIndex(
-                  activePageIndex % (sequence.patterns[sequence.currentPattern].pages.length - 1)
-                );
-                setVisiblePage(
-                  visiblePage % (sequence.patterns[sequence.currentPattern].pages.length - 1)
-                );
+                setActivePageIndex(activePageIndex % (currentPatternPageLength - 1));
+                setVisiblePage(visiblePage % (currentPatternPageLength - 1));
               }
-              removePage(sequence.name, visiblePage);
+              removePage(sequenceName, visiblePage);
             }}
           />
         </div>
