@@ -6,28 +6,28 @@ import { Midi, Scale, ScaleType } from 'tonal';
 import { useSequencersState } from 'state/state';
 import { StateSequenceChannelConfigMidi, StateSequenceStep } from 'state/state.types';
 import { getIntervalFromClockSpeed } from 'components/Controller/Controller.utils';
-import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
-import { InstrumentConfigSelectKnobItem } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob.types';
+import { SelectKnob } from 'components/SelectKnob/SelectKnob';
+import { SelectKnobItem } from 'components/SelectKnob/SelectKnob.types';
 
 export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => {
   const clockSpeed = useSequencersState(({ clockSpeed }) => clockSpeed);
   const updateSequence = useSequencersState((state) => state.updateSequence);
   const [synthChannels, setSynthChannels] = useState<StateSequenceChannelConfigMidi[]>([]);
-  const rootOptions = useRef<InstrumentConfigSelectKnobItem[]>(
+  const rootOptions = useRef<SelectKnobItem[]>(
     [...Array(101).keys()].map((note) => ({
       value: note,
       key: note,
       label: Midi.midiToNoteName(note),
     }))
   );
-  const scaleOptions = useRef<InstrumentConfigSelectKnobItem[]>(
+  const scaleOptions = useRef<SelectKnobItem[]>(
     ScaleType.all().map((scale) => ({
       value: scale.name,
       key: scale.name,
       label: scale.name,
     }))
   );
-  const polyphonyOptions = useRef<InstrumentConfigSelectKnobItem[]>([
+  const polyphonyOptions = useRef<SelectKnobItem[]>([
     {
       value: false,
       label: 'monophonic',
@@ -76,9 +76,9 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
     });
   };
 
-  const instrumentConfigCallback: SequencerProps['instrumentConfigCallback'] = () => (
+  const sequencerConfigCallback: SequencerProps['sequencerConfigCallback'] = () => (
     <>
-      <InstrumentConfigSelectKnob
+      <SelectKnob
         label={`midi channel: ${sequence.midiChannel}`}
         type="numeric"
         min={0}
@@ -86,7 +86,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         onChange={(value) => updateSequence(sequence.name, { midiChannel: value })}
         value={sequence.midiChannel}
       />
-      <InstrumentConfigSelectKnob
+      <SelectKnob
         label={`range: ${sequence.range}`}
         type="numeric"
         min={1}
@@ -98,7 +98,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         }}
         value={sequence.range}
       />
-      <InstrumentConfigSelectKnob
+      <SelectKnob
         label={`root: ${Midi.midiToNoteName(sequence.rootNote)}`}
         type="discrete"
         items={rootOptions.current}
@@ -109,7 +109,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         }}
         value={sequence.rootNote}
       />
-      <InstrumentConfigSelectKnob
+      <SelectKnob
         label={`note duration: ${sequence.noteDuration}`}
         type="numeric"
         min={0}
@@ -124,7 +124,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         value={sequence.noteDuration}
         showDial
       />
-      <InstrumentConfigSelectKnob
+      <SelectKnob
         label={`scale: ${sequence.scale}`}
         type="discrete"
         items={scaleOptions.current}
@@ -135,7 +135,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         }}
         value={sequence.scale}
       />
-      <InstrumentConfigSelectKnob
+      <SelectKnob
         label={sequence.isPolyphonic ? 'polyphonic' : 'monophonic'}
         type="discrete"
         items={polyphonyOptions.current}
@@ -153,7 +153,7 @@ export const Synth: React.FC<SynthProps> = ({ sequence, ...sequencerProps }) => 
         sequence={sequence}
         channelsConfig={synthChannels}
         triggerCallback={triggerNote}
-        instrumentConfigCallback={instrumentConfigCallback}
+        sequencerConfigCallback={sequencerConfigCallback}
       />
     </div>
   );

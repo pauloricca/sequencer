@@ -10,9 +10,9 @@ import { Button } from '@blueprintjs/core';
 import { useSequencersState } from 'state/state';
 import { cloneDeep } from 'lodash';
 import {
-  InstrumentConfig,
-  InstrumentConfigProps,
-} from 'components/InstrumentConfig/InstrumentConfig';
+  SequencerConfig,
+  SequencerConfigProps,
+} from 'components/Sequencer/SequencerConfig/SequencerConfig';
 import { getBlankPattern } from 'state/state.utils';
 import classNames from 'classnames';
 import { SequencerGrid } from './SequencerGrid/SequencerGrid';
@@ -23,7 +23,7 @@ export interface SequencerProps
       SequencerChannelProps,
       'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
     >,
-    Pick<InstrumentConfigProps, 'instrumentConfigCallback'> {
+    Pick<SequencerConfigProps, 'sequencerConfigCallback'> {
   sequence: StateSequence;
   channelsConfig: StateSequenceChannelConfigCommon[];
 }
@@ -32,7 +32,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   sequence,
   channelsConfig,
   triggerCallback = () => {},
-  instrumentConfigCallback,
+  sequencerConfigCallback,
   ...otherSequencerChannelProps
 }) => {
   const updateSequence = useSequencersState((state) => state.updateSequence);
@@ -52,9 +52,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
 
   return (
     <div className="sequencer">
-      <InstrumentConfig
+      <SequencerConfig
         sequence={sequence}
-        instrumentConfigCallback={instrumentConfigCallback}
+        sequencerConfigCallback={sequencerConfigCallback}
         tools={[
           {
             name: 'default',

@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { StateSequence } from 'state/state.types';
 import { useSequencersState } from 'state/state';
 import { getMidiOutputDeviceNames } from 'utils/midi';
-import { InstrumentConfigSelectKnob } from '../InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
-import { InstrumentConfigSelectKnobItem } from '../InstrumentConfigSelectKnob/InstrumentConfigSelectKnob.types';
+import { SelectKnob } from '../../../SelectKnob/SelectKnob';
+import { SelectKnobItem } from '../../../SelectKnob/SelectKnob.types';
 
-export interface InstrumentConfigMidiOutProps {
+export interface SequencerConfigMidiOutProps {
   sequence: StateSequence;
 }
 
-export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = ({ sequence }) => {
+export const SequencerConfigMidiOut: React.FC<SequencerConfigMidiOutProps> = ({ sequence }) => {
   const updateSequence = useSequencersState((state) => state.updateSequence);
-  const [midiOutOptions, setMidiOutOptions] = useState<InstrumentConfigSelectKnobItem[]>([]);
+  const [midiOutOptions, setMidiOutOptions] = useState<SelectKnobItem[]>([]);
 
   const getMidiOutOptions = () => [
     { label: 'none', value: undefined },
@@ -29,7 +29,7 @@ export const InstrumentConfigMidiOut: React.FC<InstrumentConfigMidiOutProps> = (
   }, []);
 
   return (
-    <InstrumentConfigSelectKnob
+    <SelectKnob
       label={sequence.midiOutDeviceName || 'midi out'}
       type="discrete"
       items={midiOutOptions}

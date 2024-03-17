@@ -1,16 +1,16 @@
 import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
-import { InstrumentConfigSelectKnobProps } from './InstrumentConfigSelectKnob.types';
+import { SelectKnobProps } from './SelectKnob.types';
 import { Icon } from '@blueprintjs/core';
 import { Modal } from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
 import { throttle } from 'lodash';
-import { MOUSE_MOVE_THROTTLE } from './InstrumentConfigSelectKnob.constants';
+import { MOUSE_MOVE_THROTTLE } from './SelectKnob.constants';
 import { countDecimalPlaces } from 'utils/countDecimalPlaces';
 import { useSequencersState } from 'state/state';
 import { PRESS_AND_HOLD_TIME } from 'components/ShortcutController/ShortcutController.constants';
-require('./_InstrumentConfigSelectKnob.scss');
+require('./_SelectKnob.scss');
 
-export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProps> = ({
+export const SelectKnob: React.FC<SelectKnobProps> = ({
   type,
   value,
   items: itemsProp = [],
@@ -45,7 +45,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
 
   const stepDecimalPlaces = countDecimalPlaces(step);
   const items =
-    useMemo<InstrumentConfigSelectKnobProps['items']>(
+    useMemo<SelectKnobProps['items']>(
       () =>
         type === 'discrete'
           ? itemsProp
@@ -65,7 +65,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
   const min = type === 'numeric' ? minProp : 0;
   const max = type === 'numeric' ? maxProp : items?.length - 1;
 
-  const setNewValue: InstrumentConfigSelectKnobProps['onChange'] = (value, item) => {
+  const setNewValue: SelectKnobProps['onChange'] = (value, item) => {
     onChange && onChange(value, item);
 
     actionMessage &&
@@ -162,7 +162,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
 
   return (
     <>
-      <div className="instrument-config-select-knob" onMouseDown={onMouseDownHandler}>
+      <div className="select-knob" onMouseDown={onMouseDownHandler}>
         <Button
           onClick={() => !isDragging.current && !isListeningForShortcut && setIsOpen(true)}
           isActive={isDragging.current || isListeningForShortcut}
@@ -180,9 +180,9 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
             />
           )}
           {type === 'numeric' && showDial && (
-            <div className="instrument-config-select-knob__dial-outer">
+            <div className="select-knob__dial-outer">
               <div
-                className="instrument-config-select-knob__dial"
+                className="select-knob__dial"
                 style={{ height: `${((value - min) / (max - min)) * 100}%` }}
               />
             </div>
@@ -190,7 +190,7 @@ export const InstrumentConfigSelectKnob: React.FC<InstrumentConfigSelectKnobProp
         </Button>
       </div>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <div className="instrument-config-select-knob__modal-contents">
+        <div className="select-knob__modal-contents">
           {items.map((item) => (
             <Button
               onClick={() => {

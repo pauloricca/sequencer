@@ -76,16 +76,24 @@ export const ShortcutController: React.FC = () => {
             midiChannel === event.channel &&
             midiControl === event.control
         )
-        .forEach(({ actionMessage, valueRangeMin: min, valueRangeMax: max, decimalPlaces }) =>
-          performAction({
-            ...actionMessage,
-            value: Number(
+        .forEach(({ actionMessage, valueRangeMin: min, valueRangeMax: max, decimalPlaces }) => {
+          let value = actionMessage.value;
+
+          // Don't do anything if this is meant to be controlled by a pad (action should come with a value)
+          if (value !== undefined && event.value === 0) return;
+
+          if (value === undefined)
+            value = Number(
               ((min ?? 0) + ((max ?? 1) - (min ?? 0)) * ((event.value ?? 127) / 127)).toFixed(
                 decimalPlaces ?? 1
               )
-            ),
-          })
-        );
+            );
+
+          performAction({
+            ...actionMessage,
+            value,
+          });
+        });
     } else {
       saveNewShortcut({
         ...shortcutCurrentlyBeingAssigned,

@@ -6,7 +6,7 @@ import { sendMidiMessage } from 'utils/midi';
 import { useSequencersState } from 'state/state';
 import { InputGroup } from '@blueprintjs/core';
 import { StateSequenceChannelConfig, StateSequenceStep } from 'state/state.types';
-import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
+import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 
 export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencerProps }) => {
   const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
@@ -69,7 +69,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
             value={channelConfig.name}
             onValueChange={(value) => update({ name: value })}
           />
-          <InstrumentConfigSelectKnob
+          <SelectKnob
             label="volume"
             type="numeric"
             step={0.05}
@@ -83,7 +83,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
             showDial
             speed={15}
           />
-          <InstrumentConfigSelectKnob
+          <SelectKnob
             label={`${channelConfig.type}`}
             items={[{ value: 'midi' }, { value: 'sample' }]}
             type="discrete"
@@ -92,7 +92,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
           />
           {channelConfig.type === 'midi' && (
             <>
-              <InstrumentConfigSelectKnob
+              <SelectKnob
                 label={`midi channel: ${channelConfig.midiChannel ?? 'none'}`}
                 value={channelConfig.midiChannel}
                 type="numeric"
@@ -100,7 +100,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequence, ...sequencer
                 max={32}
                 onChange={(value) => update({ midiChannel: value })}
               />
-              <InstrumentConfigSelectKnob
+              <SelectKnob
                 label={`midi note: ${channelConfig.midiNote ?? 'none'}`}
                 value={channelConfig.midiNote}
                 type="numeric"

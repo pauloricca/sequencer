@@ -3,43 +3,43 @@ import React, { ReactNode, useState } from 'react';
 import { StateSequence } from 'state/state.types';
 import { useSequencersState } from 'state/state';
 import classNames from 'classnames';
-import { InstrumentConfigMidiOut } from './InstrumentConfigMidiOut/InstrumentConfigMidiOut';
-import { InstrumentConfigSelectKnob } from './InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
-require('./_InstrumentConfig.scss');
+import { SequencerConfigMidiOut } from './SequencerConfigMidiOut/SequencerConfigMidiOut';
+import { SelectKnob } from '../../SelectKnob/SelectKnob';
+require('./_SequencerConfig.scss');
 
-export interface InstrumentConfigProps {
+export interface SequencerConfigProps {
   sequence: StateSequence;
   tools?: Array<{ name: string; value: string | null; icon: string }>;
   selectedTool?: string | null;
   onSelectTool?: (value: string | null) => void;
-  instrumentConfigCallback?: () => ReactNode;
+  sequencerConfigCallback?: () => ReactNode;
 }
 
-export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
+export const SequencerConfig: React.FC<SequencerConfigProps> = ({
   sequence,
   tools,
   selectedTool,
   onSelectTool = () => {},
-  instrumentConfigCallback,
+  sequencerConfigCallback,
 }) => {
   const updateSequence = useSequencersState((state) => state.updateSequence);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div
-      className={classNames('instrument-config', {
-        'instrument-config--is-open': isOpen,
+      className={classNames('sequencer-config', {
+        'sequencer-config--is-open': isOpen,
       })}
     >
-      <div className="instrument-config__header">
-        <p className="instrument-config__instrument-name">{sequence.name}</p>
-        <div className="instrument-config__tools">
+      <div className="sequencer-config__header">
+        <p className="sequencer-config__instrument-name">{sequence.name}</p>
+        <div className="sequencer-config__tools">
           {tools?.map(({ name, value, icon }) => (
             <Icon
               icon={icon}
               key={name ?? value}
-              className={classNames('instrument-config__tool', {
-                'instrument-config__tool--is-active': value === selectedTool,
+              className={classNames('sequencer-config__tool', {
+                'sequencer-config__tool--is-active': value === selectedTool,
               })}
               onClick={() => onSelectTool(value)}
             />
@@ -47,37 +47,37 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
           {!sequence.isMuted && (
             <Icon
               icon="volume-up"
-              className="instrument-config__tool instrument-config__tool--is-active"
+              className="sequencer-config__tool sequencer-config__tool--is-active"
               onClick={() => updateSequence(sequence.name, { isMuted: true })}
             />
           )}
           {sequence.isMuted && (
             <Icon
               icon="volume-off"
-              className="instrument-config__tool"
+              className="sequencer-config__tool"
               onClick={() => updateSequence(sequence.name, { isMuted: false })}
             />
           )}
           {isOpen && (
             <Icon
               icon="cross"
-              className="instrument-config__tool instrument-config__tool--is-active"
+              className="sequencer-config__tool sequencer-config__tool--is-active"
               onClick={() => setIsOpen(false)}
             />
           )}
           {!isOpen && (
-            <Icon icon="cog" className="instrument-config__tool" onClick={() => setIsOpen(true)} />
+            <Icon icon="cog" className="sequencer-config__tool" onClick={() => setIsOpen(true)} />
           )}
         </div>
       </div>
       {isOpen && (
-        <div className="instrument-config__controls">
+        <div className="sequencer-config__controls">
           <InputGroup
             value={sequence.name}
             onValueChange={(value) => updateSequence(sequence.name, { name: value })}
           />
-          <InstrumentConfigMidiOut sequence={sequence} />
-          <InstrumentConfigSelectKnob
+          <SequencerConfigMidiOut sequence={sequence} />
+          <SelectKnob
             label={`n steps: ${sequence.nSteps}`}
             type="numeric"
             min={1}
@@ -89,7 +89,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             }}
             value={sequence.nSteps}
           />
-          <InstrumentConfigSelectKnob
+          <SelectKnob
             label={`step length: ${sequence.stepLength}`}
             type="numeric"
             min={1}
@@ -101,7 +101,7 @@ export const InstrumentConfig: React.FC<InstrumentConfigProps> = ({
             }}
             value={sequence.stepLength}
           />
-          {!!instrumentConfigCallback && instrumentConfigCallback()}
+          {!!sequencerConfigCallback && sequencerConfigCallback()}
         </div>
       )}
     </div>

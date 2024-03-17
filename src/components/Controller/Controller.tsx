@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSequencersState } from 'state/state';
 import { Button } from '@blueprintjs/core';
-// import downloadObjectAsJson from 'utils/downloadObjectAsJson';
+import downloadObjectAsJson from 'utils/downloadObjectAsJson';
 import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
 import { setMetronomeInterval, startMetronome, stopMetronome } from 'utils/metronome';
 import { State } from 'state/state.types';
-import { InstrumentConfigSelectKnob } from 'components/InstrumentConfig/InstrumentConfigSelectKnob/InstrumentConfigSelectKnob';
+import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 import { ShortcutController } from 'components/ShortcutController/ShortcutController';
 import { allSoundsOff } from 'utils/midi';
 import { isEqual } from 'lodash';
@@ -15,7 +15,6 @@ require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
-  // const state = useSequencersState((state) => state);
   const sequenceNames = useSequencersState(
     (state) => state.sequences.map(({ name }) => name),
     isEqual
@@ -48,13 +47,13 @@ export const Controller: React.FC = () => {
           fill={true}
           onClick={() => uploadJsonFileAsObject<State>((obj) => resetState(obj))}
         />
-        {/* <Button
+        <Button
           text="save"
           rightIcon="import"
           fill={true}
-          onClick={() => downloadObjectAsJson(state, 'sequencer')}
-        /> */}
-        <InstrumentConfigSelectKnob
+          onClick={() => downloadObjectAsJson(useSequencersState.getState(), 'sequencer')}
+        />
+        <SelectKnob
           label={`bpm: ${clockSpeed / 4}`}
           value={clockSpeed / 4}
           type="numeric"
