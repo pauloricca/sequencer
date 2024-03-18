@@ -68,7 +68,9 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
         velocity: 127 * (step?.volume ?? 1),
         channel: sequence.midiChannel,
         duration:
-          sequence.noteDuration * getIntervalFromClockSpeed(clockSpeed) * sequence.stepLength,
+          (step?.duration ?? sequence.noteDuration) *
+          getIntervalFromClockSpeed(clockSpeed) *
+          sequence.stepLength,
         isMonophonic: !sequence.isPolyphonic,
       });
     },

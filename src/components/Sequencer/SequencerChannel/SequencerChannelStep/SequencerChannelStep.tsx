@@ -14,11 +14,13 @@ export interface SequencerChannelStepProps {
   onToggle: (stepIndex: number, currentStep?: StateSequenceStep) => void;
   onDragStart: () => void;
   isDraggingAlongChannel: boolean;
-  isControllingFillPercentage?: boolean;
+  stepPropertyEditDirection: 'horizontal' | 'vertical';
   /**
-   * 0 - 1 value for the step height fill. this can be used for velocity and other parameters.
+   * 0 - 1 value for the step height property fill. this can be used for velocity and other parameters.
    */
+  isControllingFillPercentage?: boolean;
   fillPercentage?: number;
+  fillPercentageMax?: number;
   onFillPercentageChange?: (fillPercentage: number, step?: StateSequenceStep) => void;
 }
 
@@ -32,7 +34,9 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
     isDraggingAlongChannel,
     isControllingFillPercentage = false,
     fillPercentage = 1,
+    fillPercentageMax = 1,
     onFillPercentageChange = () => {},
+    stepPropertyEditDirection,
   }) => {
     const [internalFillValue, setInternalFillValue] = useState(fillPercentage);
 
@@ -64,7 +68,7 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
           lastMouseX = ev.screenX;
           lastMouseY = ev.screenY;
           setInternalFillValue((prevValue) =>
-            Math.max(0, Math.min(1, prevValue + mouseYDif / MOUSE_DRAG_RANGE))
+            Math.max(0, Math.min(fillPercentageMax, prevValue + mouseYDif / MOUSE_DRAG_RANGE))
           );
           mouseHasMoved = true;
         }, MOUSE_MOUSE_THROTTLE);
@@ -98,7 +102,11 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
       >
         <div
           className="sequencer-channel-step__fill"
-          style={{ height: `calc(${fillPercentage * 100}% - 1px)` }}
+          style={
+            stepPropertyEditDirection === 'vertical'
+              ? { height: `calc(${Math.max(fillPercentage * 100, 20)}% - 1px)` }
+              : { width: `calc(${Math.max((step?.duration ?? 1) * 100, 20)}% - 1px)` }
+          }
         />
       </div>
     );

@@ -1,5 +1,8 @@
 import React, { ReactNode, useCallback, useMemo, useRef, useState } from 'react';
-import { SequencerChannelStep } from './SequencerChannelStep/SequencerChannelStep';
+import {
+  SequencerChannelStep,
+  SequencerChannelStepProps,
+} from './SequencerChannelStep/SequencerChannelStep';
 import {
   StateSequence,
   StateSequenceChannelConfigCommon,
@@ -11,7 +14,8 @@ import { Icon } from '@blueprintjs/core';
 import classNames from 'classnames';
 require('./_SequencerChannel.scss');
 
-export interface SequencerChannelProps {
+export interface SequencerChannelProps
+  extends Pick<SequencerChannelStepProps, 'stepPropertyEditDirection'> {
   sequence: StateSequence;
   channelConfig: StateSequenceChannelConfigCommon;
   channelIndex: number;
@@ -33,6 +37,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   showChannelControls = false,
   channelConfigComponents,
   stepPropertyCurrentlyBeingEdited,
+  stepPropertyEditDirection,
 }) => {
   const setStep = useSequencersState((state) => state.setStep);
   const removeStep = useSequencersState((state) => state.removeStep);
@@ -142,9 +147,15 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
                   ? step?.[stepPropertyCurrentlyBeingEdited]
                   : undefined
               }
+              fillPercentageMax={
+                stepPropertyCurrentlyBeingEdited === 'duration'
+                  ? sequence.nSteps - stepIndex
+                  : undefined
+              }
               onFillPercentageChange={
                 stepPropertyCurrentlyBeingEdited ? onFillPercentageChangeHandler : undefined
               }
+              stepPropertyEditDirection={stepPropertyEditDirection}
             />
           ))}
         </div>

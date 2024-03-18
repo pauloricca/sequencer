@@ -33,7 +33,11 @@ const setStep: StateAction =
                 (sequence as StateSequenceSynth).isPolyphonic !== false) ||
               stepIndex !== step.stepIndex
           ),
-          step,
+          {
+            ...step,
+            duration:
+              sequence.type === 'synth' ? (sequence as StateSequenceSynth).noteDuration : undefined,
+          },
         ];
       }
     });

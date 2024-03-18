@@ -8,7 +8,11 @@ require('./_SequencerGrid.scss');
 export interface SequencerGridProps
   extends Pick<
     SequencerChannelProps,
-    'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
+    | 'triggerCallback'
+    | 'showChannelControls'
+    | 'channelConfigComponents'
+    | 'stepPropertyCurrentlyBeingEdited'
+    | 'stepPropertyEditDirection'
   > {
   sequenceName: string;
   channelsConfig: StateSequenceChannelConfigCommon[];

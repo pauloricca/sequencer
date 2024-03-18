@@ -29,15 +29,17 @@ export const Sequencer: React.FC<SequencerProps> = ({
   sequencerConfigCallback,
   ...otherSequencerChannelProps
 }) => {
-  const { currentPatternPageLength, patternCount, currentPattern } = useSequencersState((state) => {
-    const sequence = state.sequences.find(({ name }) => name === sequenceName)!;
+  const { currentPatternPageLength, patternCount, currentPattern, sequenceType } =
+    useSequencersState((state) => {
+      const sequence = state.sequences.find(({ name }) => name === sequenceName)!;
 
-    return {
-      currentPatternPageLength: sequence.patterns[sequence.currentPattern].pages.length,
-      currentPattern: sequence.currentPattern,
-      patternCount: sequence.patterns.length,
-    };
-  }, isEqual);
+      return {
+        currentPatternPageLength: sequence.patterns[sequence.currentPattern].pages.length,
+        currentPattern: sequence.currentPattern,
+        patternCount: sequence.patterns.length,
+        sequenceType: sequence.type,
+      };
+    }, isEqual);
   const updateSequence = useSequencersState((state) => state.updateSequence);
   const addSequencePattern = useSequencersState((state) => state.addSequencePattern);
   const removeCurrentSequencePattern = useSequencersState(
@@ -60,13 +62,22 @@ export const Sequencer: React.FC<SequencerProps> = ({
           {
             name: 'default',
             value: null,
-            icon: 'heat-grid',
+            icon: 'layout-grid',
           },
           {
             name: 'volume',
             value: 'volume',
             icon: 'vertical-bar-chart-asc',
           },
+          ...(sequenceType === 'synth'
+            ? [
+                {
+                  name: 'duration',
+                  value: 'duration',
+                  icon: 'arrows-horizontal',
+                },
+              ]
+            : []),
           {
             name: 'probability',
             value: 'probability',
@@ -84,6 +95,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
           channelsConfig={channelsConfig}
           visiblePage={visiblePage}
           stepPropertyCurrentlyBeingEdited={stepPropertyCurrentlyBeingEdited}
+          stepPropertyEditDirection={
+            stepPropertyCurrentlyBeingEdited === 'duration' ? 'horizontal' : 'vertical'
+          }
           triggerCallback={triggerCallback}
           activePageIndex={activePageIndex}
           setActivePageIndex={setActivePageIndex}

@@ -134,6 +134,7 @@ export interface StateSequenceStep extends StateSequenceStepProperties {
 export interface StateSequenceStepProperties {
   volume?: number;
   probability?: number;
+  duration?: number;
 }
 
 export type StateActionMessage =
