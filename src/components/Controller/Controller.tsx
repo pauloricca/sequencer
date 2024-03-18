@@ -3,7 +3,12 @@ import { useSequencersState } from 'state/state';
 import { Button } from '@blueprintjs/core';
 import downloadObjectAsJson from 'utils/downloadObjectAsJson';
 import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
-import { setMetronomeInterval, startMetronome, stopMetronome } from 'utils/metronome';
+import {
+  setMetronomeInterval,
+  setMetronomeSwing,
+  startMetronome,
+  stopMetronome,
+} from 'utils/metronome';
 import { State } from 'state/state.types';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 import { ShortcutController } from 'components/ShortcutController/ShortcutController';
@@ -21,12 +26,18 @@ export const Controller: React.FC = () => {
     isEqual
   );
   const clockSpeed = useSequencersState((state) => state.clockSpeed);
+  const swing = useSequencersState((state) => state.swing);
   const setClockSpeed = useSequencersState((state) => state.setClockSpeed);
+  const setSwing = useSequencersState((state) => state.setSwing);
   const resetState = useSequencersState((state) => state.reset);
 
   useEffect(() => {
     setMetronomeInterval(getIntervalFromClockSpeed(clockSpeed));
   }, [clockSpeed]);
+
+  useEffect(() => {
+    setMetronomeSwing(swing);
+  }, [swing]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -61,6 +72,15 @@ export const Controller: React.FC = () => {
           min={5}
           max={600}
           onChange={(value) => setClockSpeed(value * 4)}
+        />
+        <SelectKnob
+          label={`swing: ${Math.round(swing * 100)}%`}
+          value={swing ?? 0.5}
+          type="numeric"
+          min={0.5}
+          max={0.95}
+          step={0.05}
+          onChange={(value) => setSwing(value)}
         />
         {isPlaying && (
           <Button

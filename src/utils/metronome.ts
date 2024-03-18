@@ -3,19 +3,25 @@ import { useEffect, useState } from 'react';
 class Metronome {
   private readonly func: (scheduledTime: number) => any;
   private interval: number;
+  private swing: number;
+  private isDownBeat: boolean;
   private now: number = -1;
   private nextAt: number = -1;
   private timeout: number = -1;
 
-  constructor(func: (scheduledTime: number) => any, interval: number) {
+  constructor(func: (scheduledTime: number) => any, interval: number, swing = 0.5) {
     this.func = func;
     this.interval = interval;
+    this.isDownBeat = true;
+    this.swing = swing;
   }
 
   private wrapper() {
     const scheduledTime = this.nextAt;
 
-    this.nextAt += this.interval;
+    console.log();
+    this.nextAt += this.interval + (this.isDownBeat ? 0 : this.interval * (this.swing - 0.5) * 2);
+    this.isDownBeat = !this.isDownBeat;
     this.timeout = this.scheduleNext();
     this.func(scheduledTime);
   }
@@ -25,6 +31,10 @@ class Metronome {
       () => this.wrapper(),
       this.nextAt - new Date().getTime()
     ) as unknown as number;
+  }
+
+  public setSwing(swing: number) {
+    this.swing = swing;
   }
 
   public setInterval(newInterval: number) {
@@ -39,6 +49,7 @@ class Metronome {
 
   public stop() {
     this.nextAt = -1;
+    this.isDownBeat = true;
     clearTimeout(this.timeout);
   }
 
@@ -60,6 +71,10 @@ const metronome = new Metronome(
 
 export const setMetronomeInterval = (interval: number) => {
   metronome.setInterval(interval);
+};
+
+export const setMetronomeSwing = (swing: number) => {
+  metronome.setSwing(swing);
 };
 
 export const startMetronome = () => {

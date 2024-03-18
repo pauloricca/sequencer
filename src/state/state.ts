@@ -234,6 +234,13 @@ const setClockSpeed: StateAction =
       state.clockSpeed = clockSpeed;
     });
 
+const setSwing: StateAction =
+  (set): StateActions['setSwing'] =>
+  (swing) =>
+    set((state) => {
+      state.swing = swing;
+    });
+
 const performAction: StateAction =
   (set): StateActions['performAction'] =>
   (actionMessage) =>
@@ -323,6 +330,7 @@ export const useSequencersState = create<State & StateActions>()(
       addSequencePattern: addSequencePattern(set, get),
       removeCurrentSequencePattern: removeCurrentSequencePattern(set, get),
       setClockSpeed: setClockSpeed(set, get),
+      setSwing: setSwing(set, get),
       performAction: performAction(set, get),
       startListeningToNewShortcut: startListeningToNewShortcut(set, get),
       stopListeningToNewShortcut: stopListeningToNewShortcut(set, get),

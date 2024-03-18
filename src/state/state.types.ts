@@ -5,6 +5,10 @@ export interface State {
    * Typically BPM x 4 (on an x/4 time signature)
    */
   clockSpeed: number;
+  /**
+   * 0.5 - 0.95
+   */
+  swing: number;
   sequences: StateSequence[];
   shortcuts: StateShortcut[];
   activeMidiInputDevices: string[];
@@ -34,6 +38,7 @@ export interface StateActions {
   addSequencePattern: (sequenceName: string, doDuplicateCurrentPattern?: boolean) => void;
   removeCurrentSequencePattern: (sequenceName: string) => void;
   setClockSpeed: (clockSpeed: number) => void;
+  setSwing: (swing: number) => void;
   performAction: (actionMessage: StateActionMessage) => void;
   startListeningToNewShortcut: (shortcut: Omit<StateShortcut, 'type' | 'key'>) => void;
   stopListeningToNewShortcut: () => void;

@@ -159,6 +159,7 @@ export const SYNTH_MIDI_OUTPUT = 'JT-4000 MICRO';
 
 export const INITIAL_STATE: State = {
   clockSpeed: 130 * 4,
+  swing: 0.5,
   sequences: [
     {
       type: 'drum-machine',
