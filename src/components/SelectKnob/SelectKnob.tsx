@@ -43,13 +43,15 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
     valueRef.current = value;
   }, [value]);
 
+  console.log(1 + (maxProp - minProp) / step);
+
   const stepDecimalPlaces = countDecimalPlaces(step);
   const items =
     useMemo<SelectKnobProps['items']>(
       () =>
         type === 'discrete'
           ? itemsProp
-          : [...Array(1 + (maxProp - minProp) / step).keys()].map((valueIndex) => {
+          : [...Array(Math.round(1 + (maxProp - minProp) / step)).keys()].map((valueIndex) => {
               // Prevent odd rounding errors
               const value = (minProp + valueIndex * step).toFixed(stepDecimalPlaces);
 

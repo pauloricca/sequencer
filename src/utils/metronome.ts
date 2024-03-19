@@ -19,8 +19,9 @@ class Metronome {
   private wrapper() {
     const scheduledTime = this.nextAt;
 
-    console.log();
-    this.nextAt += this.interval + (this.isDownBeat ? 0 : this.interval * (this.swing - 0.5) * 2);
+    const swingTimeShift = this.swing > 0.5 ? this.interval * (this.swing - 0.5) * 2 : 0;
+
+    this.nextAt += this.interval + (this.isDownBeat ? -swingTimeShift : swingTimeShift);
     this.isDownBeat = !this.isDownBeat;
     this.timeout = this.scheduleNext();
     this.func(scheduledTime);
