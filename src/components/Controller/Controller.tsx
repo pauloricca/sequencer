@@ -78,7 +78,7 @@ export const Controller: React.FC = () => {
           value={swing ?? 0.5}
           type="numeric"
           min={0.5}
-          max={0.95}
+          max={0.9}
           step={0.05}
           onChange={(value) => setSwing(value)}
         />
