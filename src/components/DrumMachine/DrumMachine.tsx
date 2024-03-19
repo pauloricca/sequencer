@@ -45,7 +45,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
 
       if (!channel) return;
 
-      const volume = 1 * (channelsConfig[channelIndex].volume ?? 1) * (step?.volume ?? 1);
+      const volume = 1 * (sequence.channelsConfig[channelIndex].volume ?? 1) * (step?.volume ?? 1);
 
       if (channel.type === 'sample') {
         const sample = samples.current[channel.audioFile];
