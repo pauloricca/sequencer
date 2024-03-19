@@ -44,7 +44,7 @@ export const getSynthConfigParameterConfig = (sequenceName: string): ControllerP
       type: 'Sequence Param Change',
       sequenceName,
     },
-    labelCallback: (value) => `note duration: ${value}`,
+    labelCallback: (value) => `new note duration: ${value}`,
     type: 'numeric',
     min: 0,
     max: 16,

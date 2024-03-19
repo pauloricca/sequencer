@@ -43,8 +43,6 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
     valueRef.current = value;
   }, [value]);
 
-  console.log(1 + (maxProp - minProp) / step);
-
   const stepDecimalPlaces = countDecimalPlaces(step);
   const items =
     useMemo<SelectKnobProps['items']>(
