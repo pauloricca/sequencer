@@ -8,10 +8,10 @@ import {
   StateSequenceStep,
   StateSequenceSynth,
 } from 'state/state.types';
-import { getIntervalFromClockSpeed } from 'components/Controller/Controller.utils';
 import { isEqual } from 'lodash';
 import { getSynthConfigParameterConfig } from './Synth.config';
 import { ControllerParameter } from 'components/Controller/ControllerParameter/ControllerParameter';
+import { getIntervalFromClockSpeed } from 'state/state.utils';
 
 interface SynthProps {
   sequenceName: string;

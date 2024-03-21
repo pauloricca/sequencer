@@ -16,6 +16,27 @@ import { getBlankPattern } from './state.utils';
 import { Draft } from 'immer';
 import { cloneDeep, isEqual } from 'lodash';
 
+const setIsPlaying: StateAction =
+  (set): StateActions['setIsPlaying'] =>
+  (isPlaying) =>
+    set((state) => {
+      state.isPlaying = isPlaying;
+    });
+
+const setClockSpeed: StateAction =
+  (set): StateActions['setClockSpeed'] =>
+  (clockSpeed) =>
+    set((state) => {
+      state.clockSpeed = clockSpeed;
+    });
+
+const setSwing: StateAction =
+  (set): StateActions['setSwing'] =>
+  (swing) =>
+    set((state) => {
+      state.swing = swing;
+    });
+
 const setStep: StateAction =
   (set): StateActions['setStep'] =>
   (sequenceName, step, pageNumber) =>
@@ -227,20 +248,6 @@ const removeCurrentSequencePattern: StateAction =
       });
     });
 
-const setClockSpeed: StateAction =
-  (set): StateActions['setClockSpeed'] =>
-  (clockSpeed) =>
-    set((state) => {
-      state.clockSpeed = clockSpeed;
-    });
-
-const setSwing: StateAction =
-  (set): StateActions['setSwing'] =>
-  (swing) =>
-    set((state) => {
-      state.swing = swing;
-    });
-
 const performAction: StateAction =
   (set): StateActions['performAction'] =>
   (actionMessage) =>
@@ -320,6 +327,9 @@ export const useSequencersState = create<State & StateActions>()(
   persist(
     immer((set, get) => ({
       ...INITIAL_STATE,
+      setIsPlaying: setIsPlaying(set, get),
+      setClockSpeed: setClockSpeed(set, get),
+      setSwing: setSwing(set, get),
       setStep: setStep(set, get),
       removeStep: removeStep(set, get),
       updateStep: updateStep(set, get),
@@ -329,8 +339,6 @@ export const useSequencersState = create<State & StateActions>()(
       updateSequence: updateSequence(set, get),
       addSequencePattern: addSequencePattern(set, get),
       removeCurrentSequencePattern: removeCurrentSequencePattern(set, get),
-      setClockSpeed: setClockSpeed(set, get),
-      setSwing: setSwing(set, get),
       performAction: performAction(set, get),
       startListeningToNewShortcut: startListeningToNewShortcut(set, get),
       stopListeningToNewShortcut: stopListeningToNewShortcut(set, get),

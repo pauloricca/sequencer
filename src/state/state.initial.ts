@@ -115,41 +115,49 @@ export const DRUM_MACHINE_CHANNELS: StateSequenceChannelConfig[] = [
     type: 'sample',
     name: 'SS_TCN_Kick_Solo_01',
     audioFile: 'SS_TCN_Kick_Solo_01.wav',
+    pitch: 1,
   },
   {
     type: 'sample',
     name: 'SS_TCN_Kick_Solo_31',
     audioFile: 'SS_TCN_Kick_Solo_31.wav',
+    pitch: 1,
   },
   {
     type: 'sample',
     name: 'SS_TCN_HH_03',
     audioFile: 'SS_TCN_HH_03.wav',
+    pitch: 1,
   },
   {
     type: 'sample',
     name: 'SS_TCN_HH_05',
     audioFile: 'SS_TCN_HH_05.wav',
+    pitch: 1,
   },
   {
     type: 'sample',
     name: 'SS_TCN_Clap_Snare_15',
     audioFile: 'SS_TCN_Clap_Snare_15.wav',
+    pitch: 1,
   },
   {
     type: 'sample',
     name: 'SS_TCN_Clap_Snare_04',
     audioFile: 'SS_TCN_Clap_Snare_04.wav',
+    pitch: 1,
   },
   {
     type: 'sample',
     name: 'GS_FREE2_Prc_01',
     audioFile: 'GS_FREE2_Prc_01.wav',
+    pitch: 1,
   },
   {
     type: 'sample',
     name: 'GS_FREE2_172_ATMO_01_Cm',
     audioFile: 'GS_FREE2_172_ATMO_01_Cm.wav',
+    pitch: 1,
   },
 ];
 
@@ -158,6 +166,7 @@ export const BASS_MIDI_OUTPUT = 'USB2.0-MIDI Port 1';
 export const SYNTH_MIDI_OUTPUT = 'JT-4000 MICRO';
 
 export const INITIAL_STATE: State = {
+  isPlaying: false,
   clockSpeed: 130 * 4,
   swing: 0.5,
   sequences: [

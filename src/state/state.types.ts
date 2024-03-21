@@ -1,6 +1,7 @@
 import { Draft } from 'immer';
 
 export interface State {
+  isPlaying: boolean;
   /**
    * Typically BPM x 4 (on an x/4 time signature)
    */
@@ -15,6 +16,9 @@ export interface State {
 }
 
 export interface StateActions {
+  setIsPlaying: (isPlaying: boolean) => void;
+  setClockSpeed: (clockSpeed: number) => void;
+  setSwing: (swing: number) => void;
   setStep: (sequenceName: string, step: StateSequenceStep, pageNumber: number) => void;
   removeStep: (sequenceName: string, step: StateSequenceStep, pageNumber: number) => void;
   updateStep: (
@@ -37,8 +41,6 @@ export interface StateActions {
   updateSequence: (sequenceName: string, newSequenceSettings: Partial<StateSequence>) => void;
   addSequencePattern: (sequenceName: string, doDuplicateCurrentPattern?: boolean) => void;
   removeCurrentSequencePattern: (sequenceName: string) => void;
-  setClockSpeed: (clockSpeed: number) => void;
-  setSwing: (swing: number) => void;
   performAction: (actionMessage: StateActionMessage) => void;
   startListeningToNewShortcut: (shortcut: Omit<StateShortcut, 'type' | 'key'>) => void;
   stopListeningToNewShortcut: () => void;
@@ -129,6 +131,11 @@ export interface StateSequenceChannelConfigMidi extends StateSequenceChannelConf
 export interface StateSequenceChannelConfigSample extends StateSequenceChannelConfigCommon {
   type: 'sample';
   audioFile: string;
+  /**
+   * 1 pitch is sample played at normal rate, <1 is lower pitch, >1 higher pitch
+   */
+  pitch: number;
+  isReversed?: boolean;
 }
 
 export interface StateSequenceStep extends StateSequenceStepProperties {
