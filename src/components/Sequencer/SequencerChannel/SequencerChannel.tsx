@@ -124,10 +124,11 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
     <div
       className={classNames('sequencer-channel', {
         'sequencer-channel--is-muted': channelConfig.isMuted || sequence.isMuted,
+        'sequencer-channel--is-highlighted': channelConfig.isHighlighted,
       })}
     >
       <div className="sequencer-channel__inner">
-        <div className="sequencer-channel__name" onClick={() => triggerCallback(channelIndex)}>
+        <div className="sequencer-channel__name" onMouseDown={() => triggerCallback(channelIndex)}>
           {channelConfig.name}
         </div>
         {showChannelControls && channelControls}

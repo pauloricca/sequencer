@@ -91,6 +91,7 @@ export interface StateSequenceSynth extends StateSequenceCommon {
   rootNote: number;
   scale: string;
   range: number;
+  transpose: number;
   noteDuration: number;
   midiChannel: number;
   isPolyphonic: boolean;
@@ -112,6 +113,7 @@ export interface StateSequenceChannelConfigCommon {
   name?: string;
   isHidden?: boolean;
   isMuted?: boolean;
+  isHighlighted?: boolean;
   /**
    * 0 to 1
    */
@@ -134,7 +136,15 @@ export interface StateSequenceChannelConfigSample extends StateSequenceChannelCo
   /**
    * 1 pitch is sample played at normal rate, <1 is lower pitch, >1 higher pitch
    */
-  pitch: number;
+  pitch?: number;
+  /**
+   * play start 0 to 1
+   */
+  start?: number;
+  /**
+   * play end 0 to 1
+   */
+  end?: number;
   isReversed?: boolean;
 }
 

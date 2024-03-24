@@ -52,4 +52,10 @@
             opacity: 0.5;
         }
     }
+
+    &--is-highlighted {
+        .sequencer-channel__name {
+            font-weight: 900;
+        }
+    }
 }

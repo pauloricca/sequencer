@@ -18,7 +18,7 @@ interface SynthProps {
 }
 
 export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
-  const { rootNote, range, scale } = useSequencersState((state) => {
+  const { rootNote, transpose, range, scale } = useSequencersState((state) => {
     const sequence = state.sequences.find(
       ({ name }) => name === sequenceName
     ) as StateSequenceSynth;
@@ -27,6 +27,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
       rootNote: sequence.rootNote,
       range: sequence.range,
       scale: sequence.scale,
+      transpose: sequence.transpose,
     };
   }, isEqual);
   const [synthChannels, setSynthChannels] = useState<StateSequenceChannelConfigMidi[]>([]);
@@ -36,8 +37,8 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
     const scaleIndexes = [...Array(Math.floor(range)).keys()].map((i) => Math.floor(range / 2) - i);
 
     const stepMap = Midi.pcsetSteps(
-      Scale.get(`${Midi.midiToNoteName(rootNote)} ${scale}`).chroma,
-      rootNote
+      Scale.get(`${Midi.midiToNoteName(rootNote + transpose)} ${scale}`).chroma,
+      rootNote + transpose
     );
     const channelNotes = scaleIndexes.map(stepMap).filter((note) => note >= 0);
 
@@ -48,10 +49,11 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
             type: 'midi',
             name: Midi.midiToNoteName(note),
             midiNote: note,
+            isHighlighted: (note - rootNote) % 12 === 0,
           }) as StateSequenceChannelConfigMidi
       )
     );
-  }, [rootNote, range, scale]);
+  }, [rootNote, range, scale, transpose]);
 
   const triggerNote = useCallback(
     (channelIndex: number, step?: StateSequenceStep) => {

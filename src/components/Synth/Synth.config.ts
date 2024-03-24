@@ -40,6 +40,20 @@ export const getSynthConfigParameterConfig = (sequenceName: string): ControllerP
   },
   {
     actionMessage: {
+      parameter: 'transpose',
+      type: 'Sequence Param Change',
+      sequenceName,
+    },
+    labelCallback: (value) => `transpose: ${value}`,
+    type: 'discrete',
+    items: [...Array(200).keys()].map((value) => ({
+      value: value - 100,
+      key: value - 100,
+      label: `${value - 100}${Math.abs(value - 100) % 12 === 0 && value - 100 !== 0 ? ` (${(value - 100) / 12} octave${Math.abs((value - 100) / 12) !== 1 ? 's' : ''})` : ''}`,
+    })),
+  },
+  {
+    actionMessage: {
       parameter: 'noteDuration',
       type: 'Sequence Param Change',
       sequenceName,
