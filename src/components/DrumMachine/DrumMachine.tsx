@@ -64,6 +64,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
           sample.reverse =
             (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample)
               .isReversed ?? false;
+          sample.fadeIn = channel.attack ?? 0;
+          sample.fadeOut = channel.release ?? 0;
           sample.start(
             undefined,
             sample.buffer.duration * (channel.start ?? 0),
@@ -164,7 +166,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 onChange={(value) => update({ pitch: value })}
               />
               <SelectKnob
-                label={`start: ${channelConfig.start ?? 0}`}
+                label={`start: ${Math.round((channelConfig.start ?? 0) * 100)}%`}
                 value={channelConfig.start ?? 0}
                 type="numeric"
                 min={0}
@@ -173,13 +175,31 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 onChange={(value) => update({ start: value })}
               />
               <SelectKnob
-                label={`end: ${channelConfig.end ?? 1}`}
+                label={`end: ${Math.round((channelConfig.end ?? 1) * 100)}%`}
                 value={channelConfig.end ?? 1}
                 type="numeric"
                 min={0}
                 max={1}
                 step={0.05}
                 onChange={(value) => update({ end: value })}
+              />
+              <SelectKnob
+                label={`attack: ${channelConfig.attack ?? 0}s`}
+                value={channelConfig.attack ?? 0}
+                type="numeric"
+                min={0}
+                max={5}
+                step={0.05}
+                onChange={(value) => update({ attack: value })}
+              />
+              <SelectKnob
+                label={`release: ${channelConfig.release ?? 0}s`}
+                value={channelConfig.release ?? 0}
+                type="numeric"
+                min={0}
+                max={5}
+                step={0.05}
+                onChange={(value) => update({ release: value })}
               />
               <SelectKnob
                 label={`direction: ${channelConfig.isReversed ? 'reverse' : 'forward'}`}

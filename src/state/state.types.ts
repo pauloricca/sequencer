@@ -145,6 +145,14 @@ export interface StateSequenceChannelConfigSample extends StateSequenceChannelCo
    * play end 0 to 1
    */
   end?: number;
+  /**
+   * fade in time in seconds
+   */
+  attack?: number;
+  /**
+   * fade out time in seconds
+   */
+  release?: number;
   isReversed?: boolean;
 }
 
