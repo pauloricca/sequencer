@@ -153,6 +153,15 @@ export interface StateSequenceChannelConfigSample extends StateSequenceChannelCo
    * fade out time in seconds
    */
   release?: number;
+  /**
+   * reverb decay time in seconds
+   */
+  reverbDecay?: number;
+  /**
+   * 0 is fully dry (no reverb), 1 is fully wet (only reverb)
+   */
+  reverbWetness?: number;
+  distortion?: number;
   isReversed?: boolean;
 }
 

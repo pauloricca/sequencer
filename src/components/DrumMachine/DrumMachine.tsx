@@ -25,14 +25,19 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
   );
   const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
   // Sample objects indexed by file name
-  const samples = useRef<Record<string, Tone.Player>>({});
+  const samples = useRef<
+    Record<string, { player: Tone.Player; reverb: Tone.Reverb; distortion: Tone.Distortion }>
+  >({});
 
   useEffect(() => {
     channelsConfig.forEach((channel) => {
       if (channel.type === 'sample' && !samples.current[channel.audioFile]) {
-        samples.current[channel.audioFile] = new Tone.Player(
-          `/sounds/${channel.audioFile}`
-        ).toDestination();
+        const reverb = new Tone.Reverb(0.1).toDestination();
+        const distortion = new Tone.Distortion(1).connect(reverb);
+        const player = new Tone.Player(`/sounds/${channel.audioFile}`);
+
+        player.chain(distortion, reverb, Tone.Destination);
+        samples.current[channel.audioFile] = { player, reverb, distortion };
       }
     });
   }, [channelsConfig]);
@@ -57,20 +62,25 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
           // on samples we set volume in db, -Infinity to 0, as a Log base 1.1
           const volumeLog20 = Math.log(volumePercentage) / Math.log(1.1);
 
-          sample.stop();
-          sample.volume.value = volumeLog20;
-          sample.playbackRate =
+          sample.reverb.wet.value = channel.reverbWetness ?? 0;
+          sample.reverb.decay = 0.1 + (channel.reverbDecay ?? 0);
+
+          sample.distortion.wet.value = channel.distortion ?? 0;
+
+          sample.player.state === 'started' && sample.player.stop();
+          sample.player.volume.value = volumeLog20;
+          sample.player.playbackRate =
             (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).pitch ?? 1;
-          sample.reverse =
+          sample.player.reverse =
             (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample)
               .isReversed ?? false;
-          sample.fadeIn = channel.attack ?? 0;
-          sample.fadeOut = channel.release ?? 0;
-          sample.start(
+          sample.player.fadeIn = channel.attack ?? 0;
+          sample.player.fadeOut = channel.release ?? 0;
+          sample.player.start(
             undefined,
-            sample.buffer.duration * (channel.start ?? 0),
-            sample.buffer.duration * (channel.end ?? 1) -
-              sample.buffer.duration * (channel.start ?? 0)
+            sample.player.buffer.duration * (channel.start ?? 0),
+            sample.player.buffer.duration * (channel.end ?? 1) -
+              sample.player.buffer.duration * (channel.start ?? 0)
           );
         }
       } else if (channel.type === 'midi' && sequence.midiOutDeviceName) {
@@ -93,7 +103,9 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
 
   useEffect(() => {
     if (!isPlaying) {
-      Object.values(samples.current).forEach((sample) => sample.stop());
+      Object.values(samples.current).forEach(
+        (sample) => sample.player.state === 'started' && sample.player.stop()
+      );
     }
   }, [isPlaying]);
 
@@ -200,6 +212,33 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={5}
                 step={0.05}
                 onChange={(value) => update({ release: value })}
+              />
+              <SelectKnob
+                label={`reverb decay: ${channelConfig.reverbDecay ?? 0}s`}
+                value={channelConfig.reverbDecay ?? 0}
+                type="numeric"
+                min={0}
+                max={5}
+                step={0.1}
+                onChange={(value) => update({ reverbDecay: value })}
+              />
+              <SelectKnob
+                label={`reverb wetness: ${Math.round((channelConfig.reverbWetness ?? 0) * 100)}%`}
+                value={channelConfig.reverbWetness ?? 0}
+                type="numeric"
+                min={0}
+                max={1}
+                step={0.05}
+                onChange={(value) => update({ reverbWetness: value })}
+              />
+              <SelectKnob
+                label={`distortion: ${channelConfig.distortion ?? 0}`}
+                value={channelConfig.distortion ?? 0}
+                type="numeric"
+                min={0}
+                max={1}
+                step={0.05}
+                onChange={(value) => update({ distortion: value })}
               />
               <SelectKnob
                 label={`direction: ${channelConfig.isReversed ? 'reverse' : 'forward'}`}
