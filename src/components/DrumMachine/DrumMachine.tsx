@@ -176,6 +176,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={10}
                 step={0.05}
                 onChange={(value) => update({ pitch: value })}
+                showDial
               />
               <SelectKnob
                 label={`start: ${Math.round((channelConfig.start ?? 0) * 100)}%`}
@@ -185,6 +186,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={1}
                 step={0.05}
                 onChange={(value) => update({ start: value })}
+                showDial
               />
               <SelectKnob
                 label={`end: ${Math.round((channelConfig.end ?? 1) * 100)}%`}
@@ -194,6 +196,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={1}
                 step={0.05}
                 onChange={(value) => update({ end: value })}
+                showDial
               />
               <SelectKnob
                 label={`attack: ${channelConfig.attack ?? 0}s`}
@@ -203,6 +206,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={5}
                 step={0.05}
                 onChange={(value) => update({ attack: value })}
+                showDial
               />
               <SelectKnob
                 label={`release: ${channelConfig.release ?? 0}s`}
@@ -212,6 +216,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={5}
                 step={0.05}
                 onChange={(value) => update({ release: value })}
+                showDial
               />
               <SelectKnob
                 label={`reverb decay: ${channelConfig.reverbDecay ?? 0}s`}
@@ -221,6 +226,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={5}
                 step={0.1}
                 onChange={(value) => update({ reverbDecay: value })}
+                showDial
               />
               <SelectKnob
                 label={`reverb wetness: ${Math.round((channelConfig.reverbWetness ?? 0) * 100)}%`}
@@ -230,6 +236,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={1}
                 step={0.05}
                 onChange={(value) => update({ reverbWetness: value })}
+                showDial
               />
               <SelectKnob
                 label={`distortion: ${channelConfig.distortion ?? 0}`}
@@ -239,6 +246,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 max={1}
                 step={0.05}
                 onChange={(value) => update({ distortion: value })}
+                showDial
               />
               <SelectKnob
                 label={`direction: ${channelConfig.isReversed ? 'reverse' : 'forward'}`}

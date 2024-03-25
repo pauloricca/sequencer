@@ -10,20 +10,19 @@
     grid-column-gap: 8px;
   }
 
-  &__dial-outer {
-    position: relative;
-    margin-left: 4px;
-    width: 6px;
-    height: 12px;
-    border: 1px solid white;
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
   &__dial {
     position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
     width: 100%;
-    bottom: 0;
+  }
+
+  &__dial-fill {
+    position: absolute;
+    height: 100%;
+    left: 0;
     background: white;
+    opacity: 0.2;
   }
 }

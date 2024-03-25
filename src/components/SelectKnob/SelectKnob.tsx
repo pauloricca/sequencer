@@ -180,10 +180,10 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
             />
           )}
           {type === 'numeric' && showDial && (
-            <div className="select-knob__dial-outer">
+            <div className="select-knob__dial">
               <div
-                className="select-knob__dial"
-                style={{ height: `${((value - min) / (max - min)) * 100}%` }}
+                className="select-knob__dial-fill"
+                style={{ width: `${((value - min) / (max - min)) * 100}%` }}
               />
             </div>
           )}
