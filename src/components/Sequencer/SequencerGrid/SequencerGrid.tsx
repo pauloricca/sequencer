@@ -3,6 +3,7 @@ import { SequencerChannel, SequencerChannelProps } from '../SequencerChannel/Seq
 import { StateSequenceChannelConfigCommon, StateSequenceStepProperties } from 'state/state.types';
 import { useMetronome } from 'utils/metronome';
 import { useSequencersState } from 'state/state';
+import { sample, shuffle, uniq } from 'lodash';
 require('./_SequencerGrid.scss');
 
 export interface SequencerGridProps
@@ -35,6 +36,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   const sequence = useSequencersState((state) =>
     state.sequences.find(({ name }) => name === sequenceName)
   );
+  const updateStep = useSequencersState((state) => state.updateStep);
   const tick = useMetronome(sequence?.stepLength ?? 1);
   const lastTick = useRef(-1);
   const activeStepIndex = useRef(-1);
@@ -49,9 +51,91 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
     if (tick <= 0) {
       activeStepIndex.current = tick;
     } else if (activeStepIndex.current === 0) {
-      setActivePageIndex(
-        (activePageIndex + 1) % sequence.patterns[sequence.currentPattern].pages.length
-      );
+      const nextPage =
+        (activePageIndex + 1) % sequence.patterns[sequence.currentPattern].pages.length;
+
+      setActivePageIndex(nextPage);
+
+      // Restarting the pattern and need to mutate it?
+      if (nextPage === 0 && (sequence.mutationAmount || 0) > 0) {
+        sequence.patterns[sequence.currentPattern].pages.forEach((page, pageNumber) => {
+          if (!sequence.mutationAmount) return;
+
+          const mutableSteps = shuffle(
+            page.steps.filter(
+              ({ mutability, channel }) => (mutability || 0) > 0 && !channelsConfig[channel].isMuted
+            )
+          );
+
+          const stepsToMutate = mutableSteps.slice(
+            0,
+            Math.max(1, Math.floor(mutableSteps.length * sequence.mutationAmount))
+          );
+
+          // Drum machine steps mutate horizontally, and synth steps vertically (change note)
+          if (sequence.type === 'drum-machine') {
+            const channelsToMutate = uniq(stepsToMutate.map(({ channel }) => channel));
+
+            channelsToMutate.forEach((channel) => {
+              const existingStepIndexesInChannel = page.steps
+                .filter((step) => step.channel === channel)
+                .map(({ stepIndex }) => stepIndex);
+
+              let emptyStepIndexesInChannel = [...Array(sequence.nSteps).keys()].filter(
+                (stepIndex) => !existingStepIndexesInChannel.includes(stepIndex)
+              );
+
+              if (!emptyStepIndexesInChannel.length) return;
+
+              stepsToMutate
+                .filter((step) => step.channel === channel)
+                .forEach((step) => {
+                  const newStepIndex = sample(emptyStepIndexesInChannel) as number;
+
+                  updateStep(sequenceName, step, pageNumber, {
+                    stepIndex: newStepIndex,
+                  });
+
+                  // Update empty steps by removing the one we moved into and adding the one we moved from
+                  emptyStepIndexesInChannel = [
+                    step.stepIndex,
+                    ...emptyStepIndexesInChannel.filter((stepIndex) => stepIndex !== newStepIndex),
+                  ];
+                });
+            });
+          } else if (sequence.type === 'synth') {
+            const stepIndexesToMutate = uniq(stepsToMutate.map(({ stepIndex }) => stepIndex));
+
+            stepIndexesToMutate.forEach((stepIndex) => {
+              const existingChannelsInStepIndex = page.steps
+                .filter((step) => step.stepIndex === stepIndex)
+                .map(({ channel }) => channel);
+
+              let emptyChannelInStepIndex = [...Array(channelsConfig.length).keys()].filter(
+                (channel) => !existingChannelsInStepIndex.includes(channel)
+              );
+
+              if (!emptyChannelInStepIndex.length) return;
+
+              stepsToMutate
+                .filter((step) => step.stepIndex === stepIndex)
+                .forEach((step) => {
+                  const newChannel = sample(emptyChannelInStepIndex) as number;
+
+                  updateStep(sequenceName, step, pageNumber, {
+                    channel: newChannel,
+                  });
+
+                  // Update empty steps by removing the one we moved into and adding the one we moved from
+                  emptyChannelInStepIndex = [
+                    step.channel,
+                    ...emptyChannelInStepIndex.filter((channel) => channel !== newChannel),
+                  ];
+                });
+            });
+          }
+        });
+      }
     }
 
     // Trigger steps

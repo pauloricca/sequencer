@@ -7,6 +7,7 @@ import { SequencerGrid } from './SequencerGrid/SequencerGrid';
 import { isEqual } from 'lodash';
 import { SequencerProps } from './Sequencer.types';
 import { Button } from 'components/Button/Button';
+import { SequencerConfigMutation } from './SequencerConfig/SequencerConfigMutation/SequencerConfigMutation';
 require('./_Sequencer.scss');
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -55,24 +56,31 @@ export const Sequencer: React.FC<SequencerProps> = ({
             value: 'volume',
             icon: 'vertical-bar-chart-asc',
           },
-          ...(sequenceType === 'synth'
-            ? [
-                {
-                  name: 'duration',
-                  value: 'duration',
-                  icon: 'arrows-horizontal',
-                },
-              ]
-            : []),
+          {
+            name: 'duration',
+            value: 'duration',
+            icon: 'arrows-horizontal',
+            isHidden: sequenceType !== 'synth',
+          },
           {
             name: 'probability',
             value: 'probability',
             icon: 'heatmap',
           },
+          {
+            name: 'mutability',
+            value: 'mutability',
+            icon: 'exchange',
+          },
         ]}
         selectedTool={stepPropertyCurrentlyBeingEdited}
         onSelectTool={(tool) =>
           setStepPropertyCurrentlyBeingEdited((tool as keyof StateSequenceStepProperties) || null)
+        }
+        configControls={
+          stepPropertyCurrentlyBeingEdited === 'mutability' ? (
+            <SequencerConfigMutation sequenceName={sequenceName} />
+          ) : undefined
         }
       />
       <div className="sequencer__body">

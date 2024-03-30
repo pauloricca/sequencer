@@ -79,6 +79,10 @@ export interface StateSequenceCommon {
   stepLength: number;
   midiOutDeviceName?: string;
   isMuted?: boolean;
+  /**
+   * Amount of mutated steps after each sequence (0/undefined: no steps get mutated, 1: all steps are mutated)
+   */
+  mutationAmount?: number;
 }
 
 export interface StateSequenceDrumMachine extends StateSequenceCommon {
@@ -174,6 +178,7 @@ export interface StateSequenceStepProperties {
   volume?: number;
   probability?: number;
   duration?: number;
+  mutability?: number;
 }
 
 export type StateActionMessage =

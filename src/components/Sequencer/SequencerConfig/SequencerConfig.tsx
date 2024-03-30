@@ -1,19 +1,12 @@
 import { Icon } from '@blueprintjs/core';
-import React, { ReactNode, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSequencersState } from 'state/state';
 import classNames from 'classnames';
 import { SequencerConfigMidiOut } from './SequencerConfigMidiOut/SequencerConfigMidiOut';
 import { ControllerParameter } from 'components/Controller/ControllerParameter/ControllerParameter';
 import { getSequencerConfigParameterConfig } from './SequencerConfig.config';
+import { SequencerConfigProps } from './SequencerConfig.types';
 require('./_SequencerConfig.scss');
-
-export interface SequencerConfigProps {
-  sequenceName: string;
-  tools?: Array<{ name: string; value: string | null; icon: string }>;
-  selectedTool?: string | null;
-  onSelectTool?: (value: string | null) => void;
-  sequencerConfigCallback?: () => ReactNode;
-}
 
 export const SequencerConfig: React.FC<SequencerConfigProps> = ({
   sequenceName,
@@ -21,12 +14,20 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
   selectedTool,
   onSelectTool = () => {},
   sequencerConfigCallback,
+  configControls,
 }) => {
   const isMuted = useSequencersState(
     (state) => state.sequences.find(({ name }) => name === sequenceName)?.isMuted
   );
   const updateSequence = useSequencersState((state) => state.updateSequence);
   const [isOpen, setIsOpen] = useState(false);
+
+  // Close the config panel we pass config controls
+  useEffect(() => {
+    if (isOpen && configControls) {
+      setIsOpen(false);
+    }
+  }, [configControls]);
 
   return (
     <div
@@ -37,16 +38,18 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
       <div className="sequencer-config__header">
         <p className="sequencer-config__instrument-name">{sequenceName}</p>
         <div className="sequencer-config__tools">
-          {tools?.map(({ name, value, icon }) => (
-            <Icon
-              icon={icon}
-              key={name ?? value}
-              className={classNames('sequencer-config__tool', {
-                'sequencer-config__tool--is-active': value === selectedTool,
-              })}
-              onClick={() => onSelectTool(value)}
-            />
-          ))}
+          {tools
+            .filter(({ isHidden }) => !isHidden)
+            .map(({ name, value, icon }) => (
+              <Icon
+                icon={icon}
+                key={name ?? value}
+                className={classNames('sequencer-config__tool', {
+                  'sequencer-config__tool--is-active': value === selectedTool,
+                })}
+                onClick={() => onSelectTool(value)}
+              />
+            ))}
           {!isMuted && (
             <Icon
               icon="volume-up"
@@ -85,6 +88,7 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
           {!!sequencerConfigCallback && sequencerConfigCallback()}
         </div>
       )}
+      {!!configControls && <div className="sequencer-config__controls">{configControls}</div>}
     </div>
   );
 };

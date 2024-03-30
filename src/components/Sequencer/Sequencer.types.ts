@@ -1,6 +1,6 @@
 import { StateSequenceChannelConfigCommon } from 'state/state.types';
 import { SequencerChannelProps } from './SequencerChannel/SequencerChannel';
-import { SequencerConfigProps } from './SequencerConfig/SequencerConfig';
+import { SequencerConfigProps } from './SequencerConfig/SequencerConfig.types';
 
 export interface SequencerProps
   extends Pick<

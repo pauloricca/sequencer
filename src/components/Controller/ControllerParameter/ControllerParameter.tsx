@@ -28,7 +28,7 @@ export const ControllerParameter: React.FC<ControllerParameterProps> = ({
   return (
     <SelectKnob
       actionMessage={actionMessage}
-      value={value}
+      value={value ?? 0}
       label={labelCallback(value)}
       {...selectKnobProps}
     />
