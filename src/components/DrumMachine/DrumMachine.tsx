@@ -34,7 +34,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
       if (channel.type === 'sample' && !samples.current[channel.audioFile]) {
         const reverb = new Tone.Reverb(0.1).toDestination();
         const distortion = new Tone.Distortion(1).connect(reverb);
-        const player = new Tone.Player(`/sounds/${channel.audioFile}`);
+        const player = new Tone.Player(`/samples/${channel.audioFile}`);
 
         player.chain(distortion, reverb, Tone.Destination);
         samples.current[channel.audioFile] = { player, reverb, distortion };

@@ -17,7 +17,7 @@ const copyPluginPatterns = {
     patterns: [
         { from: "./src/assets/images", to: "images" },
         { from: "./src/assets/fonts", to: "fonts" },
-        { from: "./src/assets/sounds", to: "sounds" },
+        { from: "./samples", to: "samples" },
         { from: "./src/assets/vendor", to: "js" },
     ]
 };
