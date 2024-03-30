@@ -52,44 +52,6 @@ p {
 	}
 }
 
-.bp5-button {
-	border-radius: 8px;
-
-	&:not([class*=bp5-intent-]) {
-			background-color: transparent;
-			box-shadow: none;
-			border: 1px solid white;
-			color: white;
-
-			&.bp5-active {
-					background-color: rgb(116 195 0);
-					box-shadow: none;
-
-					&:hover {
-							background-color: rgb(94 158 0);
-					}
-			}
-
-			&:hover {
-					background-clip: padding-box;
-					background-color: #0000002b;
-					box-shadow: none;
-			}
-	}
-
-	&:not([class*=bp5-intent-]):active {
-			box-shadow: none;
-	}
-
-	.bp5-icon {
-			color: white;
-	}
-}
-
-.bp5-button-text {
-	white-space: nowrap;
-}
-
 :focus {
 	outline: none;
 	outline-offset: 0;
@@ -107,8 +69,4 @@ input[type=text] {
 	border-radius: 8px;
 	color: white;
 	font-family: inherit;
-}
-
-.bp5-overlay-content {
-	z-index: 5000;
 }

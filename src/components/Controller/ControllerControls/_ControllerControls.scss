@@ -1,4 +1,9 @@
 .controller-controls {
 	display: flex;
 	gap: 8px;
+
+	> * {
+		flex-basis: 0;
+		flex: 1 1 0px;
+	}
 }

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Sequencer, SequencerProps } from 'components/Sequencer/Sequencer';
+import { Sequencer } from 'components/Sequencer/Sequencer';
 import { sendMidiMessage } from 'utils/midi';
 import { Midi, Scale } from 'tonal';
 import { useSequencersState } from 'state/state';
@@ -12,6 +12,7 @@ import { isEqual } from 'lodash';
 import { getSynthConfigParameterConfig } from './Synth.config';
 import { ControllerParameter } from 'components/Controller/ControllerParameter/ControllerParameter';
 import { getIntervalFromClockSpeed } from 'state/state.utils';
+import { SequencerProps } from 'components/Sequencer/Sequencer.types';
 
 interface SynthProps {
   sequenceName: string;

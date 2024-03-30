@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSequencersState } from 'state/state';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
-import { Button } from '@blueprintjs/core';
 import {
   setMetronomeInterval,
   setMetronomeSwing,
@@ -13,6 +12,7 @@ import { allSoundsOff } from 'utils/midi';
 import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
 import { State } from 'state/state.types';
 import downloadObjectAsJson from 'utils/downloadObjectAsJson';
+import { Button } from 'components/Button/Button';
 require('./_ControllerControls.scss');
 
 export const ControllerControls: React.FC = () => {
@@ -43,17 +43,15 @@ export const ControllerControls: React.FC = () => {
 
   return (
     <div className="controller-controls">
-      <Button text="reset" rightIcon="delete" fill={true} onClick={() => resetState()} />
+      <Button text="reset" icon="delete" onClick={() => resetState()} />
       <Button
         text="load"
-        rightIcon="export"
-        fill={true}
+        icon="export"
         onClick={() => uploadJsonFileAsObject<State>((obj) => resetState(obj))}
       />
       <Button
         text="save"
-        rightIcon="import"
-        fill={true}
+        icon="import"
         onClick={() => downloadObjectAsJson(useSequencersState.getState(), 'sequencer')}
       />
       <SelectKnob
@@ -77,15 +75,12 @@ export const ControllerControls: React.FC = () => {
       {isPlaying && (
         <Button
           text="stop"
-          active={true}
-          rightIcon="symbol-square"
-          fill={true}
+          isActive={true}
+          icon="symbol-square"
           onClick={() => setIsPlaying(false)}
         />
       )}
-      {!isPlaying && (
-        <Button text="play" rightIcon="play" fill={true} onClick={() => setIsPlaying(true)} />
-      )}
+      {!isPlaying && <Button text="play" icon="play" onClick={() => setIsPlaying(true)} />}
     </div>
   );
 };

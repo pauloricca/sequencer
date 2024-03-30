@@ -1,26 +1,13 @@
 import React, { useState } from 'react';
-import { SequencerChannelProps } from './SequencerChannel/SequencerChannel';
-import { StateSequenceChannelConfigCommon, StateSequenceStepProperties } from 'state/state.types';
-import { Button } from '@blueprintjs/core';
+import { StateSequenceStepProperties } from 'state/state.types';
 import { useSequencersState } from 'state/state';
-import {
-  SequencerConfig,
-  SequencerConfigProps,
-} from 'components/Sequencer/SequencerConfig/SequencerConfig';
+import { SequencerConfig } from 'components/Sequencer/SequencerConfig/SequencerConfig';
 import classNames from 'classnames';
 import { SequencerGrid } from './SequencerGrid/SequencerGrid';
 import { isEqual } from 'lodash';
+import { SequencerProps } from './Sequencer.types';
+import { Button } from 'components/Button/Button';
 require('./_Sequencer.scss');
-
-export interface SequencerProps
-  extends Pick<
-      SequencerChannelProps,
-      'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
-    >,
-    Pick<SequencerConfigProps, 'sequencerConfigCallback'> {
-  sequenceName: string;
-  channelsConfig: StateSequenceChannelConfigCommon[];
-}
 
 export const Sequencer: React.FC<SequencerProps> = ({
   sequenceName,
@@ -40,7 +27,6 @@ export const Sequencer: React.FC<SequencerProps> = ({
         sequenceType: sequence.type,
       };
     }, isEqual);
-  const updateSequence = useSequencersState((state) => state.updateSequence);
   const addSequencePattern = useSequencersState((state) => state.addSequencePattern);
   const removeCurrentSequencePattern = useSequencersState(
     (state) => state.removeCurrentSequencePattern
@@ -108,8 +94,13 @@ export const Sequencer: React.FC<SequencerProps> = ({
             <Button
               text={patternIndex}
               key={patternIndex}
-              onClick={() => updateSequence(sequenceName, { currentPattern: patternIndex })}
-              active={currentPattern === patternIndex}
+              actionMessage={{
+                type: 'Sequence Param Change',
+                parameter: 'currentPattern',
+                value: patternIndex,
+                sequenceName,
+              }}
+              isActive={currentPattern === patternIndex}
             />
           ))}
           <Button icon="plus" onClick={() => addSequencePattern(sequenceName)} />
@@ -126,18 +117,21 @@ export const Sequencer: React.FC<SequencerProps> = ({
               })}
               key={pageNumber}
               onClick={() => setVisiblePage(pageNumber)}
-              active={pageNumber === visiblePage}
+              isActive={pageNumber === visiblePage}
+              style="mini"
             />
           ))}
           <Button
             icon="plus"
             className="sequencer__pattern-pagination-control"
             onClick={() => addPage(sequenceName)}
+            style="mini"
           />
           <Button
             icon="duplicate"
             className="sequencer__pattern-pagination-control"
             onClick={() => addPage(sequenceName, undefined, visiblePage)}
+            style="mini"
           />
           <Button
             icon="trash"
@@ -151,6 +145,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
               }
               removePage(sequenceName, visiblePage);
             }}
+            style="mini"
           />
         </div>
       </div>
