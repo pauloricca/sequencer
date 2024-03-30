@@ -1,13 +1,72 @@
 .select-knob {
 	.button {
-  	cursor: ns-resize;
+  	cursor: ew-resize;
 	}
 
   &__modal-contents {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
     grid-row-gap: 8px;
     grid-column-gap: 8px;
+
+    &--1-columns {
+      grid-template-columns: repeat(1, 1fr);
+    }
+
+    &--2-columns {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    &--3-columns {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    &--4-columns {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    &--5-columns {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    &--6-columns {
+      grid-template-columns: repeat(6, 1fr);
+    }
+
+    &--7-columns {
+      grid-template-columns: repeat(7, 1fr);
+    }
+
+    &--8-columns {
+      grid-template-columns: repeat(8, 1fr);
+    }
+
+    &--9-columns {
+      grid-template-columns: repeat(9, 1fr);
+    }
+
+    &--10-columns {
+      grid-template-columns: repeat(10, 1fr);
+    }
+
+    &--11-columns {
+      grid-template-columns: repeat(11, 1fr);
+    }
+
+    &--12-columns {
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    &--13-columns {
+      grid-template-columns: repeat(13, 1fr);
+    }
+
+    &--14-columns {
+      grid-template-columns: repeat(14, 1fr);
+    }
+
+    &--15-columns {
+      grid-template-columns: repeat(15, 1fr);
+    }
   }
 
   &__dial {

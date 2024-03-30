@@ -133,7 +133,6 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
             }}
             value={channelConfig.volume ?? 1}
             showDial
-            speed={15}
           />
           <SelectKnob
             label={`${channelConfig.type}`}

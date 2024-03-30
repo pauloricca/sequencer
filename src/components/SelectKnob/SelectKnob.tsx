@@ -8,6 +8,7 @@ import { MOUSE_MOVE_THROTTLE } from './SelectKnob.constants';
 import { countDecimalPlaces } from 'utils/countDecimalPlaces';
 import { useSequencersState } from 'state/state';
 import { PRESS_AND_HOLD_TIME } from 'components/ShortcutController/ShortcutController.constants';
+import classNames from 'classnames';
 require('./_SelectKnob.scss');
 
 export const SelectKnob: React.FC<SelectKnobProps> = ({
@@ -23,6 +24,7 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
   clickOnModalButtonClosesModal = false,
   onChange,
   actionMessage,
+  modalColumns = 10,
 }) => {
   const isDragging = useRef(false);
   const [isListeningForShortcut, setIsListeningForShortcut] = useState(false);
@@ -172,10 +174,10 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
             <Icon
               icon={
                 value === items[0]?.value
-                  ? 'caret-up'
+                  ? 'caret-right'
                   : value === items[items.length - 1]?.value
-                    ? 'caret-down'
-                    : 'double-caret-vertical'
+                    ? 'caret-left'
+                    : 'double-caret-horizontal'
               }
             />
           )}
@@ -190,7 +192,12 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
         </Button>
       </div>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <div className="select-knob__modal-contents">
+        <div
+          className={classNames(
+            'select-knob__modal-contents',
+            `select-knob__modal-contents--${modalColumns}-columns`
+          )}
+        >
           {items.map((item) => (
             <Button
               onClick={() => {

@@ -5,6 +5,7 @@ import { isEqual } from 'lodash';
 import { DrumMachine } from 'components/DrumMachine/DrumMachine';
 import { Synth } from 'components/Synth/Synth';
 import { ControllerControls } from './ControllerControls/ControllerControls';
+import { ErrorBoundary } from 'components/ErrorBoundary/ErrorBoundary';
 require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
@@ -16,13 +17,15 @@ export const Controller: React.FC = () => {
   return (
     <div className="controller">
       <ControllerControls />
-      {sequences.map(({ name, type }) => (
-        <Fragment key={name}>
-          {type === 'drum-machine' && <DrumMachine sequenceName={name} />}
-          {type === 'synth' && <Synth sequenceName={name} />}
-        </Fragment>
-      ))}
-      <ShortcutController />
+      <ErrorBoundary error="Saved state not compatible with current version. Please press reset and refresh the page.">
+        {sequences.map(({ name, type }) => (
+          <Fragment key={name}>
+            {type === 'drum-machine' && <DrumMachine sequenceName={name} />}
+            {type === 'synth' && <Synth sequenceName={name} />}
+          </Fragment>
+        ))}
+        <ShortcutController />
+      </ErrorBoundary>
     </div>
   );
 };

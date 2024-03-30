@@ -60,7 +60,7 @@ export const ControllerControls: React.FC = () => {
         label={`bpm: ${clockSpeed / 4}`}
         value={clockSpeed / 4}
         type="numeric"
-        min={5}
+        min={1}
         max={600}
         onChange={(value) => setClockSpeed(value * 4)}
       />
@@ -72,6 +72,7 @@ export const ControllerControls: React.FC = () => {
         max={0.9}
         step={0.05}
         onChange={(value) => setSwing(value)}
+        showDial
       />
       {isPlaying && (
         <Button

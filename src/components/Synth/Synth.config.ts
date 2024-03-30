@@ -37,6 +37,7 @@ export const getSynthConfigParameterConfig = (sequenceName: string): ControllerP
       key: note,
       label: Midi.midiToNoteName(note),
     })),
+    modalColumns: 12,
   },
   {
     actionMessage: {
@@ -51,6 +52,7 @@ export const getSynthConfigParameterConfig = (sequenceName: string): ControllerP
       key: value - 100,
       label: `${value - 100}${Math.abs(value - 100) % 12 === 0 && value - 100 !== 0 ? ` (${(value - 100) / 12} octave${Math.abs((value - 100) / 12) !== 1 ? 's' : ''})` : ''}`,
     })),
+    modalColumns: 3,
   },
   {
     actionMessage: {
@@ -79,6 +81,7 @@ export const getSynthConfigParameterConfig = (sequenceName: string): ControllerP
       key: scale.name,
       label: scale.name,
     })),
+    modalColumns: 3,
   },
   {
     actionMessage: {
