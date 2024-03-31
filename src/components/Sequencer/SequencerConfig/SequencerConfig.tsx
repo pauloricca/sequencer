@@ -72,7 +72,14 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
             />
           )}
           {!isOpen && (
-            <Icon icon="cog" className="sequencer-config__tool" onClick={() => setIsOpen(true)} />
+            <Icon
+              icon="cog"
+              className="sequencer-config__tool"
+              onClick={() => {
+                setIsOpen(true);
+                configControls && onSelectTool(null);
+              }}
+            />
           )}
         </div>
       </div>
