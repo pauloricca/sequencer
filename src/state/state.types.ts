@@ -142,13 +142,13 @@ export interface StateSequenceChannelConfigSample extends StateSequenceChannelCo
    */
   pitch?: number;
   /**
-   * play start 0 to 1
+   * play start 0 to 1 (relative to length of track)
    */
   start?: number;
   /**
-   * play end 0 to 1
+   * play duration 0 to 1 (relative to length of track)
    */
-  end?: number;
+  duration?: number;
   /**
    * fade in time in seconds
    */

@@ -79,8 +79,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
           sample.player.start(
             undefined,
             sample.player.buffer.duration * (channel.start ?? 0),
-            sample.player.buffer.duration * (channel.end ?? 1) -
-              sample.player.buffer.duration * (channel.start ?? 0)
+            sample.player.buffer.duration * (channel.duration ?? 1)
           );
         }
       } else if (channel.type === 'midi' && sequence.midiOutDeviceName) {
@@ -178,23 +177,21 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 showDial
               />
               <SelectKnob
-                label={`start: ${Math.round((channelConfig.start ?? 0) * 100)}%`}
+                label={`start: ${((channelConfig.start ?? 0) * 100).toFixed(1)}%`}
                 value={channelConfig.start ?? 0}
                 type="numeric"
-                min={0}
-                max={1}
-                step={0.05}
+                step={0.001}
                 onChange={(value) => update({ start: value })}
+                speed={3}
                 showDial
               />
               <SelectKnob
-                label={`end: ${Math.round((channelConfig.end ?? 1) * 100)}%`}
-                value={channelConfig.end ?? 1}
+                label={`duration: ${((channelConfig.duration ?? 1) * 100).toFixed(1)}%`}
+                value={channelConfig.duration ?? 1}
                 type="numeric"
-                min={0}
-                max={1}
-                step={0.05}
-                onChange={(value) => update({ end: value })}
+                step={0.001}
+                onChange={(value) => update({ duration: value })}
+                speed={3}
                 showDial
               />
               <SelectKnob
@@ -231,8 +228,6 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 label={`reverb wetness: ${Math.round((channelConfig.reverbWetness ?? 0) * 100)}%`}
                 value={channelConfig.reverbWetness ?? 0}
                 type="numeric"
-                min={0}
-                max={1}
                 step={0.05}
                 onChange={(value) => update({ reverbWetness: value })}
                 showDial
@@ -241,8 +236,6 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 label={`distortion: ${channelConfig.distortion ?? 0}`}
                 value={channelConfig.distortion ?? 0}
                 type="numeric"
-                min={0}
-                max={1}
                 step={0.05}
                 onChange={(value) => update({ distortion: value })}
                 showDial
