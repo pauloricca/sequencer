@@ -147,7 +147,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
               isControllingFillPercentage={!!stepPropertyCurrentlyBeingEdited}
               fillPercentage={
                 stepPropertyCurrentlyBeingEdited
-                  ? Number(step?.[stepPropertyCurrentlyBeingEdited])
+                  ? step?.[stepPropertyCurrentlyBeingEdited]
                   : undefined
               }
               fillPercentageMax={
