@@ -1,15 +1,13 @@
 import { Icon } from '@blueprintjs/core';
 import { Modal } from 'components/Modal/Modal';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useSequencersState } from 'state/state';
 import { StateShortcut } from 'state/state.types';
 import {
   MidiEventHandler,
   addMidiEventListener,
-  getMidiInputDeviceNames,
-  registerMidiDevice,
   removeMidiEventListener,
-  unregisterMidiDevice,
+  useMidiDeviceNames,
 } from 'utils/midi';
 require('./_ShortcutController.scss');
 
@@ -27,7 +25,7 @@ export const ShortcutController: React.FC = () => {
   const removeActiveMidiInputDevice = useSequencersState(
     (state) => state.removeActiveMidiInputDevice
   );
-  const [availableMidiInputDevices, setAvailableMidiInputDevices] = useState<string[]>([]);
+  const midiDeviceNames = useMidiDeviceNames('input');
 
   const shortcutCurrentlyBeingAssigned = shortcuts.find(
     ({ type }) => type === 'currently-being-assigned'
@@ -38,21 +36,10 @@ export const ShortcutController: React.FC = () => {
   }, [shortcuts]);
 
   useEffect(() => {
-    activeMidiInputDevices.forEach((deviceName) => registerMidiDevice(deviceName, 'input'));
-  }, [activeMidiInputDevices]);
-
-  useEffect(() => {
     document.addEventListener('keypress', keyPressedHandler);
     addMidiEventListener(midiEventHandler);
 
-    const midiDeviceCheckInterval = setInterval(() => {
-      setAvailableMidiInputDevices(getMidiInputDeviceNames());
-    }, 5000);
-
-    setAvailableMidiInputDevices(getMidiInputDeviceNames());
-
     return () => {
-      clearInterval(midiDeviceCheckInterval);
       document.removeEventListener('keypress', keyPressedHandler);
       removeMidiEventListener(midiEventHandler);
     };
@@ -161,8 +148,6 @@ export const ShortcutController: React.FC = () => {
       .filter(Boolean)
       .join(', ');
 
-  const allMidiDevices = [...availableMidiInputDevices].sort();
-
   return (
     <div className="shortcut-controller">
       <div className="shortcut-controller__section">
@@ -180,7 +165,7 @@ export const ShortcutController: React.FC = () => {
       </div>
       <div className="shortcut-controller__section">
         <p className="shortcut-controller__section-header">Active MIDI Input Devices</p>
-        {allMidiDevices.map((midiDevice) => (
+        {midiDeviceNames.map((midiDevice) => (
           <label className="shortcut-controller__item" key={midiDevice}>
             <input
               type="checkbox"
@@ -188,7 +173,6 @@ export const ShortcutController: React.FC = () => {
               onChange={() => {
                 if (activeMidiInputDevices.includes(midiDevice)) {
                   removeActiveMidiInputDevice(midiDevice);
-                  unregisterMidiDevice(midiDevice, 'input');
                 } else {
                   addActiveMidiInputDevice(midiDevice);
                 }

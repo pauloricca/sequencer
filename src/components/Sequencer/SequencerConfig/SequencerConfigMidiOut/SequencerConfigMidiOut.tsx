@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSequencersState } from 'state/state';
-import { getMidiOutputDeviceNames, registerMidiDevice } from 'utils/midi';
 import { SelectKnob } from '../../../SelectKnob/SelectKnob';
 import { SelectKnobItem } from '../../../SelectKnob/SelectKnob.types';
+import { useMidiDeviceNames } from 'utils/midi';
 
 export interface SequencerConfigMidiOutProps {
   sequenceName: string;
@@ -13,28 +13,17 @@ export const SequencerConfigMidiOut: React.FC<SequencerConfigMidiOutProps> = ({ 
     (state) => state.sequences.find(({ name }) => name === sequenceName)?.midiOutDeviceName
   );
   const updateSequence = useSequencersState((state) => state.updateSequence);
+  const midiDeviceNames = useMidiDeviceNames('output');
   const [midiOutOptions, setMidiOutOptions] = useState<SelectKnobItem[]>([]);
-
-  useEffect(() => {
-    if (midiOutDeviceName) {
-      registerMidiDevice(midiOutDeviceName, 'output');
-    }
-  }, [midiOutDeviceName]);
 
   const getMidiOutOptions = () => [
     { label: 'none', value: undefined },
-    ...getMidiOutputDeviceNames().map((name) => ({ value: name })),
+    ...midiDeviceNames.map((name) => ({ value: name })),
   ];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMidiOutOptions(getMidiOutOptions());
-    }, 5000);
-
     setMidiOutOptions(getMidiOutOptions());
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [midiDeviceNames]);
 
   return (
     <SelectKnob

@@ -6,10 +6,10 @@ import {
   MIDIValInput,
   MIDIValOutput,
 } from '@midival/core';
+import { isEqual } from 'lodash';
+import { useEffect, useState } from 'react';
 
 const MIDI_SEND_QUEUE_INTERVAL = 10;
-
-type MidiDeviceType = 'output' | 'input';
 
 /**
  * Message that can be sent to an output device
@@ -38,20 +38,22 @@ interface MidiEvent {
   velocity?: number;
 }
 
-interface MidiDevice {
-  type: MidiDeviceType;
+interface MidiOutputDevice {
   messageQueue: MidiMessage[];
-  output: MIDIValOutput | null;
-  input: MIDIValInput | null;
+  output: MIDIValOutput;
   queueInterval: number | null;
   currentNotes: Array<{ note: number; noteOffTimeout: number }>;
 }
 
-type MidiDevices = Record<string, MidiDevice>;
+interface MidiInputDevice {
+  input: MIDIValInput;
+}
+
 export type MidiEventHandler = (event: MidiEvent) => void;
 
 let midiAccess: IMIDIAccess | null = null;
-const midiDevices: MidiDevices = {};
+const midiOutputDevices: Record<string, MidiOutputDevice> = {};
+const midiInputDevices: Record<string, MidiInputDevice> = {};
 let eventListeners: MidiEventHandler[] = [];
 
 export const addMidiEventListener = (eventHandler: MidiEventHandler) => {
@@ -63,93 +65,58 @@ export const removeMidiEventListener = (eventHandler: MidiEventHandler) => {
     eventListeners = eventListeners.filter((handler) => handler !== eventHandler);
 };
 
-export const registerMidiDevice = (deviceName: string, type: MidiDeviceType) => {
-  // Already registered?
-  if (midiDevices[deviceName]) return;
-
-  setupMidiDevice(deviceName, type);
-};
-
-export const unregisterMidiDevice = (deviceName: string, type: MidiDeviceType) => {
-  if (midiDevices[deviceName]) {
-    if (type === 'input') {
-      midiDevices[deviceName].input?.disconnect();
-      midiDevices[deviceName].input = null;
-    } else {
-      midiDevices[deviceName].output = null;
-    }
-    if (!midiDevices[deviceName].output && !midiDevices[deviceName].input) {
-      delete midiDevices[deviceName];
-    }
-  }
-};
-
 export const allSoundsOff = () =>
-  Object.values(midiDevices).forEach((device) => device.output?.sendAllNotesOff());
-
-export const getMidiOutputDeviceNames = () =>
-  midiAccess ? midiAccess.outputs.map(({ name }) => name) : [];
-
-export const getMidiInputDeviceNames = () =>
-  midiAccess ? midiAccess.inputs.map(({ name }) => name) : [];
+  Object.values(midiOutputDevices).forEach((device) => device.output?.sendAllNotesOff());
 
 export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
-  if (!midiDevices[deviceName]) return;
+  const device = midiOutputDevices[deviceName];
 
-  midiDevices[deviceName].messageQueue.push(message);
+  if (!device) return;
 
-  if (!midiDevices[deviceName].queueInterval) {
-    midiDevices[deviceName].queueInterval = setInterval(() => {
-      const message = midiDevices[deviceName].messageQueue.pop();
+  device.messageQueue.push(message);
 
-      if (message && midiDevices[deviceName].output) {
+  if (!device.queueInterval) {
+    device.queueInterval = setInterval(() => {
+      const message = device.messageQueue.pop();
+
+      if (message && device.output) {
         if (message.note) {
           // Cancel previous note off timeouts
-          midiDevices[deviceName].currentNotes
+          device.currentNotes
             .filter((note) => note.note === message.note || message.isMonophonic)
             .forEach(({ noteOffTimeout }) => clearTimeout(noteOffTimeout));
 
           // Remove from currently played notes
-          midiDevices[deviceName].currentNotes = midiDevices[deviceName].currentNotes.filter(
+          device.currentNotes = device.currentNotes.filter(
             (note) => note.note !== message.note || message.isMonophonic
           );
 
           if (message.isNoteOff) {
-            midiDevices[deviceName].output!.sendNoteOff(message.note, message.channel);
+            device.output.sendNoteOff(message.note, message.channel);
           } else {
-            midiDevices[deviceName].output!.sendNoteOn(
-              message.note,
-              message.velocity ?? 127,
-              message.channel
-            );
+            device.output.sendNoteOn(message.note, message.velocity ?? 127, message.channel);
 
             // Remove any previous messages for this note
-            midiDevices[deviceName].messageQueue = midiDevices[deviceName].messageQueue.filter(
-              ({ note }) => note !== message.note
-            );
+            device.messageQueue = device.messageQueue.filter(({ note }) => note !== message.note);
 
             // Schedule note off message
             if (message.duration) {
               const noteOffTimeout = setTimeout(() => {
                 sendMidiMessage(deviceName, { ...message, isNoteOff: true });
-              }, message.duration) as any as number;
+              }, message.duration) as unknown as number;
 
-              midiDevices[deviceName].currentNotes.push({
+              device.currentNotes.push({
                 note: message.note,
                 noteOffTimeout,
               });
             }
           }
         } else if (message.cc && message.value) {
-          midiDevices[deviceName].output!.sendControlChange(
-            message.cc,
-            message.value,
-            message.channel
-          );
+          device.output!.sendControlChange(message.cc, message.value, message.channel);
         }
       } else {
-        clearInterval(midiDevices[deviceName].queueInterval!);
-        midiDevices[deviceName].queueInterval = null;
+        clearInterval(device.queueInterval!);
+        device.queueInterval = null;
       }
     }, MIDI_SEND_QUEUE_INTERVAL) as unknown as number;
   }
@@ -158,62 +125,87 @@ export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
 const broadcastMidiEvent = (event: MidiEvent) =>
   eventListeners.forEach((eventListeners) => eventListeners(event));
 
-const setupMidiDevice = (deviceName: string, type: MidiDeviceType) => {
-  if (midiAccess) {
-    const device = (type === 'output' ? midiAccess.outputs : midiAccess.inputs).find(
-      ({ name }) => name === deviceName
-    );
-
-    if (device) {
-      if (!midiDevices[deviceName]) {
-        midiDevices[deviceName] = getMidiDeviceDefaults(type);
-      }
-
-      if (type === 'output') {
-        midiDevices[deviceName].output = new MIDIValOutput(device as IMIDIOutput);
-      } else {
-        midiDevices[deviceName].input = new MIDIValInput(device as IMIDIInput);
-        midiDevices[deviceName].input?.onAllNoteOn(({ channel, note, velocity }) =>
-          broadcastMidiEvent({ deviceName, channel, note, velocity, type: 'note-on' })
-        );
-        midiDevices[deviceName].input?.onAllNoteOff(({ channel, note }) =>
-          broadcastMidiEvent({ deviceName, channel, note, type: 'note-off' })
-        );
-        midiDevices[deviceName].input?.onAllControlChange(({ channel, control, value }) =>
-          broadcastMidiEvent({ deviceName, channel, control, value, type: 'cc' })
-        );
-      }
-    }
-  } else {
-    midiDevices[deviceName] = getMidiDeviceDefaults(type);
-  }
-};
-
-const getMidiDeviceDefaults = (type: MidiDeviceType): MidiDevice => ({
-  type,
-  messageQueue: [],
-  output: null,
-  input: null,
-  queueInterval: null,
-  currentNotes: [],
-});
-
 MIDIVal.connect()
   .then((access) => {
     midiAccess = access;
-    console.log(
-      'MIDI Output Devices',
-      access.outputs.map(({ name }) => name)
-    );
-    console.log(
-      'MIDI Input Devices',
-      access.inputs.map(({ name }) => name)
-    );
 
-    Object.keys(midiDevices).forEach((deviceName) => {
-      setupMidiDevice(deviceName, midiDevices[deviceName].type);
+    const setupMidiInputDevice = (iMidiInput: IMIDIInput) => {
+      midiInputDevices[iMidiInput.name] = { input: new MIDIValInput(iMidiInput) };
+      midiInputDevices[iMidiInput.name].input.onAllNoteOn(({ channel, note, velocity }) =>
+        broadcastMidiEvent({
+          deviceName: iMidiInput.name,
+          channel,
+          note,
+          velocity,
+          type: 'note-on',
+        })
+      );
+      midiInputDevices[iMidiInput.name].input.onAllNoteOff(({ channel, note }) =>
+        broadcastMidiEvent({ deviceName: iMidiInput.name, channel, note, type: 'note-off' })
+      );
+      midiInputDevices[iMidiInput.name].input.onAllControlChange(({ channel, control, value }) =>
+        broadcastMidiEvent({ deviceName: iMidiInput.name, channel, control, value, type: 'cc' })
+      );
+    };
+
+    midiAccess.inputs.forEach((input) => setupMidiInputDevice(input));
+    midiAccess.onInputConnected(setupMidiInputDevice);
+
+    midiAccess.onInputDisconnected((iMidiInput) => {
+      delete midiInputDevices[iMidiInput.name];
     });
 
-    // output.sendControlChange(5, 50);
+    const setupMidiOutputDevice = (iMidiOutput: IMIDIOutput) => {
+      midiOutputDevices[iMidiOutput.name] = {
+        messageQueue: [],
+        output: new MIDIValOutput(iMidiOutput),
+        queueInterval: null,
+        currentNotes: [],
+      };
+    };
+
+    midiAccess.outputs.forEach((output) => setupMidiOutputDevice(output));
+    midiAccess.onOutputConnected(setupMidiOutputDevice);
+
+    midiAccess.onOutputDisconnected((iMidiOutput) => {
+      delete midiOutputDevices[iMidiOutput.name];
+    });
   })
-  .catch((e) => console.log(e));
+  .catch((e) => console.error(`Error connecting to MIDI devices: ${e}`));
+
+export const useMidiDeviceNames = (type: 'input' | 'output') => {
+  const [deviceNames, setDeviceNames] = useState<string[]>(
+    type === 'input' ? Object.keys(midiInputDevices).sort() : Object.keys(midiOutputDevices).sort()
+  );
+
+  useEffect(() => {
+    const waitForMidi = setInterval(() => {
+      if (!midiAccess) return;
+
+      clearInterval(waitForMidi);
+
+      const resetDeviceNames = () => {
+        if (!midiAccess) return;
+
+        const newDeviceNames = (type === 'input' ? midiAccess.inputs : midiAccess.outputs)
+          .map(({ name }) => name)
+          .sort();
+
+        setDeviceNames((previousDeviceNames) =>
+          isEqual(previousDeviceNames, newDeviceNames) ? previousDeviceNames : newDeviceNames
+        );
+      };
+
+      setDeviceNames(
+        (type === 'input' ? midiAccess.inputs : midiAccess.outputs).map(({ name }) => name).sort()
+      );
+
+      midiAccess.onInputConnected(resetDeviceNames);
+      midiAccess.onInputDisconnected(resetDeviceNames);
+      midiAccess.onOutputConnected(resetDeviceNames);
+      midiAccess.onOutputDisconnected(resetDeviceNames);
+    }, 500);
+  }, []);
+
+  return deviceNames;
+};

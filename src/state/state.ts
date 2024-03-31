@@ -11,7 +11,6 @@ import {
   StateSequenceChannelConfig,
 } from './state.types';
 import { INITIAL_STATE } from './state.initial';
-import { unregisterMidiDevice } from '../utils/midi';
 import { getBlankPattern } from './state.utils';
 import { Draft } from 'immer';
 import { cloneDeep, isEqual } from 'lodash';
@@ -162,24 +161,6 @@ const updateSequenceAction = (
   const sequence = getSequenceByName(state.sequences, sequenceName);
 
   if (sequence) {
-    // Check if we need to unregister midi devices
-    if (
-      newSequenceSettings.midiOutDeviceName &&
-      sequence.midiOutDeviceName &&
-      newSequenceSettings.midiOutDeviceName !== sequence.midiOutDeviceName
-    ) {
-      // No other sequence using the midi device that was being used on this sequence?
-      if (
-        !state.sequences.filter(
-          (otherSequence) =>
-            otherSequence !== sequence &&
-            otherSequence.midiOutDeviceName === sequence.midiOutDeviceName
-        ).length
-      ) {
-        unregisterMidiDevice(sequence.midiOutDeviceName, 'output');
-      }
-    }
-
     // Check if we need to shift the steps because of a range change
     if (
       (newSequenceSettings as StateSequenceSynth).range &&
