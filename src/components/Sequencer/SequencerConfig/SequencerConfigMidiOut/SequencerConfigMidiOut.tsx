@@ -43,6 +43,7 @@ export const SequencerConfigMidiOut: React.FC<SequencerConfigMidiOutProps> = ({ 
       items={midiOutOptions}
       onChange={(value) => updateSequence(sequenceName, { midiOutDeviceName: value })}
       value={midiOutDeviceName}
+      modalColumns={3}
     />
   );
 };
