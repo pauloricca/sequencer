@@ -11,6 +11,7 @@ import {
   StateSequenceStep,
 } from 'state/state.types';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
+import { HIGH_PITCH_ADJUSTMENT } from './DrumMachine.constants';
 
 export interface DrumMachineProps {
   sequenceName: string;
@@ -26,18 +27,22 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
   const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
   // Sample objects indexed by file name
   const samples = useRef<
-    Record<string, { player: Tone.Player; reverb: Tone.Reverb; distortion: Tone.Distortion }>
+    Record<
+      string,
+      { player: Tone.Player; reverb: Tone.Reverb; distortion: Tone.Distortion; pan: Tone.PanVol }
+    >
   >({});
 
   useEffect(() => {
     channelsConfig.forEach((channel) => {
       if (channel.type === 'sample' && !samples.current[channel.audioFile]) {
-        const reverb = new Tone.Reverb(0.1).toDestination();
-        const distortion = new Tone.Distortion(1).connect(reverb);
+        const reverb = new Tone.Reverb(0.1);
+        const pan = new Tone.PanVol(0, 0);
+        const distortion = new Tone.Distortion(1);
         const player = new Tone.Player(`/samples/${channel.audioFile}`);
 
-        player.chain(distortion, reverb, Tone.Destination);
-        samples.current[channel.audioFile] = { player, reverb, distortion };
+        player.chain(distortion, pan, reverb, Tone.Destination);
+        samples.current[channel.audioFile] = { player, reverb, pan, distortion };
       }
     });
   }, [channelsConfig]);
@@ -58,27 +63,42 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
       if (channel.type === 'sample') {
         const sample = samples.current[channel.audioFile];
 
-        if (sample) {
+        if (sample?.player.loaded) {
           // on samples we set volume in db, -Infinity to 0, as a Log base 1.1
           const volumeLog20 = Math.log(volumePercentage) / Math.log(1.1);
 
+          /*
+           * multiply pitches above 1 by a constant (> 1), so that we have a neater scale from 0, to 1 (neutral), to 2
+           * and also so that we can add the global channel pitch to the step pitch
+           */
+          const channelPitch =
+            (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).pitch ?? 1;
+          const pitchAdjusted =
+            channelPitch > 1 ? 1 + (channelPitch - 1) * HIGH_PITCH_ADJUSTMENT : channelPitch;
+
           sample.reverb.wet.value = channel.reverbWetness ?? 0;
-          sample.reverb.decay = 0.1 + (channel.reverbDecay ?? 0);
+          // decay must be > 0
+          sample.reverb.decay = 0.01 + (channel.reverbDecay ?? 0);
+
+          sample.pan.pan.value = channel.pan ?? 0;
 
           sample.distortion.wet.value = channel.distortion ?? 0;
 
           sample.player.state === 'started' && sample.player.stop();
           sample.player.volume.value = volumeLog20;
-          sample.player.playbackRate =
-            (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).pitch ?? 1;
+          sample.player.playbackRate = pitchAdjusted;
           sample.player.reverse =
             (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample)
               .isReversed ?? false;
           sample.player.fadeIn = channel.attack ?? 0;
           sample.player.fadeOut = channel.release ?? 0;
+          const startRandomnessShift = channel.startRandomness
+            ? (Math.random() - 0.5) * sample.player.buffer.duration * channel.startRandomness
+            : 0;
+
           sample.player.start(
             undefined,
-            sample.player.buffer.duration * (channel.start ?? 0),
+            sample.player.buffer.duration * (channel.start ?? 0) + startRandomnessShift,
             sample.player.buffer.duration * (channel.duration ?? 1)
           );
         }
@@ -171,7 +191,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 value={channelConfig.pitch ?? 1}
                 type="numeric"
                 min={0}
-                max={10}
+                max={2}
                 step={0.05}
                 onChange={(value) => update({ pitch: value })}
                 showDial
@@ -182,6 +202,15 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 type="numeric"
                 step={0.001}
                 onChange={(value) => update({ start: value })}
+                speed={3}
+                showDial
+              />
+              <SelectKnob
+                label={`start randomness: ${((channelConfig.startRandomness ?? 0) * 100).toFixed(1)}%`}
+                value={channelConfig.startRandomness ?? 0}
+                type="numeric"
+                step={0.001}
+                onChange={(value) => update({ startRandomness: value })}
                 speed={3}
                 showDial
               />
@@ -230,6 +259,16 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 type="numeric"
                 step={0.05}
                 onChange={(value) => update({ reverbWetness: value })}
+                showDial
+              />
+              <SelectKnob
+                label={`pan (${!channelConfig.pan ? '|' : channelConfig.pan < 0 ? '<' : '>'}): ${channelConfig.pan ?? 0}`}
+                value={channelConfig.pan ?? 0}
+                type="numeric"
+                min={-1}
+                max={1}
+                step={0.1}
+                onChange={(value) => update({ pan: value })}
                 showDial
               />
               <SelectKnob

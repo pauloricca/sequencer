@@ -146,6 +146,10 @@ export interface StateSequenceChannelConfigSample extends StateSequenceChannelCo
    */
   start?: number;
   /**
+   * amount of randomness (positive and negative range) added to the play start. 0 to 1 (relative to length of track)
+   */
+  startRandomness?: number;
+  /**
    * play duration 0 to 1 (relative to length of track)
    */
   duration?: number;
@@ -165,6 +169,10 @@ export interface StateSequenceChannelConfigSample extends StateSequenceChannelCo
    * 0 is fully dry (no reverb), 1 is fully wet (only reverb)
    */
   reverbWetness?: number;
+  /**
+   * -1 to 1 (0 is centered)
+   */
+  pan?: number;
   distortion?: number;
   isReversed?: boolean;
 }
