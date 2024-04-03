@@ -12,7 +12,10 @@ import {
 import { useSequencersState } from 'state/state';
 import { Icon } from '@blueprintjs/core';
 import classNames from 'classnames';
-import { DEFAULT_STEP_MUTABILITY } from 'components/Controller/Controller.constants';
+import {
+  DEFAULT_STEP_VALUES,
+  MAX_STEP_VALUES,
+} from 'components/Sequencer/SequencerChannel/SequencerChannel.constants';
 require('./_SequencerChannel.scss');
 
 export interface SequencerChannelProps
@@ -69,7 +72,6 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
         {
           channel: channelIndex,
           stepIndex,
-          mutability: DEFAULT_STEP_MUTABILITY,
         },
         visiblePageRef.current
       );
@@ -91,7 +93,8 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
       step &&
       stepPropertyCurrentlyBeingEdited &&
       updateStep(sequence.name, step, visiblePageRef.current, {
-        [stepPropertyCurrentlyBeingEdited]: value,
+        [stepPropertyCurrentlyBeingEdited]:
+          value * (MAX_STEP_VALUES[stepPropertyCurrentlyBeingEdited] ?? 1),
       }),
     [stepPropertyCurrentlyBeingEdited]
   );
@@ -147,7 +150,9 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
               isControllingFillPercentage={!!stepPropertyCurrentlyBeingEdited}
               fillPercentage={
                 stepPropertyCurrentlyBeingEdited
-                  ? step?.[stepPropertyCurrentlyBeingEdited]
+                  ? (step?.[stepPropertyCurrentlyBeingEdited] ??
+                      DEFAULT_STEP_VALUES[stepPropertyCurrentlyBeingEdited] ??
+                      1) / (MAX_STEP_VALUES[stepPropertyCurrentlyBeingEdited] ?? 1)
                   : undefined
               }
               fillPercentageMax={

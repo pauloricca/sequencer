@@ -4,6 +4,7 @@ import { StateSequenceChannelConfigCommon, StateSequenceStepProperties } from 's
 import { useMetronome } from 'utils/metronome';
 import { useSequencersState } from 'state/state';
 import { sample, shuffle, uniq } from 'lodash';
+import { DEFAULT_STEP_VALUES } from '../SequencerChannel/SequencerChannel.constants';
 require('./_SequencerGrid.scss');
 
 export interface SequencerGridProps
@@ -63,7 +64,9 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
 
           const mutableSteps = shuffle(
             page.steps.filter(
-              ({ mutability, channel }) => (mutability || 0) > 0 && !channelsConfig[channel].isMuted
+              ({ mutability, channel }) =>
+                (mutability ?? DEFAULT_STEP_VALUES.mutability ?? 0) > 0 &&
+                !channelsConfig[channel].isMuted
             )
           );
 

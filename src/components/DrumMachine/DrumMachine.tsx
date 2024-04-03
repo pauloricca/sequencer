@@ -11,7 +11,7 @@ import {
   StateSequenceStep,
 } from 'state/state.types';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
-import { HIGH_PITCH_ADJUSTMENT } from './DrumMachine.constants';
+import { getAdjustedPitch } from './DrumMachine.utils';
 
 export interface DrumMachineProps {
   sequenceName: string;
@@ -67,14 +67,10 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
           // on samples we set volume in db, -Infinity to 0, as a Log base 1.1
           const volumeLog20 = Math.log(volumePercentage) / Math.log(1.1);
 
-          /*
-           * multiply pitches above 1 by a constant (> 1), so that we have a neater scale from 0, to 1 (neutral), to 2
-           * and also so that we can add the global channel pitch to the step pitch
-           */
-          const channelPitch =
-            (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).pitch ?? 1;
           const pitchAdjusted =
-            channelPitch > 1 ? 1 + (channelPitch - 1) * HIGH_PITCH_ADJUSTMENT : channelPitch;
+            getAdjustedPitch(
+              (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).pitch ?? 1
+            ) + getAdjustedPitch(step?.pitch ?? 1);
 
           sample.reverb.wet.value = channel.reverbWetness ?? 0;
           // decay must be > 0

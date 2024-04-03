@@ -186,7 +186,14 @@ export interface StateSequenceStepProperties {
   volume?: number;
   probability?: number;
   duration?: number;
+  /**
+   * 0 to 1 likelihood of step getting mutated
+   */
   mutability?: number;
+  /**
+   * 1 pitch is sample played at normal rate, <1 is lower pitch, >1 higher pitch
+   */
+  pitch?: number;
 }
 
 export type StateActionMessage =

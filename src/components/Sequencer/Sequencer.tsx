@@ -57,6 +57,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
             icon: 'vertical-bar-chart-asc',
           },
           {
+            name: 'pitch',
+            value: 'pitch',
+            icon: 'music',
+            isHidden: sequenceType === 'synth',
+          },
+          {
             name: 'duration',
             value: 'duration',
             icon: 'arrows-horizontal',
