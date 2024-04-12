@@ -31,12 +31,7 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [_, setTriggerRender] = useState(false);
   const performAction = useSequencersState((state) => state.performAction);
-  const stopListeningToNewShortcut = useSequencersState(
-    (state) => state.stopListeningToNewShortcut
-  );
-  const startListeningToNewShortcut = useSequencersState(
-    (state) => state.startListeningToNewShortcut
-  );
+  const startListeningToNewShortcut = useSequencersState((state) => state.startEditingShortcut);
 
   // Keep a copy of the value prop in ref to be accessible inside event handlers
   const valueRef = useRef(value);
@@ -145,7 +140,6 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
 
     const mouseUpHandler = () => {
       clearInterval(pressAndHoldCounterTimeout);
-      stopListeningToNewShortcut();
 
       // Delay setting isDragging to false so that we can avoid triggering the onClick handler
       setTimeout(() => {

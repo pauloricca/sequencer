@@ -51,6 +51,8 @@ interface MidiInputDevice {
 
 export type MidiEventHandler = (event: MidiEvent) => void;
 
+export type MidiType = 'input' | 'output';
+
 let midiAccess: IMIDIAccess | null = null;
 const midiOutputDevices: Record<string, MidiOutputDevice> = {};
 const midiInputDevices: Record<string, MidiInputDevice> = {};
@@ -173,7 +175,7 @@ MIDIVal.connect()
   })
   .catch((e) => console.error(`Error connecting to MIDI devices: ${e}`));
 
-export const useMidiDeviceNames = (type: 'input' | 'output') => {
+export const useMidiDeviceNames = (type: MidiType) => {
   const [deviceNames, setDeviceNames] = useState<string[]>(
     type === 'input' ? Object.keys(midiInputDevices).sort() : Object.keys(midiOutputDevices).sort()
   );

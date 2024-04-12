@@ -1,6 +1,10 @@
 import { Draft } from 'immer';
 
 export interface State {
+  /**
+   * Keep track of app/state versions so that we can import and convert older exported states
+   */
+  version: number;
   isPlaying: boolean;
   /**
    * Typically BPM x 4 (on an x/4 time signature)
@@ -11,14 +15,24 @@ export interface State {
    */
   swing: number;
   sequences: StateSequence[];
-  shortcuts: StateShortcut[];
-  activeMidiInputDevices: string[];
+  controlShortcuts: {
+    shortcuts: StateShortcut[];
+    /**
+     * Devices being listened to when creating new / editing shortcuts.
+     * Any new note or cc input from these devices will be used to assign controller.
+     */
+    activeMidiInputDevices: string[];
+  };
 }
 
 export interface StateActions {
+  // Global
   setIsPlaying: (isPlaying: boolean) => void;
   setClockSpeed: (clockSpeed: number) => void;
   setSwing: (swing: number) => void;
+  reset: (state?: State) => void;
+
+  // Sequence
   setStep: (sequenceName: string, step: StateSequenceStep, pageNumber: number) => void;
   removeStep: (sequenceName: string, step: StateSequenceStep, pageNumber: number) => void;
   updateStep: (
@@ -42,13 +56,14 @@ export interface StateActions {
   addSequencePattern: (sequenceName: string, doDuplicateCurrentPattern?: boolean) => void;
   removeCurrentSequencePattern: (sequenceName: string) => void;
   performAction: (actionMessage: StateActionMessage) => void;
-  startListeningToNewShortcut: (shortcut: Omit<StateShortcut, 'type' | 'key'>) => void;
-  stopListeningToNewShortcut: () => void;
-  saveNewShortcut: (shortcut: StateShortcut) => void;
-  removeShortcut: (shortcut: StateShortcut) => void;
+
+  // Control shortcuts
+  startEditingShortcut: (shortcut: Omit<StateShortcut, 'id' | 'type' | 'key'>) => void;
+  stopEditingShortcut: () => void;
+  updateShortcut: (id: string, newShortcutSettings: Partial<Omit<StateShortcut, 'id'>>) => void;
+  removeShortcut: (id: string) => void;
   addActiveMidiInputDevice: (midiInputDevice: string) => void;
   removeActiveMidiInputDevice: (midiInputDevice: string) => void;
-  reset: (state?: State) => void;
 }
 
 type StateSetter = (
@@ -217,14 +232,20 @@ type StateActionMessageChannelParameterChange = {
 };
 
 export interface StateShortcut {
+  id: string;
   /**
    * Action can have an undefined value, so that it's defined by the midi-note or the midi-cc
    */
   actionMessage: StateActionMessage;
   /**
+   * Set to true when we create a new shortcut, so that we see the modal window to assign the shortcut, or when
+   * it's being edited after being created.
+   */
+  isBeingEdited?: boolean;
+  /**
    * When not set, it means it's waiting for a keyboard press or midi control, to attach a shortcut to this action
    */
-  type: 'currently-being-assigned' | 'keyboard' | 'midi-note' | 'midi-cc';
+  type?: 'keyboard' | 'midi-note' | 'midi-cc';
   /**
    * Keyboard key that triggers the action
    */

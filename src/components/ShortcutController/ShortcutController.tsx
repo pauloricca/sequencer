@@ -1,5 +1,6 @@
 import { Icon } from '@blueprintjs/core';
 import { Modal } from 'components/Modal/Modal';
+import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useSequencersState } from 'state/state';
 import { StateShortcut } from 'state/state.types';
@@ -9,27 +10,30 @@ import {
   removeMidiEventListener,
   useMidiDeviceNames,
 } from 'utils/midi';
+import { CC_VALUE_RANGE_MAX, SHORTCUT_TYPE_OPTIONS } from './ShortcutController.constants';
+import { getStepFromDecimalPlaces, hasInputInFocus } from './ShortcutController.utils';
+import { SelectKnobMidi } from 'components/SelectKnob/SelectKnobMidi/SelectKnobMidi';
+import { MIDI_MAX_CC, MIDI_MAX_CHANNELS, MIDI_MAX_NOTE } from 'components/components.constants';
 require('./_ShortcutController.scss');
 
 export const ShortcutController: React.FC = () => {
-  const shortcuts = useSequencersState((state) => state.shortcuts);
+  const shortcuts = useSequencersState((state) => state.controlShortcuts.shortcuts);
+  // Save updated ref so we can use inside listeners
   const shortcutsRef = useRef(shortcuts);
-  const saveNewShortcut = useSequencersState((state) => state.saveNewShortcut);
-  const stopListeningToNewShortcut = useSequencersState(
-    (state) => state.stopListeningToNewShortcut
-  );
+  const updateShortcut = useSequencersState((state) => state.updateShortcut);
+  const stopEditingShortcut = useSequencersState((state) => state.stopEditingShortcut);
   const performAction = useSequencersState((state) => state.performAction);
   const removeShortcut = useSequencersState((state) => state.removeShortcut);
-  const activeMidiInputDevices = useSequencersState((state) => state.activeMidiInputDevices);
+  const activeMidiInputDevices = useSequencersState(
+    (state) => state.controlShortcuts.activeMidiInputDevices
+  );
   const addActiveMidiInputDevice = useSequencersState((state) => state.addActiveMidiInputDevice);
   const removeActiveMidiInputDevice = useSequencersState(
     (state) => state.removeActiveMidiInputDevice
   );
   const midiDeviceNames = useMidiDeviceNames('input');
 
-  const shortcutCurrentlyBeingAssigned = shortcuts.find(
-    ({ type }) => type === 'currently-being-assigned'
-  );
+  const shortcutBeingEdited = shortcuts.find(({ isBeingEdited }) => isBeingEdited);
 
   useEffect(() => {
     shortcutsRef.current = shortcuts;
@@ -50,11 +54,9 @@ export const ShortcutController: React.FC = () => {
       return;
     }
 
-    const shortcutCurrentlyBeingAssigned = shortcutsRef.current.find(
-      ({ type }) => type === 'currently-being-assigned'
-    );
+    const shortcutBeingEdited = shortcutsRef.current.find(({ isBeingEdited }) => isBeingEdited);
 
-    if (!shortcutCurrentlyBeingAssigned) {
+    if (!shortcutBeingEdited) {
       // CC
       shortcutsRef.current
         .filter(
@@ -96,41 +98,43 @@ export const ShortcutController: React.FC = () => {
           })
         );
     } else {
-      saveNewShortcut({
-        ...shortcutCurrentlyBeingAssigned,
-        type: event.type === 'note-on' ? 'midi-note' : 'midi-cc',
-        midiDevice: event.deviceName,
-        midiNote: event.note,
-        midiControl: event.control,
-        midiChannel: event.channel,
-      });
-      stopListeningToNewShortcut();
+      if (activeMidiInputDevices.includes(event.deviceName)) {
+        updateShortcut(shortcutBeingEdited.id, {
+          type: event.type === 'note-on' ? 'midi-note' : 'midi-cc',
+          midiDevice: event.deviceName,
+          midiNote: event.note,
+          midiControl: event.control,
+          midiChannel: event.channel,
+          isBeingEdited: false,
+        });
+      }
     }
   }, []);
 
   const keyPressedHandler = useCallback((e: KeyboardEvent) => {
+    if (hasInputInFocus()) return;
+
     const pressedKey = e.key;
     const pressedKeyCode = e.charCode ?? e.keyCode ?? e.which ?? 0;
 
-    const shortcutCurrentlyBeingAssigned = shortcutsRef.current.find(
-      ({ type }) => type === 'currently-being-assigned'
+    const shortcutCurrentlyBeingEdited = shortcutsRef.current.find(
+      ({ isBeingEdited }) => isBeingEdited
     );
 
-    if (!shortcutCurrentlyBeingAssigned) {
+    if (!shortcutCurrentlyBeingEdited) {
       shortcutsRef.current
         .filter(({ type, key }) => type === 'keyboard' && key === pressedKey)
         .forEach(({ actionMessage }) => performAction(actionMessage));
     } else {
-      saveNewShortcut({
-        ...shortcutCurrentlyBeingAssigned,
+      updateShortcut(shortcutCurrentlyBeingEdited?.id, {
         actionMessage: {
-          ...shortcutCurrentlyBeingAssigned.actionMessage,
-          value: shortcutCurrentlyBeingAssigned.actionMessage.value ?? pressedKeyCode,
+          ...shortcutCurrentlyBeingEdited.actionMessage,
+          value: shortcutCurrentlyBeingEdited.actionMessage.value ?? pressedKeyCode,
         },
         type: 'keyboard',
         key: pressedKey,
+        isBeingEdited: false,
       });
-      stopListeningToNewShortcut();
     }
   }, []);
 
@@ -139,7 +143,7 @@ export const ShortcutController: React.FC = () => {
 
   const getTriggerDecription = (shortcut: StateShortcut) =>
     [
-      shortcut.key ? `key:${shortcut.key}` : '',
+      shortcut.key ? `key: ${shortcut.key}` : '',
       shortcut.midiDevice,
       shortcut.midiChannel ? `ch:${shortcut.midiChannel}` : '',
       shortcut.midiControl ? `cc:${shortcut.midiControl}` : '',
@@ -148,18 +152,25 @@ export const ShortcutController: React.FC = () => {
       .filter(Boolean)
       .join(', ');
 
+  console.log('paulo shortcutBeingEdited', shortcutBeingEdited);
+
   return (
     <div className="shortcut-controller">
       <div className="shortcut-controller__section">
         <p className="shortcut-controller__section-header">Shortcuts</p>
-        {shortcuts.map((shortcut, shortcutIndex) => (
-          <p className="shortcut-controller__item" key={shortcutIndex}>
+        {shortcuts.map((shortcut) => (
+          <p className="shortcut-controller__item" key={shortcut.id}>
             <Icon
               icon="trash"
               className="shortcut-controller__remove-shortcut-button"
-              onClick={() => removeShortcut(shortcut)}
+              onClick={() => removeShortcut(shortcut.id)}
             />
-            {getTriggerDecription(shortcut)} – {getActionDecription(shortcut)}
+            <button
+              className="link-button"
+              onClick={() => updateShortcut(shortcut.id, { isBeingEdited: true })}
+            >
+              {getTriggerDecription(shortcut)} – {getActionDecription(shortcut)}
+            </button>
           </p>
         ))}
       </div>
@@ -182,14 +193,105 @@ export const ShortcutController: React.FC = () => {
           </label>
         ))}
       </div>
-      <Modal isOpen={!!shortcutCurrentlyBeingAssigned}>
-        <div className="shortcut-controller__overlay">
-          <p>Press key or change midi controller to save shortcut for:</p>
-          <p>
-            {!!shortcutCurrentlyBeingAssigned &&
-              getActionDecription(shortcutCurrentlyBeingAssigned)}
-          </p>
-        </div>
+      <Modal onClose={stopEditingShortcut} isOpen={!!shortcutBeingEdited}>
+        {!!shortcutBeingEdited && (
+          <div className="shortcut-controller__modal-contents">
+            <p>Press key or change midi controller to save shortcut for:</p>
+            <p>{getActionDecription(shortcutBeingEdited)}</p>
+            <div className="shortcut-controller__shortcut-parameters">
+              <SelectKnob
+                items={SHORTCUT_TYPE_OPTIONS}
+                label={shortcutBeingEdited.type ?? SHORTCUT_TYPE_OPTIONS[0].label ?? ''}
+                type="discrete"
+                value={shortcutBeingEdited.type}
+                modalColumns={4}
+                onChange={(value) => updateShortcut(shortcutBeingEdited.id, { type: value })}
+              />
+              {shortcutBeingEdited.type === 'keyboard' && (
+                <input
+                  type="text"
+                  value={`key: ${shortcutBeingEdited.key?.toLowerCase()}`}
+                  onKeyDown={(e) => {
+                    updateShortcut(shortcutBeingEdited.id, { key: e.key });
+                    e.preventDefault();
+                  }}
+                  readOnly
+                />
+              )}
+              {(shortcutBeingEdited.type === 'midi-note' ||
+                shortcutBeingEdited.type === 'midi-cc') && (
+                <>
+                  <SelectKnobMidi
+                    type="input"
+                    value={shortcutBeingEdited.midiDevice}
+                    onChange={(value) =>
+                      updateShortcut(shortcutBeingEdited.id, { midiDevice: value })
+                    }
+                  />
+                  <SelectKnob
+                    label={`midi channel: ${shortcutBeingEdited.midiChannel}`}
+                    max={MIDI_MAX_CHANNELS}
+                    type="numeric"
+                    value={shortcutBeingEdited.midiChannel}
+                    onChange={(value) =>
+                      updateShortcut(shortcutBeingEdited.id, { midiChannel: value })
+                    }
+                  />
+                  {shortcutBeingEdited.type === 'midi-note' && (
+                    <SelectKnob
+                      label={`midi note: ${shortcutBeingEdited.midiNote}`}
+                      max={MIDI_MAX_NOTE}
+                      type="numeric"
+                      value={shortcutBeingEdited.midiNote}
+                      onChange={(value) =>
+                        updateShortcut(shortcutBeingEdited.id, { midiNote: value })
+                      }
+                    />
+                  )}
+                  {shortcutBeingEdited.type === 'midi-cc' && (
+                    <>
+                      <SelectKnob
+                        label={`midi cc: ${shortcutBeingEdited.midiControl}`}
+                        max={MIDI_MAX_CC}
+                        type="numeric"
+                        value={shortcutBeingEdited.midiControl}
+                        onChange={(value) =>
+                          updateShortcut(shortcutBeingEdited.id, { midiControl: value })
+                        }
+                      />
+                      <SelectKnob
+                        label={`range min: ${shortcutBeingEdited.valueRangeMin}`}
+                        type="numeric"
+                        value={shortcutBeingEdited.valueRangeMin}
+                        max={
+                          CC_VALUE_RANGE_MAX /
+                          getStepFromDecimalPlaces(shortcutBeingEdited.decimalPlaces)
+                        }
+                        step={getStepFromDecimalPlaces(shortcutBeingEdited.decimalPlaces)}
+                        onChange={(value) =>
+                          updateShortcut(shortcutBeingEdited.id, { valueRangeMin: value })
+                        }
+                      />
+                      <SelectKnob
+                        label={`range max: ${shortcutBeingEdited.valueRangeMax}`}
+                        type="numeric"
+                        value={shortcutBeingEdited.valueRangeMax}
+                        max={
+                          CC_VALUE_RANGE_MAX /
+                          getStepFromDecimalPlaces(shortcutBeingEdited.decimalPlaces)
+                        }
+                        step={getStepFromDecimalPlaces(shortcutBeingEdited.decimalPlaces)}
+                        onChange={(value) =>
+                          updateShortcut(shortcutBeingEdited.id, { valueRangeMax: value })
+                        }
+                      />
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

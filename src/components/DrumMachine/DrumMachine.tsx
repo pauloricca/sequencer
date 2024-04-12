@@ -12,6 +12,7 @@ import {
 } from 'state/state.types';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 import { getAdjustedPitch } from './DrumMachine.utils';
+import { MIDI_MAX_CHANNELS, MIDI_MAX_NOTE } from 'components/components.constants';
 
 export interface DrumMachineProps {
   sequenceName: string;
@@ -68,9 +69,11 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
           const volumeLog20 = Math.log(volumePercentage) / Math.log(1.1);
 
           const pitchAdjusted =
-            getAdjustedPitch(
+            (getAdjustedPitch(
               (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).pitch ?? 1
-            ) + getAdjustedPitch(step?.pitch ?? 1);
+            ) +
+              getAdjustedPitch(step?.pitch ?? 1)) /
+            2;
 
           sample.reverb.wet.value = channel.reverbWetness ?? 0;
           // decay must be > 0
@@ -162,16 +165,14 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 label={`midi channel: ${channelConfig.midiChannel ?? 'none'}`}
                 value={channelConfig.midiChannel}
                 type="numeric"
-                min={0}
-                max={32}
+                max={MIDI_MAX_CHANNELS}
                 onChange={(value) => update({ midiChannel: value })}
               />
               <SelectKnob
                 label={`midi note: ${channelConfig.midiNote ?? 'none'}`}
                 value={channelConfig.midiNote}
                 type="numeric"
-                min={0}
-                max={101}
+                max={MIDI_MAX_NOTE}
                 onChange={(value) => update({ midiNote: value })}
               />
             </>
@@ -189,7 +190,12 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
                 min={0}
                 max={2}
                 step={0.05}
-                onChange={(value) => update({ pitch: value })}
+                actionMessage={{
+                  type: 'Channel Param Change',
+                  sequenceName,
+                  channelIndex,
+                  parameter: 'pitch' as 'name',
+                }}
                 showDial
               />
               <SelectKnob

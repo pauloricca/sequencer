@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 class Metronome {
   private readonly func: (scheduledTime: number) => any;
@@ -95,9 +95,13 @@ const setClock = (clockTime: number) => {
 // tickLength is the number of clock units necessary to advance 1 tick
 export const useMetronome = (tickLength: number) => {
   const [tick, setTick] = useState(-1);
+  const tickLengthRef = useRef(tickLength);
+
+  tickLengthRef.current = tickLength;
 
   useEffect(() => {
-    const metronomeHandler = () => setTick(clock === -1 ? clock : Math.floor(clock / tickLength));
+    const metronomeHandler = () =>
+      setTick(clock === -1 ? clock : Math.floor(clock / tickLengthRef.current));
 
     metronomeListeners.push(metronomeHandler);
 

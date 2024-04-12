@@ -166,6 +166,7 @@ export const BASS_MIDI_OUTPUT = 'USB2.0-MIDI Port 1';
 export const SYNTH_MIDI_OUTPUT = 'JT-4000 MICRO';
 
 export const INITIAL_STATE: State = {
+  version: 1,
   isPlaying: false,
   clockSpeed: 130 * 4,
   swing: 0.5,
@@ -213,6 +214,8 @@ export const INITIAL_STATE: State = {
       isPolyphonic: true,
     },
   ],
-  shortcuts: [],
-  activeMidiInputDevices: [],
+  controlShortcuts: {
+    shortcuts: [],
+    activeMidiInputDevices: [],
+  },
 };

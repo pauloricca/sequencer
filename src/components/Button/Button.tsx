@@ -31,11 +31,8 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const [isListeningForShortcut, setIsListeningForShortcut] = useState(false);
   const performAction = useSequencersState((state) => state.performAction);
-  const stopListeningToNewShortcut = useSequencersState(
-    (state) => state.stopListeningToNewShortcut
-  );
   const startListeningToNewShortcut = useSequencersState(
-    (state) => state.startListeningToNewShortcut
+    (state) => state.startEditingShortcut
   );
 
   const onMouseDownHandler: MouseEventHandler = () => {
@@ -53,7 +50,6 @@ export const Button: React.FC<ButtonProps> = ({
 
     const mouseUpHandler = () => {
       clearInterval(pressAndHoldCounterTimeout);
-      stopListeningToNewShortcut();
 
       // Delay setting isDragging to false so that we can avoid triggering the onClick handler
       setTimeout(() => {

@@ -13,7 +13,8 @@ import {
 import { INITIAL_STATE } from './state.initial';
 import { getBlankPattern } from './state.utils';
 import { Draft } from 'immer';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep } from 'lodash';
+import { nanoid } from 'nanoid';
 
 const setIsPlaying: StateAction =
   (set): StateActions['setIsPlaying'] =>
@@ -248,35 +249,51 @@ const performAction: StateAction =
     });
 
 const startListeningToNewShortcut: StateAction =
-  (set): StateActions['startListeningToNewShortcut'] =>
+  (set): StateActions['startEditingShortcut'] =>
   (shortcut) =>
     set((state) => {
-      state.shortcuts.push({
+      state.controlShortcuts.shortcuts.push({
         ...shortcut,
-        type: 'currently-being-assigned',
+        isBeingEdited: true,
+        id: nanoid(),
       });
     });
 
-const saveNewShortcut: StateAction =
-  (set): StateActions['saveNewShortcut'] =>
-  (shortcut) =>
+const updateShortcut: StateAction =
+  (set): StateActions['updateShortcut'] =>
+  (id, newShortcutSettings) =>
     set((state) => {
-      state.shortcuts.push(shortcut);
+      const shortcutToUpdate = state.controlShortcuts.shortcuts.find(
+        (shortcut) => shortcut.id === id
+      );
+
+      if (shortcutToUpdate) {
+        Object.keys(newShortcutSettings).forEach(
+          (key) => ((shortcutToUpdate as any)[key] = (newShortcutSettings as any)[key])
+        );
+      }
     });
 
-const stopListeningToNewShortcut: StateAction =
-  (set): StateActions['stopListeningToNewShortcut'] =>
+const stopEditingShortcut: StateAction =
+  (set): StateActions['stopEditingShortcut'] =>
   () =>
     set((state) => {
-      state.shortcuts = state.shortcuts.filter(({ type }) => type !== 'currently-being-assigned');
+      state.controlShortcuts.shortcuts = state.controlShortcuts.shortcuts.filter(
+        ({ type }) => !!type
+      );
+      const shortcutBeingEdited = state.controlShortcuts.shortcuts.find(
+        ({ isBeingEdited }) => isBeingEdited
+      );
+
+      if (shortcutBeingEdited) shortcutBeingEdited.isBeingEdited = false;
     });
 
 const removeShortcut: StateAction =
   (set): StateActions['removeShortcut'] =>
-  (shortcut) =>
+  (id) =>
     set((state) => {
-      state.shortcuts = state.shortcuts.filter(
-        (existingShortcut) => !isEqual(shortcut, existingShortcut)
+      state.controlShortcuts.shortcuts = state.controlShortcuts.shortcuts.filter(
+        (existingShortcut) => existingShortcut.id !== id
       );
     });
 
@@ -284,18 +301,19 @@ const addActiveMidiInputDevice: StateAction =
   (set): StateActions['addActiveMidiInputDevice'] =>
   (midiInputDevice) =>
     set((state) => {
-      !state.activeMidiInputDevices.includes(midiInputDevice) &&
-        state.activeMidiInputDevices.push(midiInputDevice);
+      !state.controlShortcuts.activeMidiInputDevices.includes(midiInputDevice) &&
+        state.controlShortcuts.activeMidiInputDevices.push(midiInputDevice);
     });
 
 const removeActiveMidiInputDevice: StateAction =
   (set): StateActions['addActiveMidiInputDevice'] =>
   (midiInputDevice) =>
     set((state) => {
-      if (state.activeMidiInputDevices.includes(midiInputDevice)) {
-        state.activeMidiInputDevices = state.activeMidiInputDevices.filter(
-          (device) => device !== midiInputDevice
-        );
+      if (state.controlShortcuts.activeMidiInputDevices.includes(midiInputDevice)) {
+        state.controlShortcuts.activeMidiInputDevices =
+          state.controlShortcuts.activeMidiInputDevices.filter(
+            (device) => device !== midiInputDevice
+          );
       }
     });
 
@@ -321,9 +339,9 @@ export const useSequencersState = create<State & StateActions>()(
       addSequencePattern: addSequencePattern(set, get),
       removeCurrentSequencePattern: removeCurrentSequencePattern(set, get),
       performAction: performAction(set, get),
-      startListeningToNewShortcut: startListeningToNewShortcut(set, get),
-      stopListeningToNewShortcut: stopListeningToNewShortcut(set, get),
-      saveNewShortcut: saveNewShortcut(set, get),
+      startEditingShortcut: startListeningToNewShortcut(set, get),
+      stopEditingShortcut: stopEditingShortcut(set, get),
+      updateShortcut: updateShortcut(set, get),
       removeShortcut: removeShortcut(set, get),
       addActiveMidiInputDevice: addActiveMidiInputDevice(set, get),
       removeActiveMidiInputDevice: removeActiveMidiInputDevice(set, get),
