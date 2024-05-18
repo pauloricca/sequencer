@@ -68,7 +68,7 @@ export const removeMidiEventListener = (eventHandler: MidiEventHandler) => {
 };
 
 export const allSoundsOff = () =>
-  Object.values(midiOutputDevices).forEach((device) => device.output?.sendAllNotesOff());
+  Object.values(midiOutputDevices).forEach((device) => device.output.sendAllNotesOff());
 
 export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
   const device = midiOutputDevices[deviceName];

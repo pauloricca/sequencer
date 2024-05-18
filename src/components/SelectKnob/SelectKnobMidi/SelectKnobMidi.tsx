@@ -30,6 +30,7 @@ export const SelectKnobMidi: React.FC<SelectKnobMidiProps> = ({ type, onChange, 
       onChange={onChange}
       value={value}
       modalColumns={3}
+      clickOnModalButtonClosesModal
     />
   );
 };

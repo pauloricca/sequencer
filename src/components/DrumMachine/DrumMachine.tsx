@@ -12,7 +12,12 @@ import {
 } from 'state/state.types';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 import { getAdjustedPitch } from './DrumMachine.utils';
-import { MIDI_MAX_CHANNELS, MIDI_MAX_NOTE } from 'components/components.constants';
+import {
+  MIDI_MAX_CC,
+  MIDI_MAX_CC_VALUE,
+  MIDI_MAX_CHANNELS,
+  MIDI_MAX_NOTE,
+} from 'components/components.constants';
 
 export interface DrumMachineProps {
   sequenceName: string;
@@ -114,6 +119,12 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
           velocity: volumePercentage * 127,
           channel: channel.midiChannel,
         });
+      } else if (channel.type === 'midi-cc' && sequence.midiOutDeviceName) {
+        sendMidiMessage(sequence.midiOutDeviceName, {
+          cc: channel.midiCC,
+          value: channel.isFixedValue ? channel.midiCCValue : volumePercentage * 127,
+          channel: channel.midiChannel,
+        });
       }
     },
     [sequenceName]
@@ -154,27 +165,64 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
           />
           <SelectKnob
             label={`${channelConfig.type}`}
-            items={[{ value: 'midi' }, { value: 'sample' }]}
+            items={[{ value: 'midi' }, { value: 'midi-cc' }, { value: 'sample' }]}
             type="discrete"
+            clickOnModalButtonClosesModal
             onChange={(value) => update({ type: value })}
             value={channelConfig.type}
           />
+          {(channelConfig.type === 'midi' || channelConfig.type === 'midi-cc') && (
+            <SelectKnob
+              label={`midi channel: ${channelConfig.midiChannel ?? 'none'}`}
+              value={channelConfig.midiChannel}
+              type="numeric"
+              max={MIDI_MAX_CHANNELS}
+              clickOnModalButtonClosesModal
+              onChange={(value) => update({ midiChannel: value })}
+            />
+          )}
           {channelConfig.type === 'midi' && (
+            <SelectKnob
+              label={`midi note: ${channelConfig.midiNote ?? 'none'}`}
+              value={channelConfig.midiNote}
+              type="numeric"
+              max={MIDI_MAX_NOTE}
+              clickOnModalButtonClosesModal
+              onChange={(value) => update({ midiNote: value })}
+            />
+          )}
+          {channelConfig.type === 'midi-cc' && (
             <>
               <SelectKnob
-                label={`midi channel: ${channelConfig.midiChannel ?? 'none'}`}
-                value={channelConfig.midiChannel}
+                label={`midi cc: ${channelConfig.midiCC ?? 'none'}`}
+                value={channelConfig.midiCC}
                 type="numeric"
-                max={MIDI_MAX_CHANNELS}
-                onChange={(value) => update({ midiChannel: value })}
+                max={MIDI_MAX_CC}
+                clickOnModalButtonClosesModal
+                onChange={(value) => update({ midiCC: value })}
               />
               <SelectKnob
-                label={`midi note: ${channelConfig.midiNote ?? 'none'}`}
-                value={channelConfig.midiNote}
-                type="numeric"
-                max={MIDI_MAX_NOTE}
-                onChange={(value) => update({ midiNote: value })}
+                label={channelConfig.isFixedValue ? 'fixed value' : 'value set by volume'}
+                value={channelConfig.isFixedValue}
+                type="discrete"
+                modalColumns={2}
+                clickOnModalButtonClosesModal
+                items={[
+                  { value: true, label: 'fixed value' },
+                  { value: false, label: 'value set by volume' },
+                ]}
+                onChange={(value) => update({ isFixedValue: value })}
               />
+              {channelConfig.isFixedValue && (
+                <SelectKnob
+                  label={`midi cc value: ${channelConfig.midiCCValue ?? 'none'}`}
+                  value={channelConfig.midiCCValue}
+                  type="numeric"
+                  clickOnModalButtonClosesModal
+                  max={MIDI_MAX_CC_VALUE}
+                  onChange={(value) => update({ midiCCValue: value })}
+                />
+              )}
             </>
           )}
           {channelConfig.type === 'sample' && (

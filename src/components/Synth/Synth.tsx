@@ -4,7 +4,7 @@ import { sendMidiMessage } from 'utils/midi';
 import { Midi, Scale } from 'tonal';
 import { useSequencersState } from 'state/state';
 import {
-  StateSequenceChannelConfigMidi,
+  StateSequenceChannelConfigMidiNote,
   StateSequenceStep,
   StateSequenceSynth,
 } from 'state/state.types';
@@ -31,7 +31,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
       transpose: sequence.transpose,
     };
   }, isEqual);
-  const [synthChannels, setSynthChannels] = useState<StateSequenceChannelConfigMidi[]>([]);
+  const [synthChannels, setSynthChannels] = useState<StateSequenceChannelConfigMidiNote[]>([]);
 
   useEffect(() => {
     // Get indexes of the scale per channel e.g. [-3, -2, -1, 0, 1, 2, 3]
@@ -51,7 +51,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
             name: Midi.midiToNoteName(note),
             midiNote: note,
             isHighlighted: (note - rootNote) % 12 === 0,
-          }) as StateSequenceChannelConfigMidi
+          }) as StateSequenceChannelConfigMidiNote
       )
     );
   }, [rootNote, range, scale, transpose]);

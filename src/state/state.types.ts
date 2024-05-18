@@ -125,7 +125,8 @@ export interface StateSequencePatternPage {
 }
 
 export type StateSequenceChannelConfig =
-  | StateSequenceChannelConfigMidi
+  | StateSequenceChannelConfigMidiNote
+  | StateSequenceChannelConfigMidiCC
   | StateSequenceChannelConfigSample;
 
 export interface StateSequenceChannelConfigCommon {
@@ -139,7 +140,7 @@ export interface StateSequenceChannelConfigCommon {
   volume?: number;
 }
 
-export interface StateSequenceChannelConfigMidi extends StateSequenceChannelConfigCommon {
+export interface StateSequenceChannelConfigMidiNote extends StateSequenceChannelConfigCommon {
   type: 'midi';
   midiChannel: number;
   midiNote: number;
@@ -147,6 +148,17 @@ export interface StateSequenceChannelConfigMidi extends StateSequenceChannelConf
    * In some drum machines the volume is controlled by sending a cc message instead of velocity
    */
   volumeCC?: number;
+}
+
+export interface StateSequenceChannelConfigMidiCC extends StateSequenceChannelConfigCommon {
+  type: 'midi-cc';
+  midiChannel: number;
+  midiCC: number;
+  /**
+   * When true, value is always midiCCValue, otherwise it's set by "volume" in StateSequenceChannelConfigCommon
+   */
+  isFixedValue: boolean;
+  midiCCValue?: number;
 }
 
 export interface StateSequenceChannelConfigSample extends StateSequenceChannelConfigCommon {
