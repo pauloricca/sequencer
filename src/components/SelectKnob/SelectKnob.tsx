@@ -107,7 +107,9 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
           currentValueOrIndex = valueRef.current as number;
         } else {
           currentValueOrIndex = items.findIndex(({ value }) => value === valueRef.current);
-          if (currentValueOrIndex < 0) return;
+
+          // If current value is not found, then we assume index 0
+          if (currentValueOrIndex < 0) currentValueOrIndex = 0;
         }
 
         const decimalPlacesMultiplier = stepDecimalPlaces > 0 ? stepDecimalPlaces * 10 : 1;
