@@ -18,6 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { isEqual } from 'lodash';
 import { ControllerControlsConfigModalSequence } from './ControllerControlsConfigModalSequence/ControllerControlsConfigModalSequence';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 require('./_ControllerControlsConfigModal.scss');
 
 export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'>> = (props) => {
@@ -53,6 +54,7 @@ export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis]}
             >
               <SortableContext items={sequences} strategy={verticalListSortingStrategy}>
                 {sequences.map(({ id, name, type }) => (
