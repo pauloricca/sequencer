@@ -10,6 +10,18 @@
 	background-color: #39082fc5;
 	z-index: 100;
 
+	&__close-btn {
+		position: absolute;
+		top: 16px;
+		right: 16px;
+		cursor: pointer;
+
+		svg {
+			width: 24px;
+			height: 24px;
+		}
+	}
+
 	&__inner {
 		max-height: calc(100vh - 200px);
 		max-width: 600px;
