@@ -11,10 +11,18 @@ import {
   StateSequenceChannelConfig,
 } from './state.types';
 import { INITIAL_STATE } from './state.initial';
-import { getBlankPattern } from './state.utils';
+import { getBlankPattern, migrate } from './state.utils';
 import { Draft } from 'immer';
 import { cloneDeep } from 'lodash';
 import { nanoid } from 'nanoid';
+import { arrayMove } from '@dnd-kit/sortable';
+
+const updateSequenceOrder: StateAction =
+  (set): StateActions['updateSequenceOrder'] =>
+  (oldIndex, newIndex) =>
+    set((state) => {
+      state.sequences = arrayMove(state.sequences, oldIndex, newIndex);
+    });
 
 const setIsPlaying: StateAction =
   (set): StateActions['setIsPlaying'] =>
@@ -39,9 +47,9 @@ const setSwing: StateAction =
 
 const setStep: StateAction =
   (set): StateActions['setStep'] =>
-  (sequenceName, step, pageNumber) =>
+  (sequenceId, step, pageNumber) =>
     set((state) => {
-      const sequence = getSequenceByName(state.sequences, sequenceName);
+      const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (
         sequence?.patterns[sequence.currentPattern] &&
@@ -65,9 +73,9 @@ const setStep: StateAction =
 
 const removeStep: StateAction =
   (set): StateActions['removeStep'] =>
-  (sequenceName, step, pageNumber) =>
+  (sequenceId, step, pageNumber) =>
     set((state) => {
-      const sequence = getSequenceByName(state.sequences, sequenceName);
+      const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (
         sequence?.patterns[sequence.currentPattern] &&
@@ -83,9 +91,9 @@ const removeStep: StateAction =
 
 const addPage: StateAction =
   (set): StateActions['addPage'] =>
-  (sequenceName, page, duplicatePageByIndex) =>
+  (sequenceId, page, duplicatePageByIndex) =>
     set((state) => {
-      const sequence = getSequenceByName(state.sequences, sequenceName);
+      const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (sequence?.patterns[sequence.currentPattern]) {
         sequence.patterns[sequence.currentPattern].pages.push(
@@ -99,9 +107,9 @@ const addPage: StateAction =
 
 const removePage: StateAction =
   (set): StateActions['removePage'] =>
-  (sequenceName, pageNumber) =>
+  (sequenceId, pageNumber) =>
     set((state) => {
-      const sequence = getSequenceByName(state.sequences, sequenceName);
+      const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (sequence?.patterns[sequence.currentPattern]) {
         sequence.patterns[sequence.currentPattern].pages.splice(pageNumber, 1);
@@ -110,9 +118,9 @@ const removePage: StateAction =
 
 const updateStep: StateAction =
   (set): StateActions['updateStep'] =>
-  (sequenceName, step, pageNumber, newSequenceSettings) =>
+  (sequenceId, step, pageNumber, newSequenceSettings) =>
     set((state) => {
-      const sequence = getSequenceByName(state.sequences, sequenceName);
+      const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (
         sequence?.patterns[sequence.currentPattern] &&
@@ -134,13 +142,12 @@ const updateStep: StateAction =
 
 const updateChannelConfigAction = (
   state: Draft<State & StateActions>,
-  sequenceName: string,
+  sequenceId: string,
   channelIndex: number,
   newChannelConfig: Partial<StateSequenceChannelConfig>
 ) => {
-  const channelConfig = (
-    getSequenceByName(state.sequences, sequenceName) as StateSequenceDrumMachine
-  )?.channelsConfig[channelIndex];
+  const channelConfig = (getSequenceById(state.sequences, sequenceId) as StateSequenceDrumMachine)
+    ?.channelsConfig[channelIndex];
 
   if (channelConfig) {
     Object.keys(newChannelConfig).forEach(
@@ -151,15 +158,15 @@ const updateChannelConfigAction = (
 
 const updateChannelConfig: StateAction =
   (set): StateActions['updateChannelConfig'] =>
-  (sequenceName, channelIndex, newChannelConfig) =>
-    set((state) => updateChannelConfigAction(state, sequenceName, channelIndex, newChannelConfig));
+  (sequenceId, channelIndex, newChannelConfig) =>
+    set((state) => updateChannelConfigAction(state, sequenceId, channelIndex, newChannelConfig));
 
 const updateSequenceAction = (
   state: Draft<State & StateActions>,
-  sequenceName: string,
+  sequenceId: string,
   newSequenceSettings: Partial<StateSequence>
 ) => {
-  const sequence = getSequenceByName(state.sequences, sequenceName);
+  const sequence = getSequenceById(state.sequences, sequenceId);
 
   if (sequence) {
     // Check if we need to shift the steps because of a range change
@@ -183,6 +190,15 @@ const updateSequenceAction = (
       );
     }
 
+    // Check if we need to update shortcuts when we change the sequence name
+    if (newSequenceSettings.name !== undefined) {
+      state.controlShortcuts.shortcuts.forEach(({ actionMessage }) => {
+        if (actionMessage.sequenceName === sequence.name) {
+          actionMessage.sequenceName = newSequenceSettings.name || '';
+        }
+      });
+    }
+
     Object.keys(newSequenceSettings).forEach(
       (key) => ((sequence as any)[key] = (newSequenceSettings as any)[key])
     );
@@ -191,18 +207,18 @@ const updateSequenceAction = (
 
 const updateSequence: StateAction =
   (set): StateActions['updateSequence'] =>
-  (sequenceName, newSequenceSettings) =>
-    set((state) => updateSequenceAction(state, sequenceName, newSequenceSettings));
+  (sequenceId, newSequenceSettings) =>
+    set((state) => updateSequenceAction(state, sequenceId, newSequenceSettings));
 
 const addSequencePattern: StateAction =
   (set): StateActions['addSequencePattern'] =>
-  (sequenceName, doDuplicateCurrentPattern) =>
+  (sequenceId, doDuplicateCurrentPattern) =>
     set((state) => {
-      const sequence = getSequenceByName(state.sequences, sequenceName);
+      const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (!sequence) return;
 
-      updateSequenceAction(state, sequenceName, {
+      updateSequenceAction(state, sequenceId, {
         patterns: [
           ...sequence.patterns,
           doDuplicateCurrentPattern
@@ -215,13 +231,13 @@ const addSequencePattern: StateAction =
 
 const removeCurrentSequencePattern: StateAction =
   (set): StateActions['removeCurrentSequencePattern'] =>
-  (sequenceName) =>
+  (sequenceId) =>
     set((state) => {
-      const sequence = getSequenceByName(state.sequences, sequenceName);
+      const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (!sequence) return;
 
-      updateSequenceAction(state, sequenceName, {
+      updateSequenceAction(state, sequence.name, {
         patterns:
           sequence.patterns.length > 1
             ? sequence.patterns.filter((_, index) => index !== sequence.currentPattern)
@@ -236,14 +252,23 @@ const performAction: StateAction =
     set((state) => {
       switch (actionMessage.type) {
         case 'Sequence Param Change':
-          updateSequenceAction(state, actionMessage.sequenceName, {
-            [actionMessage.parameter]: actionMessage.value,
-          });
+          updateSequenceAction(
+            state,
+            getSequenceByName(state.sequences, actionMessage.sequenceName)?.id || '',
+            {
+              [actionMessage.parameter]: actionMessage.value,
+            }
+          );
           break;
         case 'Channel Param Change':
-          updateChannelConfigAction(state, actionMessage.sequenceName, actionMessage.channelIndex, {
-            [actionMessage.parameter]: actionMessage.value,
-          });
+          updateChannelConfigAction(
+            state,
+            getSequenceByName(state.sequences, actionMessage.sequenceName)?.id || '',
+            actionMessage.channelIndex,
+            {
+              [actionMessage.parameter]: actionMessage.value,
+            }
+          );
           break;
       }
     });
@@ -320,12 +345,13 @@ const removeActiveMidiInputDevice: StateAction =
 const reset: StateAction =
   (set): StateActions['reset'] =>
   (state = INITIAL_STATE) =>
-    set(() => state);
+    set(() => migrate(state, state.version));
 
 export const useSequencersState = create<State & StateActions>()(
   persist(
     immer((set, get) => ({
       ...INITIAL_STATE,
+      updateSequenceOrder: updateSequenceOrder(set, get),
       setIsPlaying: setIsPlaying(set, get),
       setClockSpeed: setClockSpeed(set, get),
       setSwing: setSwing(set, get),
@@ -349,10 +375,15 @@ export const useSequencersState = create<State & StateActions>()(
     })),
     {
       name: 'sequencers', // name of the item in the storage (must be unique)
+      version: INITIAL_STATE.version,
+      migrate: migrate as () => State & StateActions,
       // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
     }
   )
 );
+
+const getSequenceById = (sequences: StateSequence[], sequenceId: string) =>
+  sequences.find(({ id }) => id === sequenceId);
 
 const getSequenceByName = (sequences: StateSequence[], sequenceName: string) =>
   sequences.find(({ name }) => name === sequenceName);

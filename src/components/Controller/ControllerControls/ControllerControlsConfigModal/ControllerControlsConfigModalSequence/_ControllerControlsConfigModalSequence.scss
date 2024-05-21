@@ -1,0 +1,26 @@
+.controller-controls-config-modal-sequence {
+	width: 200px;
+	border: 1px solid white;
+	border-radius: 8px;
+	padding: 8px;
+	padding-left: 30px;
+	position: relative;
+	margin: 8px;
+
+	&__drag-handle {
+		position: absolute;
+		cursor: grab;
+		left: 8px;
+		top: calc(50% - 8px);
+
+		&--is-dragging {
+			cursor: grabbing;
+		}
+	}
+
+	&__type {
+		text-align: right;
+		font-size: 0.7rem;
+		margin-top: 6px;
+	}
+}

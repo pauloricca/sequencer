@@ -10,7 +10,7 @@ require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
   const sequences = useSequencersState(
-    (state) => state.sequences.map(({ name, type }) => ({ name, type })),
+    (state) => state.sequences.map(({ id, type }) => ({ id, type })),
     isEqual
   );
 
@@ -18,10 +18,10 @@ export const Controller: React.FC = () => {
     <div className="controller">
       <ControllerControls />
       <ErrorBoundary error="Saved state not compatible with current version. Please press reset and refresh the page.">
-        {sequences.map(({ name, type }) => (
-          <Fragment key={name}>
-            {type === 'drum-machine' && <DrumMachine sequenceName={name} />}
-            {type === 'synth' && <Synth sequenceName={name} />}
+        {sequences.map(({ id, type }) => (
+          <Fragment key={id}>
+            {type === 'drum-machine' && <DrumMachine sequenceId={id} />}
+            {type === 'synth' && <Synth sequenceId={id} />}
           </Fragment>
         ))}
         <ShortcutController />

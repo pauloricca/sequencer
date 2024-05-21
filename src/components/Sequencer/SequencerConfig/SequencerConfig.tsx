@@ -9,7 +9,7 @@ import { SequencerConfigProps } from './SequencerConfig.types';
 require('./_SequencerConfig.scss');
 
 export const SequencerConfig: React.FC<SequencerConfigProps> = ({
-  sequenceName,
+  sequenceId,
   tools,
   selectedTool,
   onSelectTool = () => {},
@@ -17,7 +17,10 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
   configControls,
 }) => {
   const isMuted = useSequencersState(
-    (state) => state.sequences.find(({ name }) => name === sequenceName)?.isMuted
+    (state) => state.sequences.find(({ id }) => id === sequenceId)?.isMuted
+  );
+  const sequenceName = useSequencersState(
+    (state) => state.sequences.find(({ id }) => id === sequenceId)?.name || ''
   );
   const updateSequence = useSequencersState((state) => state.updateSequence);
   const [isOpen, setIsOpen] = useState(false);
@@ -54,14 +57,14 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
             <Icon
               icon="volume-up"
               className="sequencer-config__tool sequencer-config__tool--is-active"
-              onClick={() => updateSequence(sequenceName, { isMuted: true })}
+              onClick={() => updateSequence(sequenceId, { isMuted: true })}
             />
           )}
           {isMuted && (
             <Icon
               icon="volume-off"
               className="sequencer-config__tool"
-              onClick={() => updateSequence(sequenceName, { isMuted: false })}
+              onClick={() => updateSequence(sequenceId, { isMuted: false })}
             />
           )}
           {isOpen && (
@@ -85,7 +88,7 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
       </div>
       {isOpen && (
         <div className="sequencer-config__controls">
-          <SequencerConfigMidiOut sequenceName={sequenceName} />
+          <SequencerConfigMidiOut sequenceId={sequenceId} />
           {getSequencerConfigParameterConfig(sequenceName).map((parameterConfig) => (
             <ControllerParameter
               key={parameterConfig.actionMessage.parameter}

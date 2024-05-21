@@ -31,9 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const [isListeningForShortcut, setIsListeningForShortcut] = useState(false);
   const performAction = useSequencersState((state) => state.performAction);
-  const startListeningToNewShortcut = useSequencersState(
-    (state) => state.startEditingShortcut
-  );
+  const startListeningToNewShortcut = useSequencersState((state) => state.startEditingShortcut);
 
   const onMouseDownHandler: MouseEventHandler = () => {
     if (!actionMessage) return;

@@ -11,21 +11,22 @@ import { SequencerConfigMutation } from './SequencerConfig/SequencerConfigMutati
 require('./_Sequencer.scss');
 
 export const Sequencer: React.FC<SequencerProps> = ({
-  sequenceName,
+  sequenceId,
   channelsConfig,
   triggerCallback = () => {},
   sequencerConfigCallback,
   ...otherSequencerChannelProps
 }) => {
-  const { currentPatternPageLength, patternCount, currentPattern, sequenceType } =
+  const { currentPatternPageLength, patternCount, currentPattern, sequenceType, sequenceName } =
     useSequencersState((state) => {
-      const sequence = state.sequences.find(({ name }) => name === sequenceName)!;
+      const sequence = state.sequences.find(({ id }) => id === sequenceId)!;
 
       return {
         currentPatternPageLength: sequence.patterns[sequence.currentPattern].pages.length,
         currentPattern: sequence.currentPattern,
         patternCount: sequence.patterns.length,
         sequenceType: sequence.type,
+        sequenceName: sequence.name,
       };
     }, isEqual);
   const addSequencePattern = useSequencersState((state) => state.addSequencePattern);
@@ -43,7 +44,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   return (
     <div className="sequencer">
       <SequencerConfig
-        sequenceName={sequenceName}
+        sequenceId={sequenceId}
         sequencerConfigCallback={sequencerConfigCallback}
         tools={[
           {
@@ -85,13 +86,13 @@ export const Sequencer: React.FC<SequencerProps> = ({
         }
         configControls={
           stepPropertyCurrentlyBeingEdited === 'mutability' ? (
-            <SequencerConfigMutation sequenceName={sequenceName} />
+            <SequencerConfigMutation sequenceId={sequenceId} />
           ) : undefined
         }
       />
       <div className="sequencer__body">
         <SequencerGrid
-          sequenceName={sequenceName}
+          sequenceId={sequenceId}
           channelsConfig={channelsConfig}
           visiblePage={visiblePage}
           stepPropertyCurrentlyBeingEdited={stepPropertyCurrentlyBeingEdited}
@@ -117,9 +118,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
               isActive={currentPattern === patternIndex}
             />
           ))}
-          <Button icon="plus" onClick={() => addSequencePattern(sequenceName)} />
-          <Button icon="duplicate" onClick={() => addSequencePattern(sequenceName, true)} />
-          <Button icon="trash" onClick={() => removeCurrentSequencePattern(sequenceName)} />
+          <Button icon="plus" onClick={() => addSequencePattern(sequenceId)} />
+          <Button icon="duplicate" onClick={() => addSequencePattern(sequenceId, true)} />
+          <Button icon="trash" onClick={() => removeCurrentSequencePattern(sequenceId)} />
         </div>
       </div>
       <div className="sequencer__footer">
@@ -138,13 +139,13 @@ export const Sequencer: React.FC<SequencerProps> = ({
           <Button
             icon="plus"
             className="sequencer__pattern-pagination-control"
-            onClick={() => addPage(sequenceName)}
+            onClick={() => addPage(sequenceId)}
             style="mini"
           />
           <Button
             icon="duplicate"
             className="sequencer__pattern-pagination-control"
-            onClick={() => addPage(sequenceName, undefined, visiblePage)}
+            onClick={() => addPage(sequenceId, undefined, visiblePage)}
             style="mini"
           />
           <Button
@@ -152,12 +153,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
             className="sequencer__pattern-pagination-control"
             onClick={() => {
               if (currentPatternPageLength < 2) {
-                addPage(sequenceName);
+                addPage(sequenceId);
               } else {
                 setActivePageIndex(activePageIndex % (currentPatternPageLength - 1));
                 setVisiblePage(visiblePage % (currentPatternPageLength - 1));
               }
-              removePage(sequenceName, visiblePage);
+              removePage(sequenceId, visiblePage);
             }}
             style="mini"
           />

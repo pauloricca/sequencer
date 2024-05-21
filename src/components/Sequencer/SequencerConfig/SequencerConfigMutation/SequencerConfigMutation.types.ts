@@ -1,3 +1,3 @@
 export interface SequencerConfigMutationProps {
-  sequenceName: string;
+  sequenceId: string;
 }

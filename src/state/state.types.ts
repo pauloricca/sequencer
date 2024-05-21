@@ -27,34 +27,35 @@ export interface State {
 
 export interface StateActions {
   // Global
+  updateSequenceOrder: (oldIndex: number, newIndex: number) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setClockSpeed: (clockSpeed: number) => void;
   setSwing: (swing: number) => void;
   reset: (state?: State) => void;
 
   // Sequence
-  setStep: (sequenceName: string, step: StateSequenceStep, pageNumber: number) => void;
-  removeStep: (sequenceName: string, step: StateSequenceStep, pageNumber: number) => void;
+  setStep: (sequenceId: string, step: StateSequenceStep, pageNumber: number) => void;
+  removeStep: (sequenceId: string, step: StateSequenceStep, pageNumber: number) => void;
   updateStep: (
-    sequenceName: string,
+    sequenceId: string,
     step: StateSequenceStep,
     pageNumber: number,
     newSequenceSettings: Partial<StateSequenceStep>
   ) => void;
   addPage: (
-    sequenceName: string,
+    sequenceId: string,
     page?: StateSequencePatternPage,
     duplicatePageByIndex?: number
   ) => void;
-  removePage: (sequenceName: string, pageNumber: number) => void;
+  removePage: (sequenceId: string, pageNumber: number) => void;
   updateChannelConfig: (
-    sequenceName: string,
+    sequenceId: string,
     channelIndex: number,
     newChannelConfig: Partial<StateSequenceChannelConfig>
   ) => void;
-  updateSequence: (sequenceName: string, newSequenceSettings: Partial<StateSequence>) => void;
-  addSequencePattern: (sequenceName: string, doDuplicateCurrentPattern?: boolean) => void;
-  removeCurrentSequencePattern: (sequenceName: string) => void;
+  updateSequence: (sequenceId: string, newSequenceSettings: Partial<StateSequence>) => void;
+  addSequencePattern: (sequenceId: string, doDuplicateCurrentPattern?: boolean) => void;
+  removeCurrentSequencePattern: (sequenceId: string) => void;
   performAction: (actionMessage: StateActionMessage) => void;
 
   // Control shortcuts
@@ -81,6 +82,7 @@ export type StateAction = (set: StateSetter, get: StateGetter) => any;
 export type StateSequence = StateSequenceDrumMachine | StateSequenceSynth;
 
 export interface StateSequenceCommon {
+  id: string;
   name: string;
   nSteps: number;
   currentPattern: number;

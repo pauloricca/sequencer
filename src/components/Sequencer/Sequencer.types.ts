@@ -8,6 +8,6 @@ export interface SequencerProps
       'triggerCallback' | 'showChannelControls' | 'channelConfigComponents'
     >,
     Pick<SequencerConfigProps, 'sequencerConfigCallback'> {
-  sequenceName: string;
+  sequenceId: string;
   channelsConfig: StateSequenceChannelConfigCommon[];
 }

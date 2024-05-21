@@ -1,12 +1,7 @@
-import React, { ReactNode, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { ModalProps } from './Modal.types';
 require('./_Modal.scss');
-
-interface ModalProps {
-  children: ReactNode;
-  isOpen: boolean;
-  onClose?: () => void;
-}
 
 export const Modal: React.FC<ModalProps> = ({ children, isOpen, onClose = () => {} }) => {
   const container = useRef<HTMLElement>();

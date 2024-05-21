@@ -20,14 +20,17 @@ import {
 } from 'components/components.constants';
 
 export interface DrumMachineProps {
-  sequenceName: string;
+  sequenceId: string;
 }
 
-export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
+export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
   const isPlaying = useSequencersState((state) => state.isPlaying);
+  const sequenceName = useSequencersState(
+    (state) => state.sequences.find(({ id }) => id === sequenceId)?.name || ''
+  );
   const channelsConfig = useSequencersState(
     (state) =>
-      (state.sequences.find(({ name }) => name === sequenceName) as StateSequenceDrumMachine)
+      (state.sequences.find(({ id }) => id === sequenceId) as StateSequenceDrumMachine)
         .channelsConfig
   );
   const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
@@ -53,82 +56,79 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
     });
   }, [channelsConfig]);
 
-  const triggerSample = useCallback(
-    (channelIndex: number, step?: StateSequenceStep) => {
-      const sequence = useSequencersState
-        .getState()
-        .sequences.find(({ name }) => name === sequenceName) as StateSequenceDrumMachine;
+  const triggerSample = useCallback((channelIndex: number, step?: StateSequenceStep) => {
+    const sequence = useSequencersState
+      .getState()
+      .sequences.find(({ id }) => id === sequenceId) as StateSequenceDrumMachine;
 
-      const channel = sequence.channelsConfig[channelIndex];
+    const channel = sequence.channelsConfig[channelIndex];
 
-      if (!channel) return;
+    if (!channel) return;
 
-      const volumePercentage =
-        (sequence.channelsConfig[channelIndex].volume ?? 1) * (step?.volume ?? 1);
+    const volumePercentage =
+      (sequence.channelsConfig[channelIndex].volume ?? 1) * (step?.volume ?? 1);
 
-      if (channel.type === 'sample') {
-        const sample = samples.current[channel.audioFile];
+    if (channel.type === 'sample') {
+      const sample = samples.current[channel.audioFile];
 
-        if (sample?.player.loaded) {
-          // on samples we set volume in db, -Infinity to 0, as a Log base 1.1
-          const volumeLog20 = Math.log(volumePercentage) / Math.log(1.1);
+      if (sample?.player.loaded) {
+        // on samples we set volume in db, -Infinity to 0, as a Log base 1.1
+        const volumeLog20 = Math.log(volumePercentage) / Math.log(1.1);
 
-          const pitchAdjusted =
-            (getAdjustedPitch(
-              (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).pitch ?? 1
-            ) +
-              getAdjustedPitch(step?.pitch ?? 1)) /
-            2;
+        const pitchAdjusted =
+          (getAdjustedPitch(
+            (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).pitch ?? 1
+          ) +
+            getAdjustedPitch(step?.pitch ?? 1)) /
+          2;
 
-          sample.reverb.wet.value = channel.reverbWetness ?? 0;
-          // decay must be > 0
-          sample.reverb.decay = 0.01 + (channel.reverbDecay ?? 0);
+        sample.reverb.wet.value = channel.reverbWetness ?? 0;
+        // decay must be > 0
+        sample.reverb.decay = 0.01 + (channel.reverbDecay ?? 0);
 
-          sample.pan.pan.value = channel.pan ?? 0;
+        sample.pan.pan.value = channel.pan ?? 0;
 
-          sample.distortion.wet.value = channel.distortion ?? 0;
+        sample.distortion.wet.value = channel.distortion ?? 0;
 
-          sample.player.state === 'started' && sample.player.stop();
-          sample.player.volume.value = volumeLog20;
-          sample.player.playbackRate = pitchAdjusted;
-          sample.player.reverse =
-            (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample)
-              .isReversed ?? false;
-          sample.player.fadeIn = channel.attack ?? 0;
-          sample.player.fadeOut = channel.release ?? 0;
-          const startRandomnessShift = channel.startRandomness
-            ? (Math.random() - 0.5) * sample.player.buffer.duration * channel.startRandomness
-            : 0;
+        sample.player.state === 'started' && sample.player.stop();
+        sample.player.volume.value = volumeLog20;
+        sample.player.playbackRate = pitchAdjusted;
+        sample.player.reverse =
+          (sequence.channelsConfig[channelIndex] as StateSequenceChannelConfigSample).isReversed ??
+          false;
+        sample.player.fadeIn = channel.attack ?? 0;
+        sample.player.fadeOut = channel.release ?? 0;
+        const startRandomnessShift = channel.startRandomness
+          ? (Math.random() - 0.5) * sample.player.buffer.duration * channel.startRandomness
+          : 0;
 
-          sample.player.start(
-            undefined,
-            sample.player.buffer.duration * (channel.start ?? 0) + startRandomnessShift,
-            sample.player.buffer.duration * (channel.duration ?? 1)
-          );
-        }
-      } else if (channel.type === 'midi' && sequence.midiOutDeviceName) {
-        if (channel.volumeCC !== undefined) {
-          sendMidiMessage(sequence.midiOutDeviceName, {
-            cc: channel.volumeCC,
-            value: volumePercentage * 127,
-            channel: channel.midiChannel,
-          });
-        }
+        sample.player.start(
+          undefined,
+          sample.player.buffer.duration * (channel.start ?? 0) + startRandomnessShift,
+          sample.player.buffer.duration * (channel.duration ?? 1)
+        );
+      }
+    } else if (channel.type === 'midi' && sequence.midiOutDeviceName) {
+      if (channel.volumeCC !== undefined) {
         sendMidiMessage(sequence.midiOutDeviceName, {
-          note: channel.midiNote,
-          velocity: volumePercentage * 127,
-          channel: channel.midiChannel,
-        });
-      } else if (channel.type === 'midi-cc' && sequence.midiOutDeviceName) {
-        sendMidiMessage(sequence.midiOutDeviceName, {
-          cc: channel.midiCC,
-          value: channel.isFixedValue ? channel.midiCCValue : volumePercentage * 127,
+          cc: channel.volumeCC,
+          value: volumePercentage * 127,
           channel: channel.midiChannel,
         });
       }
-    },
-    [sequenceName]
-  );
+      sendMidiMessage(sequence.midiOutDeviceName, {
+        note: channel.midiNote,
+        velocity: volumePercentage * 127,
+        channel: channel.midiChannel,
+      });
+    } else if (channel.type === 'midi-cc' && sequence.midiOutDeviceName) {
+      sendMidiMessage(sequence.midiOutDeviceName, {
+        cc: channel.midiCC,
+        value: channel.isFixedValue ? channel.midiCCValue : volumePercentage * 127,
+        channel: channel.midiChannel,
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -142,7 +142,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
     (channelIndex: number) => {
       const channelConfig = channelsConfig[channelIndex];
       const update = (newChannelConfig: Partial<StateSequenceChannelConfig>) =>
-        updateChannelConfig(sequenceName, channelIndex, newChannelConfig);
+        updateChannelConfig(sequenceId, channelIndex, newChannelConfig);
 
       return (
         <>
@@ -350,7 +350,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceName }) => {
   return (
     <div className="drum-machine controller__instrument">
       <Sequencer
-        sequenceName={sequenceName}
+        sequenceId={sequenceId}
         channelsConfig={channelsConfig}
         triggerCallback={triggerSample}
         showChannelControls={true}

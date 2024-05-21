@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSequencersState } from 'state/state';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 import {
@@ -13,9 +13,11 @@ import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
 import { State } from 'state/state.types';
 import downloadObjectAsJson from 'utils/downloadObjectAsJson';
 import { Button } from 'components/Button/Button';
+import { ControllerControlsConfigModal } from './ControllerControlsConfigModal/ControllerControlsConfigModal';
 require('./_ControllerControls.scss');
 
 export const ControllerControls: React.FC = () => {
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
   const isPlaying = useSequencersState((state) => state.isPlaying);
   const setIsPlaying = useSequencersState((state) => state.setIsPlaying);
   const clockSpeed = useSequencersState((state) => state.clockSpeed);
@@ -43,6 +45,7 @@ export const ControllerControls: React.FC = () => {
 
   return (
     <div className="controller-controls">
+      <Button text="config" icon="cog" onClick={() => setIsConfigOpen(true)} />
       <Button text="reset" icon="delete" onClick={() => resetState()} />
       <Button
         text="load"
@@ -81,6 +84,7 @@ export const ControllerControls: React.FC = () => {
         />
       )}
       {!isPlaying && <Button text="play" icon="play" onClick={() => setIsPlaying(true)} />}
+      <ControllerControlsConfigModal isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} />
     </div>
   );
 };

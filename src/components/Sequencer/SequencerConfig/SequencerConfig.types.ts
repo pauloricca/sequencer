@@ -9,7 +9,7 @@ export default interface SequencerConfigTool {
 }
 
 export interface SequencerConfigProps {
-  sequenceName: string;
+  sequenceId: string;
   tools: SequencerConfigTool[];
   selectedTool?: keyof StateSequenceStepProperties | null;
   onSelectTool?: (value: keyof StateSequenceStepProperties | null) => void;

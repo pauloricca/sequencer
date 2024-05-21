@@ -15,20 +15,19 @@ import { getIntervalFromClockSpeed } from 'state/state.utils';
 import { SequencerProps } from 'components/Sequencer/Sequencer.types';
 
 interface SynthProps {
-  sequenceName: string;
+  sequenceId: string;
 }
 
-export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
-  const { rootNote, transpose, range, scale } = useSequencersState((state) => {
-    const sequence = state.sequences.find(
-      ({ name }) => name === sequenceName
-    ) as StateSequenceSynth;
+export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
+  const { rootNote, transpose, range, scale, sequenceName } = useSequencersState((state) => {
+    const sequence = state.sequences.find(({ id }) => id === sequenceId) as StateSequenceSynth;
 
     return {
       rootNote: sequence.rootNote,
       range: sequence.range,
       scale: sequence.scale,
       transpose: sequence.transpose,
+      sequenceName: sequence.name,
     };
   }, isEqual);
   const [synthChannels, setSynthChannels] = useState<StateSequenceChannelConfigMidiNote[]>([]);
@@ -60,7 +59,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
     (channelIndex: number, step?: StateSequenceStep) => {
       const sequence = useSequencersState
         .getState()
-        .sequences.find(({ name }) => name === sequenceName) as StateSequenceSynth;
+        .sequences.find(({ id }) => id === sequenceId) as StateSequenceSynth;
       const channel = synthChannels[channelIndex];
       const clockSpeed = useSequencersState.getState().clockSpeed;
 
@@ -77,7 +76,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
         isMonophonic: !sequence.isPolyphonic,
       });
     },
-    [sequenceName, synthChannels]
+    [synthChannels]
   );
 
   const sequencerConfigCallback: SequencerProps['sequencerConfigCallback'] = () =>
@@ -88,7 +87,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceName }) => {
   return (
     <div className="synth">
       <Sequencer
-        sequenceName={sequenceName}
+        sequenceId={sequenceId}
         channelsConfig={synthChannels}
         triggerCallback={triggerNote}
         sequencerConfigCallback={sequencerConfigCallback}

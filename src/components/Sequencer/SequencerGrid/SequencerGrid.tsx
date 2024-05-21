@@ -16,7 +16,7 @@ export interface SequencerGridProps
     | 'stepPropertyCurrentlyBeingEdited'
     | 'stepPropertyEditDirection'
   > {
-  sequenceName: string;
+  sequenceId: string;
   channelsConfig: StateSequenceChannelConfigCommon[];
   visiblePage: number;
   stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
@@ -25,7 +25,7 @@ export interface SequencerGridProps
 }
 
 export const SequencerGrid: React.FC<SequencerGridProps> = ({
-  sequenceName,
+  sequenceId,
   channelsConfig,
   triggerCallback = () => {},
   visiblePage,
@@ -35,7 +35,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   ...otherSequencerChannelProps
 }) => {
   const sequence = useSequencersState((state) =>
-    state.sequences.find(({ name }) => name === sequenceName)
+    state.sequences.find(({ id }) => id === sequenceId)
   );
   const updateStep = useSequencersState((state) => state.updateStep);
   const tick = useMetronome(sequence?.stepLength ?? 1);
@@ -95,7 +95,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
                 .forEach((step) => {
                   const newStepIndex = sample(emptyStepIndexesInChannel) as number;
 
-                  updateStep(sequenceName, step, pageNumber, {
+                  updateStep(sequenceId, step, pageNumber, {
                     stepIndex: newStepIndex,
                   });
 
@@ -125,7 +125,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
                 .forEach((step) => {
                   const newChannel = sample(emptyChannelInStepIndex) as number;
 
-                  updateStep(sequenceName, step, pageNumber, {
+                  updateStep(sequenceId, step, pageNumber, {
                     channel: newChannel,
                   });
 

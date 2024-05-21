@@ -3,12 +3,12 @@ import { useSequencersState } from 'state/state';
 import { SelectKnobMidi } from 'components/SelectKnob/SelectKnobMidi/SelectKnobMidi';
 
 export interface SequencerConfigMidiOutProps {
-  sequenceName: string;
+  sequenceId: string;
 }
 
-export const SequencerConfigMidiOut: React.FC<SequencerConfigMidiOutProps> = ({ sequenceName }) => {
+export const SequencerConfigMidiOut: React.FC<SequencerConfigMidiOutProps> = ({ sequenceId }) => {
   const midiOutDeviceName = useSequencersState(
-    (state) => state.sequences.find(({ name }) => name === sequenceName)?.midiOutDeviceName
+    (state) => state.sequences.find(({ id }) => id === sequenceId)?.midiOutDeviceName
   );
   const updateSequence = useSequencersState((state) => state.updateSequence);
 
@@ -16,7 +16,7 @@ export const SequencerConfigMidiOut: React.FC<SequencerConfigMidiOutProps> = ({ 
     <SelectKnobMidi
       type="output"
       value={midiOutDeviceName}
-      onChange={(value) => updateSequence(sequenceName, { midiOutDeviceName: value })}
+      onChange={(value) => updateSequence(sequenceId, { midiOutDeviceName: value })}
     />
   );
 };
