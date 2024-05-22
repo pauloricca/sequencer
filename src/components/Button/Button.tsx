@@ -1,22 +1,10 @@
 import { Icon } from '@blueprintjs/core';
 import classNames from 'classnames';
 import { PRESS_AND_HOLD_TIME } from 'components/ShortcutController/ShortcutController.constants';
-import React, { MouseEventHandler, ReactNode, useState } from 'react';
+import React, { MouseEventHandler, useState } from 'react';
 import { useSequencersState } from 'state/state';
-import { StateActionMessage } from 'state/state.types';
+import { ButtonProps } from './Button.types';
 require('./_Button.scss');
-
-interface ButtonProps {
-  children?: ReactNode;
-  text?: ReactNode;
-  className?: string;
-  icon?: string;
-  onClick?: () => void;
-  isActive?: boolean;
-  actionMessage?: StateActionMessage;
-  actionMessageDecimalPlaces?: number;
-  style?: 'normal' | 'mini';
-}
 
 export const Button: React.FC<ButtonProps> = ({
   children,
@@ -27,7 +15,8 @@ export const Button: React.FC<ButtonProps> = ({
   isActive,
   actionMessage,
   actionMessageDecimalPlaces,
-  style = 'normal',
+  type = 'normal',
+  style,
 }) => {
   const [isListeningForShortcut, setIsListeningForShortcut] = useState(false);
   const performAction = useSequencersState((state) => state.performAction);
@@ -71,12 +60,13 @@ export const Button: React.FC<ButtonProps> = ({
     <div
       className={classNames(
         'button',
-        `button--style-${style}`,
+        `button--style-${type}`,
         { 'button--is-active': isActive },
         className
       )}
       onClick={!isListeningForShortcut ? onClickHandler : undefined}
       onMouseDown={actionMessage ? onMouseDownHandler : undefined}
+      style={style}
     >
       {text}
       {children}

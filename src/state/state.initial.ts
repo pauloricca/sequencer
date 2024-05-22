@@ -1,5 +1,5 @@
 import { State, StateSequenceChannelConfig } from './state.types';
-import { getBlankPattern } from './state.utils';
+import { getDefaultPattern } from './state.utils';
 
 export const VOLCA_DRUM_MACHINE_CHANNELS: StateSequenceChannelConfig[] = [
   {
@@ -166,7 +166,7 @@ export const BASS_MIDI_OUTPUT = 'USB2.0-MIDI Port 1';
 export const SYNTH_MIDI_OUTPUT = 'JT-4000 MICRO';
 
 export const INITIAL_STATE: State = {
-  version: 2,
+  version: 3,
   isPlaying: false,
   clockSpeed: 130 * 4,
   swing: 0.5,
@@ -178,7 +178,7 @@ export const INITIAL_STATE: State = {
       nSteps: 16,
       stepLength: 1,
       currentPattern: 0,
-      patterns: [getBlankPattern()],
+      patterns: [getDefaultPattern()],
       channelsConfig: DRUM_MACHINE_CHANNELS,
       midiOutDeviceName: DRUM_MIDI_OUTPUT,
     },
@@ -195,7 +195,7 @@ export const INITIAL_STATE: State = {
       range: 11,
       currentPattern: 0,
       midiChannel: 1,
-      patterns: [getBlankPattern()],
+      patterns: [getDefaultPattern()],
       midiOutDeviceName: BASS_MIDI_OUTPUT,
       isPolyphonic: true,
     },
@@ -212,7 +212,7 @@ export const INITIAL_STATE: State = {
       range: 11,
       currentPattern: 0,
       midiChannel: 1,
-      patterns: [getBlankPattern()],
+      patterns: [getDefaultPattern()],
       midiOutDeviceName: SYNTH_MIDI_OUTPUT,
       isPolyphonic: true,
     },

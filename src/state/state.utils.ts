@@ -4,11 +4,10 @@ import {
   State,
   StateSequenceDrumMachine,
   StateSequencePattern,
+  StateSequencePatternPage,
   StateSequenceSynth,
 } from './state.types';
 import { merge } from 'lodash';
-
-export const getBlankPattern = (): StateSequencePattern => ({ pages: [{ steps: [] }] });
 
 export const getIntervalFromClockSpeed = (clockSpeed: number) => 60000 / clockSpeed;
 
@@ -16,9 +15,15 @@ export const getIntervalFromClockSpeed = (clockSpeed: number) => 60000 / clockSp
 export const migrate = (state: State, version: number) => {
   const newState = { ...INITIAL_STATE, ...state };
 
-  newState.sequences = newState.sequences.map((sequence) =>
-    merge(sequence, getDefaultSequence(sequence.type))
-  );
+  newState.sequences.forEach((sequence) => {
+    merge(sequence, getDefaultSequence(sequence.type));
+    sequence.patterns.forEach((pattern) => {
+      merge(pattern, getDefaultPattern());
+      pattern.pages.forEach((page) => {
+        merge(page, getDefaultPatternPage());
+      });
+    });
+  });
 
   if (state.version === undefined) {
     state.version = 0;
@@ -49,7 +54,7 @@ export const getDefaultSynth = (): StateSequenceSynth => ({
   range: 11,
   currentPattern: 0,
   midiChannel: 1,
-  patterns: [getBlankPattern()],
+  patterns: [getDefaultPattern()],
   isPolyphonic: true,
 });
 
@@ -60,8 +65,16 @@ export const getDefaultDrumMachine = (): StateSequenceDrumMachine => ({
   nSteps: 16,
   stepLength: 1,
   currentPattern: 0,
-  patterns: [getBlankPattern()],
+  patterns: [getDefaultPattern()],
   channelsConfig: [],
 });
 
-// TODO: Add function to prepare state for export. set isPlaying to False. set isBeingEdited to false;
+export const getDefaultPattern = (): StateSequencePattern => ({
+  id: nanoid(),
+  pages: [getDefaultPatternPage()],
+});
+
+export const getDefaultPatternPage = (): StateSequencePatternPage => ({
+  id: nanoid(),
+  steps: [],
+});

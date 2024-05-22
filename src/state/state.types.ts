@@ -48,6 +48,7 @@ export interface StateActions {
     duplicatePageByIndex?: number
   ) => void;
   removePage: (sequenceId: string, pageNumber: number) => void;
+  updatePageOrder: (sequenceId: string, oldIndex: number, newIndex: number) => void;
   updateChannelConfig: (
     sequenceId: string,
     channelIndex: number,
@@ -56,6 +57,7 @@ export interface StateActions {
   updateSequence: (sequenceId: string, newSequenceSettings: Partial<StateSequence>) => void;
   addSequencePattern: (sequenceId: string, doDuplicateCurrentPattern?: boolean) => void;
   removeCurrentSequencePattern: (sequenceId: string) => void;
+  updateSequencePatternOrder: (sequenceId: string, oldIndex: number, newIndex: number) => void;
   performAction: (actionMessage: StateActionMessage) => void;
 
   // Control shortcuts
@@ -119,10 +121,12 @@ export interface StateSequenceSynth extends StateSequenceCommon {
 }
 
 export interface StateSequencePattern {
+  id: string;
   pages: StateSequencePatternPage[];
 }
 
 export interface StateSequencePatternPage {
+  id: string;
   steps: StateSequenceStep[];
 }
 

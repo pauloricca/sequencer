@@ -11,7 +11,7 @@ import {
   StateSequenceChannelConfig,
 } from './state.types';
 import { INITIAL_STATE } from './state.initial';
-import { getBlankPattern, migrate } from './state.utils';
+import { getDefaultPattern, migrate } from './state.utils';
 import { Draft } from 'immer';
 import { cloneDeep } from 'lodash';
 import { nanoid } from 'nanoid';
@@ -100,7 +100,7 @@ const addPage: StateAction =
           page ??
             (duplicatePageByIndex !== undefined
               ? sequence.patterns[sequence.currentPattern].pages[duplicatePageByIndex]
-              : getBlankPattern().pages[0])
+              : getDefaultPattern().pages[0])
         );
       }
     });
@@ -113,6 +113,21 @@ const removePage: StateAction =
 
       if (sequence?.patterns[sequence.currentPattern]) {
         sequence.patterns[sequence.currentPattern].pages.splice(pageNumber, 1);
+      }
+    });
+
+const updatePageOrder: StateAction =
+  (set): StateActions['updatePageOrder'] =>
+  (sequenceId, oldIndex, newIndex) =>
+    set((state) => {
+      const sequence = getSequenceById(state.sequences, sequenceId);
+
+      if (sequence?.patterns[sequence.currentPattern]) {
+        sequence.patterns[sequence.currentPattern].pages = arrayMove(
+          sequence.patterns[sequence.currentPattern].pages,
+          oldIndex,
+          newIndex
+        );
       }
     });
 
@@ -223,7 +238,7 @@ const addSequencePattern: StateAction =
           ...sequence.patterns,
           doDuplicateCurrentPattern
             ? cloneDeep(sequence.patterns[sequence.currentPattern])
-            : getBlankPattern(),
+            : getDefaultPattern(),
         ],
         currentPattern: sequence.patterns.length,
       });
@@ -241,8 +256,38 @@ const removeCurrentSequencePattern: StateAction =
         patterns:
           sequence.patterns.length > 1
             ? sequence.patterns.filter((_, index) => index !== sequence.currentPattern)
-            : [getBlankPattern()],
+            : [getDefaultPattern()],
         currentPattern: Math.max(0, sequence.currentPattern - 1),
+      });
+    });
+
+const updateSequencePatternOrder: StateAction =
+  (set): StateActions['updateSequencePatternOrder'] =>
+  (sequenceId, oldIndex, newIndex) =>
+    set((state) => {
+      const sequence = getSequenceById(state.sequences, sequenceId);
+
+      if (!sequence) return;
+
+      sequence.patterns = arrayMove(sequence.patterns, oldIndex, newIndex);
+
+      if (sequence.currentPattern >= newIndex && sequence.currentPattern < oldIndex) {
+        sequence.currentPattern++;
+      } else if (sequence.currentPattern <= newIndex && sequence.currentPattern > oldIndex) {
+        sequence.currentPattern--;
+      } else if (sequence.currentPattern === oldIndex) {
+        sequence.currentPattern = newIndex;
+      }
+
+      state.controlShortcuts.shortcuts.forEach(({ actionMessage }) => {
+        if (
+          actionMessage.sequenceName === sequence.name &&
+          actionMessage.type === 'Sequence Param Change' &&
+          actionMessage.parameter === 'currentPattern' &&
+          actionMessage.value === oldIndex
+        ) {
+          actionMessage.value = newIndex;
+        }
       });
     });
 
@@ -360,10 +405,12 @@ export const useSequencersState = create<State & StateActions>()(
       updateStep: updateStep(set, get),
       addPage: addPage(set, get),
       removePage: removePage(set, get),
+      updatePageOrder: updatePageOrder(set, get),
       updateChannelConfig: updateChannelConfig(set, get),
       updateSequence: updateSequence(set, get),
       addSequencePattern: addSequencePattern(set, get),
       removeCurrentSequencePattern: removeCurrentSequencePattern(set, get),
+      updateSequencePatternOrder: updateSequencePatternOrder(set, get),
       performAction: performAction(set, get),
       startEditingShortcut: startListeningToNewShortcut(set, get),
       stopEditingShortcut: stopEditingShortcut(set, get),

@@ -27,6 +27,7 @@ export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'
     isEqual
   );
   const updateSequenceOrder = useSequencersState((state) => state.updateSequenceOrder);
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {

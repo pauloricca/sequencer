@@ -8,6 +8,23 @@ import { isEqual } from 'lodash';
 import { SequencerProps } from './Sequencer.types';
 import { Button } from 'components/Button/Button';
 import { SequencerConfigMutation } from './SequencerConfig/SequencerConfigMutation/SequencerConfigMutation';
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
+import { SequencerSortingItem } from './SequencerSortingItem/SequencerSortingItem';
 require('./_Sequencer.scss');
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -17,14 +34,14 @@ export const Sequencer: React.FC<SequencerProps> = ({
   sequencerConfigCallback,
   ...otherSequencerChannelProps
 }) => {
-  const { currentPatternPageLength, patternCount, currentPattern, sequenceType, sequenceName } =
+  const { patternIds, currentPatternPageIds, currentPattern, sequenceType, sequenceName } =
     useSequencersState((state) => {
       const sequence = state.sequences.find(({ id }) => id === sequenceId)!;
 
       return {
-        currentPatternPageLength: sequence.patterns[sequence.currentPattern].pages.length,
+        currentPatternPageIds: sequence.patterns[sequence.currentPattern].pages.map(({ id }) => id),
         currentPattern: sequence.currentPattern,
-        patternCount: sequence.patterns.length,
+        patternIds: sequence.patterns.map(({ id }) => id),
         sequenceType: sequence.type,
         sequenceName: sequence.name,
       };
@@ -40,6 +57,56 @@ export const Sequencer: React.FC<SequencerProps> = ({
   const [stepPropertyCurrentlyBeingEdited, setStepPropertyCurrentlyBeingEdited] = useState<
     keyof StateSequenceStepProperties | null
   >(null);
+  const updateSequencePatternOrder = useSequencersState(
+    (state) => state.updateSequencePatternOrder
+  );
+  const updatePageOrder = useSequencersState((state) => state.updatePageOrder);
+
+  const sortingSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 4,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const patternSortingHandleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over?.id) {
+      updateSequencePatternOrder(sequenceId, active.id as number, over.id as number);
+    }
+  };
+
+  const pageSortingHandleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = currentPatternPageIds.findIndex((id) => id === active.id);
+      const newIndex = currentPatternPageIds.findIndex((id) => id === over?.id);
+
+      updatePageOrder(sequenceId, oldIndex, newIndex);
+
+      if (activePageIndex >= newIndex && activePageIndex < oldIndex) {
+        setActivePageIndex(activePageIndex + 1);
+      } else if (activePageIndex <= newIndex && activePageIndex > oldIndex) {
+        setActivePageIndex(activePageIndex - 1);
+      } else if (activePageIndex === oldIndex) {
+        setActivePageIndex(newIndex);
+      }
+
+      if (visiblePage >= newIndex && visiblePage < oldIndex) {
+        setVisiblePage(visiblePage + 1);
+      } else if (visiblePage <= newIndex && visiblePage > oldIndex) {
+        setVisiblePage(visiblePage - 1);
+      } else if (visiblePage === oldIndex) {
+        setVisiblePage(newIndex);
+      }
+    }
+  };
 
   return (
     <div className="sequencer">
@@ -105,10 +172,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
           {...otherSequencerChannelProps}
         />
         <div className="sequencer__patterns">
-          {[...Array(patternCount).keys()].map((_, patternIndex) => (
+          {patternIds.map((id, patternIndex) => (
             <Button
-              text={patternIndex}
-              key={patternIndex}
+              text={id}
+              key={id}
               actionMessage={{
                 type: 'Sequence Param Change',
                 parameter: 'currentPattern',
@@ -125,42 +192,55 @@ export const Sequencer: React.FC<SequencerProps> = ({
       </div>
       <div className="sequencer__footer">
         <div className="sequencer__pattern-pagination">
-          {[...Array(currentPatternPageLength)].map((_, pageNumber) => (
-            <Button
-              className={classNames('sequencer__pattern-pagination-page', {
-                'sequencer__pattern-pagination-page--is-visible': pageNumber === activePageIndex,
-              })}
-              key={pageNumber}
-              onClick={() => setVisiblePage(pageNumber)}
-              isActive={pageNumber === visiblePage}
-              style="mini"
-            />
-          ))}
+          <DndContext
+            sensors={sortingSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={pageSortingHandleDragEnd}
+            modifiers={[restrictToHorizontalAxis]}
+          >
+            <SortableContext
+              items={currentPatternPageIds.map((id) => ({ id }))}
+              strategy={horizontalListSortingStrategy}
+            >
+              {currentPatternPageIds.map((id, pageNumber) => (
+                <SequencerSortingItem
+                  className={classNames('sequencer__pattern-pagination-page', {
+                    'sequencer__pattern-pagination-page--is-visible':
+                      pageNumber === activePageIndex,
+                  })}
+                  key={id}
+                  id={id}
+                  onClick={() => setVisiblePage(pageNumber)}
+                  isActive={pageNumber === visiblePage}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
           <Button
             icon="plus"
             className="sequencer__pattern-pagination-control"
             onClick={() => addPage(sequenceId)}
-            style="mini"
+            type="mini"
           />
           <Button
             icon="duplicate"
             className="sequencer__pattern-pagination-control"
             onClick={() => addPage(sequenceId, undefined, visiblePage)}
-            style="mini"
+            type="mini"
           />
           <Button
             icon="trash"
             className="sequencer__pattern-pagination-control"
             onClick={() => {
-              if (currentPatternPageLength < 2) {
+              if (currentPatternPageIds.length < 2) {
                 addPage(sequenceId);
               } else {
-                setActivePageIndex(activePageIndex % (currentPatternPageLength - 1));
-                setVisiblePage(visiblePage % (currentPatternPageLength - 1));
+                setActivePageIndex(activePageIndex % (currentPatternPageIds.length - 1));
+                setVisiblePage(visiblePage % (currentPatternPageIds.length - 1));
               }
               removePage(sequenceId, visiblePage);
             }}
-            style="mini"
+            type="mini"
           />
         </div>
       </div>
