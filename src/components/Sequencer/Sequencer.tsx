@@ -24,7 +24,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { restrictToHorizontalAxis, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { SequencerSortingItem } from './SequencerSortingItem/SequencerSortingItem';
+import { DragToSortItem } from 'components/DragToSortItem/DragToSortItem';
 require('./_Sequencer.scss');
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -186,18 +186,18 @@ export const Sequencer: React.FC<SequencerProps> = ({
               strategy={verticalListSortingStrategy}
             >
               {patternIds.map((id, patternIndex) => (
-                <SequencerSortingItem
-                  key={id}
-                  id={id}
-                  text={patternIndex}
-                  actionMessage={{
-                    type: 'Sequence Param Change',
-                    parameter: 'currentPattern',
-                    value: patternIndex,
-                    sequenceName,
-                  }}
-                  isActive={currentPattern === patternIndex}
-                />
+                <DragToSortItem key={id} id={id}>
+                  <Button
+                    text={patternIndex}
+                    actionMessage={{
+                      type: 'Sequence Param Change',
+                      parameter: 'currentPattern',
+                      value: patternIndex,
+                      sequenceName,
+                    }}
+                    isActive={currentPattern === patternIndex}
+                  />
+                </DragToSortItem>
               ))}
             </SortableContext>
           </DndContext>
@@ -219,17 +219,17 @@ export const Sequencer: React.FC<SequencerProps> = ({
               strategy={horizontalListSortingStrategy}
             >
               {currentPatternPageIds.map((id, pageNumber) => (
-                <SequencerSortingItem
-                  className={classNames('sequencer__pattern-pagination-page', {
-                    'sequencer__pattern-pagination-page--is-visible':
-                      pageNumber === activePageIndex,
-                  })}
-                  type="mini"
-                  key={id}
-                  id={id}
-                  onClick={() => setVisiblePage(pageNumber)}
-                  isActive={pageNumber === visiblePage}
-                />
+                <DragToSortItem key={id} id={id}>
+                  <Button
+                    className={classNames('sequencer__pattern-pagination-page', {
+                      'sequencer__pattern-pagination-page--is-visible':
+                        pageNumber === activePageIndex,
+                    })}
+                    type="mini"
+                    onClick={() => setVisiblePage(pageNumber)}
+                    isActive={pageNumber === visiblePage}
+                  />
+                </DragToSortItem>
               ))}
             </SortableContext>
           </DndContext>

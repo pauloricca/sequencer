@@ -1,17 +1,13 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button } from 'components/Button/Button';
-import { ButtonProps } from 'components/Button/Button.types';
 
-interface SequencerSortingItemProps extends ButtonProps {
+interface DragToSortItemProps {
+  children: ReactNode;
   id: string;
 }
 
-export const SequencerSortingItem: React.FC<SequencerSortingItemProps> = ({
-  id,
-  ...buttonProps
-}) => {
+export const DragToSortItem: React.FC<DragToSortItemProps> = ({ children, id }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id,
   });
@@ -23,7 +19,7 @@ export const SequencerSortingItem: React.FC<SequencerSortingItemProps> = ({
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Button {...buttonProps} />
+      {children}
     </div>
   );
 };
