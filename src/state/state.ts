@@ -11,7 +11,7 @@ import {
   StateSequenceChannelConfig,
 } from './state.types';
 import { INITIAL_STATE } from './state.initial';
-import { getDefaultPattern, migrate } from './state.utils';
+import { getDefaultPattern, getDefaultPatternPage, migrate } from './state.utils';
 import { Draft } from 'immer';
 import { cloneDeep } from 'lodash';
 import { nanoid } from 'nanoid';
@@ -99,8 +99,13 @@ const addPage: StateAction =
         sequence.patterns[sequence.currentPattern].pages.push(
           page ??
             (duplicatePageByIndex !== undefined
-              ? sequence.patterns[sequence.currentPattern].pages[duplicatePageByIndex]
-              : getDefaultPattern().pages[0])
+              ? {
+                  ...cloneDeep(
+                    sequence.patterns[sequence.currentPattern].pages[duplicatePageByIndex]
+                  ),
+                  id: nanoid(),
+                }
+              : getDefaultPatternPage())
         );
       }
     });
@@ -205,8 +210,12 @@ const updateSequenceAction = (
       );
     }
 
-    // Check if we need to update shortcuts when we change the sequence name
+    // Check if we need to update shortcuts when we change the sequence name and don't allow duplicate names
     if (newSequenceSettings.name !== undefined) {
+      if (state.sequences.find(({ name }) => name === newSequenceSettings.name)) {
+        return;
+      }
+
       state.controlShortcuts.shortcuts.forEach(({ actionMessage }) => {
         if (actionMessage.sequenceName === sequence.name) {
           actionMessage.sequenceName = newSequenceSettings.name || '';
@@ -237,7 +246,7 @@ const addSequencePattern: StateAction =
         patterns: [
           ...sequence.patterns,
           doDuplicateCurrentPattern
-            ? cloneDeep(sequence.patterns[sequence.currentPattern])
+            ? { ...cloneDeep({ ...sequence.patterns[sequence.currentPattern] }), id: nanoid() }
             : getDefaultPattern(),
         ],
         currentPattern: sequence.patterns.length,

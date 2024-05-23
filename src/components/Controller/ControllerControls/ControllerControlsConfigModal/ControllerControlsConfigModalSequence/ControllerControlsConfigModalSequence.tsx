@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useSequencersState } from 'state/state';
-import { Icon, InputGroup } from '@blueprintjs/core';
+import { Icon } from '@blueprintjs/core';
 import classNames from 'classnames';
 require('./_ControllerControlsConfigModalSequence.scss');
 
@@ -19,6 +19,19 @@ export const ControllerControlsConfigModalSequence: React.FC<
     id,
   });
   const updateSequence = useSequencersState((state) => state.updateSequence);
+  // Intermediate sequence name so that we can temporarily have duplicate names
+  const [intermediateSequenceName, setIntermediateSequenceName] = useState(name);
+  const isSequenceNameDuplicated = useSequencersState((state) =>
+    state.sequences.find(
+      ({ id: otherId, name }) => name === intermediateSequenceName && otherId !== id
+    )
+  );
+
+  useEffect(() => {
+    if (!isSequenceNameDuplicated) {
+      updateSequence(id, { name: intermediateSequenceName });
+    }
+  }, [intermediateSequenceName]);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -39,12 +52,16 @@ export const ControllerControlsConfigModalSequence: React.FC<
         icon="drag-handle-horizontal"
         {...listeners}
       />
-      <InputGroup
-        className="controller-controls-config-modal-sequence__name-input"
-        value={name}
+      <input
+        type="text"
+        className={classNames('controller-controls-config-modal-sequence__name-input', {
+          'input--in-error': isSequenceNameDuplicated,
+        })}
+        value={intermediateSequenceName}
         onClick={(ev) => ev.stopPropagation()}
-        onValueChange={(value) => updateSequence(id, { name: value })}
+        onChange={(ev) => setIntermediateSequenceName((ev.target as HTMLInputElement).value)}
       />
+      {isSequenceNameDuplicated && <p>duplicated name</p>}
       <div className="controller-controls-config-modal-sequence__type">{type}</div>
     </div>
   );

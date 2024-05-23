@@ -7,7 +7,7 @@ import {
   StateSequencePatternPage,
   StateSequenceSynth,
 } from './state.types';
-import { merge } from 'lodash';
+import { cloneDeep } from 'lodash';
 
 export const getIntervalFromClockSpeed = (clockSpeed: number) => 60000 / clockSpeed;
 
@@ -15,12 +15,14 @@ export const getIntervalFromClockSpeed = (clockSpeed: number) => 60000 / clockSp
 export const migrate = (state: State, version: number) => {
   const newState = { ...INITIAL_STATE, ...state };
 
+  console.log('before migration', cloneDeep(newState));
+
   newState.sequences.forEach((sequence) => {
-    merge(sequence, getDefaultSequence(sequence.type));
+    addNonExistentProperties(sequence, getDefaultSequence(sequence.type));
     sequence.patterns.forEach((pattern) => {
-      merge(pattern, getDefaultPattern());
+      addNonExistentProperties(pattern, getDefaultPattern());
       pattern.pages.forEach((page) => {
-        merge(page, getDefaultPatternPage());
+        addNonExistentProperties(page, getDefaultPatternPage());
       });
     });
   });
@@ -35,7 +37,18 @@ export const migrate = (state: State, version: number) => {
 
   newState.version = INITIAL_STATE.version;
 
+  console.log('after migration', cloneDeep(newState));
+
   return newState;
+};
+
+// Copies properties from source to destination, if they don't exist in destination
+export const addNonExistentProperties = (destination: any, source: any) => {
+  Object.keys(source).forEach((key) => {
+    if (!Object.keys(destination).includes(key)) {
+      destination[key] = source[key];
+    }
+  });
 };
 
 export const getDefaultSequence = (type: 'synth' | 'drum-machine') =>

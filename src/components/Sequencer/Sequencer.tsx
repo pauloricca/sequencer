@@ -23,7 +23,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
+import { restrictToHorizontalAxis, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SequencerSortingItem } from './SequencerSortingItem/SequencerSortingItem';
 require('./_Sequencer.scss');
 
@@ -76,8 +76,11 @@ export const Sequencer: React.FC<SequencerProps> = ({
   const patternSortingHandleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (over && active.id !== over?.id) {
-      updateSequencePatternOrder(sequenceId, active.id as number, over.id as number);
+    if (active.id !== over?.id) {
+      const oldIndex = patternIds.findIndex((id) => id === active.id);
+      const newIndex = patternIds.findIndex((id) => id === over?.id);
+
+      updateSequencePatternOrder(sequenceId, oldIndex, newIndex);
     }
   };
 
@@ -172,19 +175,32 @@ export const Sequencer: React.FC<SequencerProps> = ({
           {...otherSequencerChannelProps}
         />
         <div className="sequencer__patterns">
-          {patternIds.map((id, patternIndex) => (
-            <Button
-              text={id}
-              key={id}
-              actionMessage={{
-                type: 'Sequence Param Change',
-                parameter: 'currentPattern',
-                value: patternIndex,
-                sequenceName,
-              }}
-              isActive={currentPattern === patternIndex}
-            />
-          ))}
+          <DndContext
+            sensors={sortingSensors}
+            collisionDetection={closestCenter}
+            onDragEnd={patternSortingHandleDragEnd}
+            modifiers={[restrictToVerticalAxis]}
+          >
+            <SortableContext
+              items={patternIds.map((id) => ({ id }))}
+              strategy={verticalListSortingStrategy}
+            >
+              {patternIds.map((id, patternIndex) => (
+                <SequencerSortingItem
+                  key={id}
+                  id={id}
+                  text={patternIndex}
+                  actionMessage={{
+                    type: 'Sequence Param Change',
+                    parameter: 'currentPattern',
+                    value: patternIndex,
+                    sequenceName,
+                  }}
+                  isActive={currentPattern === patternIndex}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
           <Button icon="plus" onClick={() => addSequencePattern(sequenceId)} />
           <Button icon="duplicate" onClick={() => addSequencePattern(sequenceId, true)} />
           <Button icon="trash" onClick={() => removeCurrentSequencePattern(sequenceId)} />
@@ -208,6 +224,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                     'sequencer__pattern-pagination-page--is-visible':
                       pageNumber === activePageIndex,
                   })}
+                  type="mini"
                   key={id}
                   id={id}
                   onClick={() => setVisiblePage(pageNumber)}

@@ -3,7 +3,6 @@ import * as Tone from 'tone';
 import { Sequencer } from 'components/Sequencer/Sequencer';
 import { sendMidiMessage } from 'utils/midi';
 import { useSequencersState } from 'state/state';
-import { InputGroup } from '@blueprintjs/core';
 import {
   StateSequenceChannelConfig,
   StateSequenceChannelConfigSample,
@@ -146,9 +145,10 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
 
       return (
         <>
-          <InputGroup
+          <input
+            type="text"
             value={channelConfig.name}
-            onValueChange={(value) => update({ name: value })}
+            onChange={(ev) => update({ name: (ev.target as HTMLInputElement).value })}
           />
           <SelectKnob
             label="volume"
@@ -227,9 +227,10 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
           )}
           {channelConfig.type === 'sample' && (
             <>
-              <InputGroup
+              <input
+                type="text"
                 value={channelConfig.audioFile ?? 'audio file'}
-                onValueChange={(value) => update({ audioFile: value })}
+                onChange={(ev) => update({ audioFile: (ev.target as HTMLInputElement).value })}
               />
               <SelectKnob
                 label={`pitch: ${channelConfig.pitch ?? 1}`}

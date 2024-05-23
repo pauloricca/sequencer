@@ -65,10 +65,10 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
 
   const onStepToggleHandler = useCallback((stepIndex: number, currentStep?: StateSequenceStep) => {
     if (currentStep) {
-      removeStep(sequence.name, currentStep, visiblePageRef.current);
+      removeStep(sequence.id, currentStep, visiblePageRef.current);
     } else {
       setStep(
-        sequence.name,
+        sequence.id,
         {
           channel: channelIndex,
           stepIndex,

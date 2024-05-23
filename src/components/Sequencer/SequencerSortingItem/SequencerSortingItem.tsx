@@ -23,7 +23,7 @@ export const SequencerSortingItem: React.FC<SequencerSortingItemProps> = ({
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Button type="mini" {...buttonProps} />
+      <Button {...buttonProps} />
     </div>
   );
 };

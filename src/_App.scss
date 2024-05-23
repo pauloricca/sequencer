@@ -70,9 +70,14 @@ input[type=text] {
 	color: white;
 	font-family: inherit;
 	padding: 0 6px;
+	min-height: 30px;
 
 	&:focus {
 		background-color: rgb(116, 195, 0);
+	}
+
+	&.input--in-error {
+		background-color: rgb(255, 0, 0);
 	}
 }
 
