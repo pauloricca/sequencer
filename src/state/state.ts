@@ -17,6 +17,13 @@ import { cloneDeep } from 'lodash';
 import { nanoid } from 'nanoid';
 import { arrayMove } from '@dnd-kit/sortable';
 
+const removeSequence: StateAction =
+  (set): StateActions['removeSequence'] =>
+  (sequenceId) =>
+    set((state) => {
+      state.sequences = state.sequences.filter(({ id }) => id !== sequenceId);
+    });
+
 const updateSequenceOrder: StateAction =
   (set): StateActions['updateSequenceOrder'] =>
   (oldIndex, newIndex) =>
@@ -405,6 +412,7 @@ export const useSequencersState = create<State & StateActions>()(
   persist(
     immer((set, get) => ({
       ...INITIAL_STATE,
+      removeSequence: removeSequence(set, get),
       updateSequenceOrder: updateSequenceOrder(set, get),
       setIsPlaying: setIsPlaying(set, get),
       setClockSpeed: setClockSpeed(set, get),

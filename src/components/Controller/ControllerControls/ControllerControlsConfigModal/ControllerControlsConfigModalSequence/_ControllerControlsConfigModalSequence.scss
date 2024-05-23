@@ -23,4 +23,14 @@
 		font-size: 0.7rem;
 		margin-top: 6px;
 	}
+
+	&__remove-button {
+		position: absolute;
+		bottom: 8px;
+		left: 27px;
+
+		svg {
+			height: 12px;
+		}
+	}
 }

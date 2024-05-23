@@ -27,6 +27,7 @@ export interface State {
 
 export interface StateActions {
   // Global
+  removeSequence: (sequenceId: string) => void;
   updateSequenceOrder: (oldIndex: number, newIndex: number) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setClockSpeed: (clockSpeed: number) => void;

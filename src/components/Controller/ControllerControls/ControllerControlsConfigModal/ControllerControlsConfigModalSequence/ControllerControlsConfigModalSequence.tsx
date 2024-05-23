@@ -19,6 +19,7 @@ export const ControllerControlsConfigModalSequence: React.FC<
     id,
   });
   const updateSequence = useSequencersState((state) => state.updateSequence);
+  const removeSequence = useSequencersState((state) => state.removeSequence);
   // Intermediate sequence name so that we can temporarily have duplicate names
   const [intermediateSequenceName, setIntermediateSequenceName] = useState(name);
   const isSequenceNameDuplicated = useSequencersState((state) =>
@@ -62,6 +63,11 @@ export const ControllerControlsConfigModalSequence: React.FC<
         onChange={(ev) => setIntermediateSequenceName((ev.target as HTMLInputElement).value)}
       />
       {isSequenceNameDuplicated && <p>duplicated name</p>}
+      <Icon
+        icon="trash"
+        className="controller-controls-config-modal-sequence__remove-button"
+        onClick={() => confirm(`Are you sure you want to remove ${name}?`) && removeSequence(id)}
+      />
       <div className="controller-controls-config-modal-sequence__type">{type}</div>
     </div>
   );
