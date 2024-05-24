@@ -165,7 +165,7 @@ export interface StateSequenceChannelConfigMidiCC extends StateSequenceChannelCo
   /**
    * When true, value is always midiCCValue, otherwise it's set by "volume" in StateSequenceChannelConfigCommon
    */
-  isFixedValue: boolean;
+  isFixedValue?: boolean;
   midiCCValue?: number;
 }
 
