@@ -2,4 +2,11 @@
 	&__sequences {
 		padding: 100px;
 	}
+
+	&__presets {
+    display: grid;
+    grid-row-gap: 8px;
+    grid-column-gap: 8px;
+    grid-template-columns: repeat(2, 1fr);
+	}
 }

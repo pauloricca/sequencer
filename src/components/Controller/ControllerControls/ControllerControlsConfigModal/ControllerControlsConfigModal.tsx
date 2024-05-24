@@ -19,6 +19,8 @@ import {
 import { isEqual } from 'lodash';
 import { ControllerControlsConfigModalSequence } from './ControllerControlsConfigModalSequence/ControllerControlsConfigModalSequence';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { PRESETS } from 'presets/presets';
+import { Button } from 'components/Button/Button';
 require('./_ControllerControlsConfigModal.scss');
 
 export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'>> = (props) => {
@@ -26,6 +28,7 @@ export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'
     (state) => state.sequences.map(({ id, name, type }) => ({ id, name, type })),
     isEqual
   );
+  const addSequence = useSequencersState((state) => state.addSequence);
   const updateSequenceOrder = useSequencersState((state) => state.updateSequenceOrder);
 
   const sensors = useSensors(
@@ -63,6 +66,15 @@ export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'
                 ))}
               </SortableContext>
             </DndContext>
+          </div>
+          <div className="controller-controls-config-modal__presets">
+            {PRESETS.map((preset) => (
+              <Button
+                key={preset.name}
+                text={`add ${preset.name}`}
+                onClick={() => addSequence(preset)}
+              />
+            ))}
           </div>
         </>
       )}

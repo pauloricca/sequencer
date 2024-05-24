@@ -92,7 +92,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
     (value: number, step?: StateSequenceStep) =>
       step &&
       stepPropertyCurrentlyBeingEdited &&
-      updateStep(sequence.name, step, visiblePageRef.current, {
+      updateStep(sequence.id, step, visiblePageRef.current, {
         [stepPropertyCurrentlyBeingEdited]:
           value * (MAX_STEP_VALUES[stepPropertyCurrentlyBeingEdited] ?? 1),
       }),
@@ -111,13 +111,13 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
         {!channelConfig.isMuted && (
           <Icon
             icon="volume-up"
-            onClick={() => updateChannelConfig(sequence.name, channelIndex, { isMuted: true })}
+            onClick={() => updateChannelConfig(sequence.id, channelIndex, { isMuted: true })}
           />
         )}
         {channelConfig.isMuted && (
           <Icon
             icon="volume-off"
-            onClick={() => updateChannelConfig(sequence.name, channelIndex, { isMuted: false })}
+            onClick={() => updateChannelConfig(sequence.id, channelIndex, { isMuted: false })}
           />
         )}
       </div>

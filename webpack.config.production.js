@@ -65,6 +65,7 @@ module.exports = (env, options) =>
         extensions: [".tsx", ".ts", ".js"],
         alias: {
           components: path.resolve(__dirname, "./src/components/"),
+          presets: path.resolve(__dirname, "./src/presets/"),
           state: path.resolve(__dirname, "./src/state/"),
           utils: path.resolve(__dirname, "./src/utils/"),
         },

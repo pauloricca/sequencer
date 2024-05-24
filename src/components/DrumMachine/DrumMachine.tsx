@@ -339,6 +339,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
                   { value: true, key: 'reverse', label: 'reverse' },
                 ]}
                 onChange={(value) => update({ isReversed: value })}
+                modalColumns={2}
               />
             </>
           )}

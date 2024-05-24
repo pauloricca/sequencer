@@ -17,6 +17,29 @@ import { cloneDeep } from 'lodash';
 import { nanoid } from 'nanoid';
 import { arrayMove } from '@dnd-kit/sortable';
 
+const addSequence: StateAction =
+  (set): StateActions['addSequence'] =>
+  (sequence) =>
+    set((state) => {
+      const sequenceName = sequence.name;
+      let sequenceNameDuplicateCount = 1;
+      let sequenceNameDuplicateCountAppend = '';
+
+      while (
+        state.sequences.find(
+          ({ name }) => name === `${sequenceName}${sequenceNameDuplicateCountAppend}`
+        )
+      ) {
+        sequenceNameDuplicateCount += 1;
+        sequenceNameDuplicateCountAppend = ` ${sequenceNameDuplicateCount}`;
+      }
+      state.sequences.push({
+        ...sequence,
+        id: nanoid(),
+        name: `${sequenceName}${sequenceNameDuplicateCountAppend}`,
+      });
+    });
+
 const removeSequence: StateAction =
   (set): StateActions['removeSequence'] =>
   (sequenceId) =>
@@ -412,6 +435,7 @@ export const useSequencersState = create<State & StateActions>()(
   persist(
     immer((set, get) => ({
       ...INITIAL_STATE,
+      addSequence: addSequence(set, get),
       removeSequence: removeSequence(set, get),
       updateSequenceOrder: updateSequenceOrder(set, get),
       setIsPlaying: setIsPlaying(set, get),
