@@ -25,6 +25,7 @@ import {
 import { restrictToHorizontalAxis, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { DragToSortItem } from 'components/DragToSortItem/DragToSortItem';
 import { Icon } from '@blueprintjs/core';
+import { getCurrentPattern } from 'state/state.utils';
 require('./_Sequencer.scss');
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -39,7 +40,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
       const sequence = state.sequences.find(({ id }) => id === sequenceId)!;
 
       return {
-        currentPatternPageIds: sequence.patterns[sequence.currentPattern].pages.map(({ id }) => id),
+        currentPatternPageIds: getCurrentPattern(sequence).pages.map(({ id }) => id),
         currentPattern: sequence.currentPattern,
         patternIds: sequence.patterns.map(({ id }) => id),
         sequenceType: sequence.type,
@@ -188,14 +189,14 @@ export const Sequencer: React.FC<SequencerProps> = ({
               {patternIds.map((id, patternIndex) => (
                 <DragToSortItem key={id} id={id}>
                   <Button
-                    text={patternIndex}
+                    text={patternIndex + 1}
                     actionMessage={{
                       type: 'Sequence Param Change',
                       parameter: 'currentPattern',
-                      value: patternIndex,
+                      value: patternIndex + 1,
                       sequenceName,
                     }}
-                    isActive={currentPattern === patternIndex}
+                    isActive={currentPattern === patternIndex + 1}
                   />
                 </DragToSortItem>
               ))}

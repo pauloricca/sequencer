@@ -5,6 +5,7 @@ import { useMetronome } from 'utils/metronome';
 import { useSequencersState } from 'state/state';
 import { sample, shuffle, uniq } from 'lodash';
 import { DEFAULT_STEP_VALUES } from '../SequencerChannel/SequencerChannel.constants';
+import { getCurrentPattern } from 'state/state.utils';
 require('./_SequencerGrid.scss');
 
 export interface SequencerGridProps
@@ -52,14 +53,13 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
     if (tick <= 0) {
       activeStepIndex.current = tick;
     } else if (activeStepIndex.current === 0) {
-      const nextPage =
-        (activePageIndex + 1) % sequence.patterns[sequence.currentPattern].pages.length;
+      const nextPage = (activePageIndex + 1) % getCurrentPattern(sequence).pages.length;
 
       setActivePageIndex(nextPage);
 
       // Restarting the pattern and need to mutate it?
       if (nextPage === 0 && (sequence.mutationAmount || 0) > 0) {
-        sequence.patterns[sequence.currentPattern].pages.forEach((page, pageNumber) => {
+        getCurrentPattern(sequence).pages.forEach((page, pageNumber) => {
           if (!sequence.mutationAmount) return;
 
           const mutableSteps = shuffle(
@@ -142,9 +142,9 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
     }
 
     // Trigger steps
-    const stepsToTrigger = sequence.patterns[sequence.currentPattern].pages[
-      activePageIndex
-    ].steps.filter(({ stepIndex }) => stepIndex === activeStepIndex.current);
+    const stepsToTrigger = getCurrentPattern(sequence).pages[activePageIndex].steps.filter(
+      ({ stepIndex }) => stepIndex === activeStepIndex.current
+    );
 
     stepsToTrigger.forEach((step) => {
       if (!sequence.isMuted && !channelsConfig[step.channel]?.isMuted) {

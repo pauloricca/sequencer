@@ -2,20 +2,17 @@ import { nanoid } from 'nanoid';
 import { INITIAL_STATE } from './state.initial';
 import {
   State,
+  StateSequence,
   StateSequenceDrumMachine,
   StateSequencePattern,
   StateSequencePatternPage,
   StateSequenceSynth,
 } from './state.types';
-import { cloneDeep } from 'lodash';
 
 export const getIntervalFromClockSpeed = (clockSpeed: number) => 60000 / clockSpeed;
 
-// TODO: migrate version (0 or undefined) to 1: set version to 1, add controlShortcuts opject. bring in "shortcuts" if exists and delete it.
 export const migrate = (state: State, version: number) => {
   const newState = { ...INITIAL_STATE, ...state };
-
-  console.log('before migration', cloneDeep(newState));
 
   newState.sequences.forEach((sequence) => {
     addNonExistentProperties(sequence, getDefaultSequence(sequence.type));
@@ -32,12 +29,24 @@ export const migrate = (state: State, version: number) => {
   }
 
   if (state.version < 2) {
-    //we just need to add ids to sequences, which is covered by the merge to default above
+    // we just needed to add ids to sequences, which is covered by the merge to default above
+  }
+
+  if (state.version < 4) {
+    // currentPattern is now 1-based index
+    newState.sequences.forEach((sequence) => sequence.currentPattern++);
+
+    newState.controlShortcuts.shortcuts.forEach((shortcut) => {
+      if (
+        shortcut.actionMessage.parameter === 'currentPattern' &&
+        shortcut.actionMessage.value !== undefined
+      ) {
+        shortcut.actionMessage.value = (shortcut.actionMessage.value as number) + 1;
+      }
+    });
   }
 
   newState.version = INITIAL_STATE.version;
-
-  console.log('after migration', cloneDeep(newState));
 
   return newState;
 };
@@ -65,7 +74,7 @@ export const getDefaultSynth = (): StateSequenceSynth => ({
   noteDuration: 1,
   scale: 'minor',
   range: 11,
-  currentPattern: 0,
+  currentPattern: 1,
   midiChannel: 1,
   patterns: [getDefaultPattern()],
   isPolyphonic: true,
@@ -77,7 +86,7 @@ export const getDefaultDrumMachine = (): StateSequenceDrumMachine => ({
   name: 'drums',
   nSteps: 16,
   stepLength: 1,
-  currentPattern: 0,
+  currentPattern: 1,
   patterns: [getDefaultPattern()],
   channelsConfig: [],
 });
@@ -91,3 +100,6 @@ export const getDefaultPatternPage = (): StateSequencePatternPage => ({
   id: nanoid(),
   steps: [],
 });
+
+export const getCurrentPattern = (sequence: StateSequence) =>
+  sequence.patterns[sequence.currentPattern - 1];

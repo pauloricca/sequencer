@@ -16,6 +16,7 @@ import {
   DEFAULT_STEP_VALUES,
   MAX_STEP_VALUES,
 } from 'components/Sequencer/SequencerChannel/SequencerChannel.constants';
+import { getCurrentPattern } from 'state/state.utils';
 require('./_SequencerChannel.scss');
 
 export interface SequencerChannelProps
@@ -58,7 +59,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
   if (channelConfig.isHidden) return null;
 
   const channelStepsByIndex = [...Array(sequence.nSteps).keys()].map((stepIndex) =>
-    sequence.patterns[sequence.currentPattern].pages[visiblePage].steps.find(
+    getCurrentPattern(sequence).pages[visiblePage].steps.find(
       (step) => step.stepIndex === stepIndex && step.channel === channelIndex
     )
   );

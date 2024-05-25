@@ -1,5 +1,19 @@
 .controller {
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
+	position: relative;
+
+	&__header {
+		position: fixed;
+		width: 100%;
+    background-color: #C850C0;
+    z-index: 2;
+    top: 0px;
+    padding: 16px 0;
+	}
+
+	&__sequences {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		padding-top: 64px;
+	}
 }

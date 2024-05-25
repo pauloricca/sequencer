@@ -11,7 +11,12 @@ import {
   StateSequenceChannelConfig,
 } from './state.types';
 import { INITIAL_STATE } from './state.initial';
-import { getDefaultPattern, getDefaultPatternPage, migrate } from './state.utils';
+import {
+  getCurrentPattern,
+  getDefaultPattern,
+  getDefaultPatternPage,
+  migrate,
+} from './state.utils';
 import { Draft } from 'immer';
 import { cloneDeep } from 'lodash';
 import { nanoid } from 'nanoid';
@@ -81,12 +86,11 @@ const setStep: StateAction =
     set((state) => {
       const sequence = getSequenceById(state.sequences, sequenceId);
 
-      if (
-        sequence?.patterns[sequence.currentPattern] &&
-        sequence.patterns[sequence.currentPattern].pages.length > pageNumber
-      ) {
-        sequence.patterns[sequence.currentPattern].pages[pageNumber].steps = [
-          ...sequence.patterns[sequence.currentPattern].pages[pageNumber].steps.filter(
+      if (!sequence) return;
+
+      if (getCurrentPattern(sequence).pages.length > pageNumber) {
+        getCurrentPattern(sequence).pages[pageNumber].steps = [
+          ...getCurrentPattern(sequence).pages[pageNumber].steps.filter(
             ({ channel, stepIndex }) =>
               (channel !== step.channel &&
                 (sequence as StateSequenceSynth).isPolyphonic !== false) ||
@@ -109,9 +113,9 @@ const removeStep: StateAction =
 
       if (
         sequence?.patterns[sequence.currentPattern] &&
-        sequence.patterns[sequence.currentPattern].pages.length > pageNumber
+        getCurrentPattern(sequence).pages.length > pageNumber
       ) {
-        sequence.patterns[sequence.currentPattern].pages[pageNumber].steps = sequence.patterns[
+        getCurrentPattern(sequence).pages[pageNumber].steps = sequence.patterns[
           sequence.currentPattern
         ].pages[pageNumber].steps.filter(
           ({ channel, stepIndex }) => channel !== step.channel || step.stepIndex !== stepIndex
@@ -126,13 +130,11 @@ const addPage: StateAction =
       const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (sequence?.patterns[sequence.currentPattern]) {
-        sequence.patterns[sequence.currentPattern].pages.push(
+        getCurrentPattern(sequence).pages.push(
           page ??
             (duplicatePageByIndex !== undefined
               ? {
-                  ...cloneDeep(
-                    sequence.patterns[sequence.currentPattern].pages[duplicatePageByIndex]
-                  ),
+                  ...cloneDeep(getCurrentPattern(sequence).pages[duplicatePageByIndex]),
                   id: nanoid(),
                 }
               : getDefaultPatternPage())
@@ -147,7 +149,7 @@ const removePage: StateAction =
       const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (sequence?.patterns[sequence.currentPattern]) {
-        sequence.patterns[sequence.currentPattern].pages.splice(pageNumber, 1);
+        getCurrentPattern(sequence).pages.splice(pageNumber, 1);
       }
     });
 
@@ -158,8 +160,8 @@ const updatePageOrder: StateAction =
       const sequence = getSequenceById(state.sequences, sequenceId);
 
       if (sequence?.patterns[sequence.currentPattern]) {
-        sequence.patterns[sequence.currentPattern].pages = arrayMove(
-          sequence.patterns[sequence.currentPattern].pages,
+        getCurrentPattern(sequence).pages = arrayMove(
+          getCurrentPattern(sequence).pages,
           oldIndex,
           newIndex
         );
@@ -174,11 +176,9 @@ const updateStep: StateAction =
 
       if (
         sequence?.patterns[sequence.currentPattern] &&
-        sequence.patterns[sequence.currentPattern].pages.length > pageNumber
+        getCurrentPattern(sequence).pages.length > pageNumber
       ) {
-        const stepToMutate = sequence.patterns[sequence.currentPattern].pages[
-          pageNumber
-        ].steps.find(
+        const stepToMutate = getCurrentPattern(sequence).pages[pageNumber].steps.find(
           ({ channel, stepIndex }) => channel === step.channel && step.stepIndex === stepIndex
         );
 
@@ -276,7 +276,7 @@ const addSequencePattern: StateAction =
         patterns: [
           ...sequence.patterns,
           doDuplicateCurrentPattern
-            ? { ...cloneDeep({ ...sequence.patterns[sequence.currentPattern] }), id: nanoid() }
+            ? { ...cloneDeep({ ...getCurrentPattern(sequence) }), id: nanoid() }
             : getDefaultPattern(),
         ],
         currentPattern: sequence.patterns.length,

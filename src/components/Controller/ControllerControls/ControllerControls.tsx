@@ -45,20 +45,18 @@ export const ControllerControls: React.FC = () => {
 
   return (
     <div className="controller-controls">
-      <Button text="config" icon="cog" onClick={() => setIsConfigOpen(true)} />
+      <Button icon="cog" onClick={() => setIsConfigOpen(true)} />
       <Button text="reset" icon="delete" onClick={() => resetState()} />
       <Button
-        text="load"
+        icon="floppy-disk"
+        onClick={() => downloadObjectAsJson(useSequencersState.getState(), 'sequencer')}
+      />
+      <Button
         icon="export"
         onClick={() => uploadJsonFileAsObject<State>((obj) => resetState(obj))}
       />
-      <Button
-        text="save"
-        icon="import"
-        onClick={() => downloadObjectAsJson(useSequencersState.getState(), 'sequencer')}
-      />
       <SelectKnob
-        label={`bpm: ${clockSpeed / 4}`}
+        label={`${clockSpeed / 4}bpm`}
         value={clockSpeed / 4}
         type="numeric"
         min={1}
@@ -66,7 +64,7 @@ export const ControllerControls: React.FC = () => {
         onChange={(value) => setClockSpeed(value * 4)}
       />
       <SelectKnob
-        label={`swing: ${Math.round(swing * 100)}%`}
+        label={`${Math.round(swing * 100)}% swing`}
         value={swing ?? 0.5}
         type="numeric"
         min={0.5}
@@ -76,14 +74,9 @@ export const ControllerControls: React.FC = () => {
         showDial
       />
       {isPlaying && (
-        <Button
-          text="stop"
-          isActive={true}
-          icon="symbol-square"
-          onClick={() => setIsPlaying(false)}
-        />
+        <Button isActive={true} icon="symbol-square" onClick={() => setIsPlaying(false)} />
       )}
-      {!isPlaying && <Button text="play" icon="play" onClick={() => setIsPlaying(true)} />}
+      {!isPlaying && <Button icon="play" onClick={() => setIsPlaying(true)} />}
       <ControllerControlsConfigModal isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} />
     </div>
   );

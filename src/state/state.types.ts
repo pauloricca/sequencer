@@ -89,6 +89,7 @@ export interface StateSequenceCommon {
   id: string;
   name: string;
   nSteps: number;
+  /** 1-base index as it gets exposed directly through shortcut action message parameters */
   currentPattern: number;
   /**
    * Steps by pattern (parent array holds patterns and child arrays hold steps on that pattern)

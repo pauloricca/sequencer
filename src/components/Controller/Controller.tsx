@@ -16,16 +16,20 @@ export const Controller: React.FC = () => {
 
   return (
     <div className="controller">
-      <ControllerControls />
-      <ErrorBoundary error="Saved state not compatible with current version. Please press reset and refresh the page.">
-        {sequences.map(({ id, type }) => (
-          <Fragment key={id}>
-            {type === 'drum-machine' && <DrumMachine sequenceId={id} />}
-            {type === 'synth' && <Synth sequenceId={id} />}
-          </Fragment>
-        ))}
-        <ShortcutController />
-      </ErrorBoundary>
+      <div className="controller__header">
+        <ControllerControls />
+      </div>
+      <div className="controller__sequences">
+        <ErrorBoundary error="Saved state not compatible with current version. Please press reset and refresh the page.">
+          {sequences.map(({ id, type }) => (
+            <Fragment key={id}>
+              {type === 'drum-machine' && <DrumMachine sequenceId={id} />}
+              {type === 'synth' && <Synth sequenceId={id} />}
+            </Fragment>
+          ))}
+          <ShortcutController />
+        </ErrorBoundary>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,5 @@
 #app {
-	background-color: #4158D0;
-	background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+	// background-image: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
 	color: var(--color-example);
 	display: flex;
 	flex-direction: column;
@@ -19,6 +18,7 @@
 
 html, button, body {
 	// font-family: 'Pixelify Sans', sans-serif;
+	background-color: #C850C0;
 }
 
 @import "~@blueprintjs/core/lib/css/blueprint.css";
