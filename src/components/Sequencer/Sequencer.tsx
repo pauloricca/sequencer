@@ -202,6 +202,8 @@ export const Sequencer: React.FC<SequencerProps> = ({
               ))}
             </SortableContext>
           </DndContext>
+        </div>
+        <div className="sequencer__pattern-tools">
           <Button icon="plus" onClick={() => addSequencePattern(sequenceId)} />
           <Button icon="duplicate" onClick={() => addSequencePattern(sequenceId, true)} />
           <Button icon="trash" onClick={() => removeCurrentSequencePattern(sequenceId)} />

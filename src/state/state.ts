@@ -299,10 +299,12 @@ const removeCurrentSequencePattern: StateAction =
 
       if (!sequence) return;
 
-      updateSequenceAction(state, sequence.name, {
+      const currentPattern = getCurrentPattern(sequence);
+
+      updateSequenceAction(state, sequenceId, {
         patterns:
           sequence.patterns.length > 1
-            ? sequence.patterns.filter((_, index) => index !== sequence.currentPattern)
+            ? sequence.patterns.filter((pattern) => pattern !== currentPattern)
             : [getDefaultPattern()],
         currentPattern: Math.max(0, sequence.currentPattern - 1),
       });
@@ -318,12 +320,14 @@ const updateSequencePatternOrder: StateAction =
 
       sequence.patterns = arrayMove(sequence.patterns, oldIndex, newIndex);
 
-      if (sequence.currentPattern >= newIndex && sequence.currentPattern < oldIndex) {
+      const currentPatternIndex = sequence.currentPattern - 1;
+
+      if (currentPatternIndex >= newIndex && currentPatternIndex < oldIndex) {
         sequence.currentPattern++;
-      } else if (sequence.currentPattern <= newIndex && sequence.currentPattern > oldIndex) {
+      } else if (currentPatternIndex <= newIndex && currentPatternIndex > oldIndex) {
         sequence.currentPattern--;
-      } else if (sequence.currentPattern === oldIndex) {
-        sequence.currentPattern = newIndex;
+      } else if (currentPatternIndex === oldIndex) {
+        sequence.currentPattern = newIndex + 1;
       }
 
       state.controlShortcuts.shortcuts.forEach(({ actionMessage }) => {

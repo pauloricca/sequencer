@@ -62,6 +62,7 @@ export const Button: React.FC<ButtonProps> = ({
         'button',
         `button--style-${type}`,
         { 'button--is-active': isActive },
+        { 'button--icon-only': !children && !text && icon },
         className
       )}
       onClick={!isListeningForShortcut ? onClickHandler : undefined}

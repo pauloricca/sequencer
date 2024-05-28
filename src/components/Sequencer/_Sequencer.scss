@@ -9,7 +9,8 @@
         gap: 8px;
     }
 
-    &__patterns {
+    &__patterns,
+    &__pattern-tools {
         display: flex;
         flex-direction: column;
         gap: 4px;

@@ -20,6 +20,14 @@
 		background-color: rgb(116, 195, 0);
 	}
 
+	&--style-normal {
+		min-width: 30px;
+
+		&.button--icon-only {
+			max-width: 30px;
+		}
+	}
+
 	&--style-mini {
 		border-radius: 50%;
 		padding: 0;
