@@ -49,4 +49,10 @@
             border-bottom-width: 0;
         }
     }
+
+    &:last-of-type {
+        .sequencer-channel-step__fill {
+            bottom: 0;
+        }
+    }
 }
