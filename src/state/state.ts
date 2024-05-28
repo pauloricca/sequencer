@@ -111,13 +111,12 @@ const removeStep: StateAction =
     set((state) => {
       const sequence = getSequenceById(state.sequences, sequenceId);
 
-      if (
-        sequence?.patterns[sequence.currentPattern] &&
-        getCurrentPattern(sequence).pages.length > pageNumber
-      ) {
-        getCurrentPattern(sequence).pages[pageNumber].steps = sequence.patterns[
-          sequence.currentPattern
-        ].pages[pageNumber].steps.filter(
+      if (!sequence) return;
+
+      const currentPattern = getCurrentPattern(sequence);
+
+      if (currentPattern.pages.length > pageNumber) {
+        currentPattern.pages[pageNumber].steps = currentPattern.pages[pageNumber].steps.filter(
           ({ channel, stepIndex }) => channel !== step.channel || step.stepIndex !== stepIndex
         );
       }
@@ -129,12 +128,16 @@ const addPage: StateAction =
     set((state) => {
       const sequence = getSequenceById(state.sequences, sequenceId);
 
-      if (sequence?.patterns[sequence.currentPattern]) {
-        getCurrentPattern(sequence).pages.push(
+      if (!sequence) return;
+
+      const currentPattern = getCurrentPattern(sequence);
+
+      if (currentPattern) {
+        currentPattern.pages.push(
           page ??
             (duplicatePageByIndex !== undefined
               ? {
-                  ...cloneDeep(getCurrentPattern(sequence).pages[duplicatePageByIndex]),
+                  ...cloneDeep(currentPattern.pages[duplicatePageByIndex]),
                   id: nanoid(),
                 }
               : getDefaultPatternPage())
@@ -148,8 +151,12 @@ const removePage: StateAction =
     set((state) => {
       const sequence = getSequenceById(state.sequences, sequenceId);
 
-      if (sequence?.patterns[sequence.currentPattern]) {
-        getCurrentPattern(sequence).pages.splice(pageNumber, 1);
+      if (!sequence) return;
+
+      const currentPattern = getCurrentPattern(sequence);
+
+      if (currentPattern) {
+        currentPattern.pages.splice(pageNumber, 1);
       }
     });
 
@@ -159,12 +166,12 @@ const updatePageOrder: StateAction =
     set((state) => {
       const sequence = getSequenceById(state.sequences, sequenceId);
 
-      if (sequence?.patterns[sequence.currentPattern]) {
-        getCurrentPattern(sequence).pages = arrayMove(
-          getCurrentPattern(sequence).pages,
-          oldIndex,
-          newIndex
-        );
+      if (!sequence) return;
+
+      const currentPattern = getCurrentPattern(sequence);
+
+      if (currentPattern) {
+        currentPattern.pages = arrayMove(currentPattern.pages, oldIndex, newIndex);
       }
     });
 
@@ -174,11 +181,12 @@ const updateStep: StateAction =
     set((state) => {
       const sequence = getSequenceById(state.sequences, sequenceId);
 
-      if (
-        sequence?.patterns[sequence.currentPattern] &&
-        getCurrentPattern(sequence).pages.length > pageNumber
-      ) {
-        const stepToMutate = getCurrentPattern(sequence).pages[pageNumber].steps.find(
+      if (!sequence) return;
+
+      const currentPattern = getCurrentPattern(sequence);
+
+      if (currentPattern && currentPattern.pages.length > pageNumber) {
+        const stepToMutate = currentPattern.pages[pageNumber].steps.find(
           ({ channel, stepIndex }) => channel === step.channel && step.stepIndex === stepIndex
         );
 
