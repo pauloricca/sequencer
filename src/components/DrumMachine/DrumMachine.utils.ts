@@ -1,6 +1,7 @@
 import { SelectKnobProps } from 'components/SelectKnob/SelectKnob.types';
 import { HIGH_PITCH_ADJUSTMENT } from './DrumMachine.constants';
 import samplesMeta from 'metadata/samples.meta.json';
+import { SamplesMetadataEntry } from 'metadata/samples.meta.types';
 
 /*
  * pitchParam scale from 0 (lowest), through 1 (neutral), to 2 (highest), so that we can average two pitch
@@ -11,7 +12,7 @@ export const getAdjustedPitch = (pitchParam: number) =>
 
 export const getSamplesFileOptions = (): SelectKnobProps['items'] => {
   const options: SelectKnobProps['items'] = [];
-  const processDirectory = (samplesInDirectory: typeof samplesMeta.samples, path = '') => {
+  const processDirectory = (samplesInDirectory: SamplesMetadataEntry[], path = '') => {
     samplesInDirectory.forEach((entry) => {
       const nameWithPath = path ? `${path}/${entry.name}` : entry.name;
 
@@ -23,9 +24,7 @@ export const getSamplesFileOptions = (): SelectKnobProps['items'] => {
     });
   };
 
-  processDirectory(samplesMeta.samples);
-
-  samplesMeta.samples.forEach(() => {});
+  processDirectory(samplesMeta.samples as SamplesMetadataEntry[]);
 
   return options;
 };
