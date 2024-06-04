@@ -10,13 +10,14 @@ import {
   StateSequenceStep,
 } from 'state/state.types';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
-import { getAdjustedPitch } from './DrumMachine.utils';
+import { getAdjustedPitch, getSamplesFileOptions } from './DrumMachine.utils';
 import {
   MIDI_MAX_CC,
   MIDI_MAX_CC_VALUE,
   MIDI_MAX_CHANNELS,
   MIDI_MAX_NOTE,
 } from 'components/components.constants';
+import { CHANNEL_TYPE_OPTIONS } from './DrumMachine.constants';
 
 export interface DrumMachineProps {
   sequenceId: string;
@@ -33,6 +34,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
         .channelsConfig
   );
   const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
+
   // Sample objects indexed by file name
   const samples = useRef<
     Record<
@@ -40,6 +42,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
       { player: Tone.Player; reverb: Tone.Reverb; distortion: Tone.Distortion; pan: Tone.PanVol }
     >
   >({});
+
+  const sampleFileOptions = useRef(getSamplesFileOptions());
 
   useEffect(() => {
     channelsConfig.forEach((channel) => {
@@ -165,7 +169,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
           />
           <SelectKnob
             label={`${channelConfig.type}`}
-            items={[{ value: 'midi' }, { value: 'midi-cc' }, { value: 'sample' }]}
+            items={CHANNEL_TYPE_OPTIONS}
             type="discrete"
             clickOnModalButtonClosesModal
             onChange={(value) => update({ type: value })}
@@ -227,10 +231,13 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
           )}
           {channelConfig.type === 'sample' && (
             <>
-              <input
-                type="text"
-                value={channelConfig.audioFile ?? 'audio file'}
-                onChange={(ev) => update({ audioFile: (ev.target as HTMLInputElement).value })}
+              <SelectKnob
+                label={channelConfig.audioFile ?? 'audio file'}
+                items={sampleFileOptions.current}
+                type="discrete"
+                modalColumns={2}
+                onChange={(value) => update({ audioFile: value })}
+                value={channelConfig.audioFile}
               />
               <SelectKnob
                 label={`pitch: ${channelConfig.pitch ?? 1}`}
