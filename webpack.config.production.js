@@ -1,10 +1,12 @@
 const path = require("path");
+const WebpackBeforeBuildPlugin = require('before-build-webpack');
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { outputConfig, copyPluginPatterns, scssConfig, entryConfig, terserPluginConfig } = require("./env.config");
+const generateMetadata = require("./scripts/generateMetadata");
 
 module.exports = (env, options) => 
 {
@@ -65,6 +67,7 @@ module.exports = (env, options) =>
         extensions: [".tsx", ".ts", ".js"],
         alias: {
           components: path.resolve(__dirname, "./src/components/"),
+          metadata: path.resolve(__dirname, "./src/metadata/"),
           presets: path.resolve(__dirname, "./src/presets/"),
           state: path.resolve(__dirname, "./src/state/"),
           utils: path.resolve(__dirname, "./src/utils/"),
@@ -83,13 +86,17 @@ module.exports = (env, options) =>
       },
       plugins: [
         new CleanWebpackPlugin(),
-        new CopyPlugin(copyPluginPatterns),
         new MiniCssExtractPlugin({ filename: scssConfig.destFileName }),
         new HtmlWebpackPlugin({
           template: "./src/index.html",
           inject: true,
-          minify: false,
+          minify: true,
         }),
+        new CopyPlugin(copyPluginPatterns),
+        new WebpackBeforeBuildPlugin(function(stats, callback) {
+          generateMetadata();
+          callback();
+        }, ['run']),
       ],
     };
 };

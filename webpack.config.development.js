@@ -1,7 +1,9 @@
 const path = require('path');
+const WebpackBeforeBuildPlugin = require('before-build-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const { outputConfig, copyPluginPatterns, entryConfig, devServer } = require("./env.config");
+const generateMetadata = require("./scripts/generateMetadata");
 
 module.exports = (env, options) => 
 {
@@ -60,13 +62,14 @@ module.exports = (env, options) =>
               name: "[path][name].[ext]",
               emitFile: false,
             },
-          },
+          }
         ],
       },
       resolve: {
         extensions: [".tsx", ".ts", ".js"],
         alias: {
           components: path.resolve(__dirname, "./src/components/"),
+          metadata: path.resolve(__dirname, "./src/metadata/"),
           presets: path.resolve(__dirname, "./src/presets/"),
           state: path.resolve(__dirname, "./src/state/"),
           utils: path.resolve(__dirname, "./src/utils/"),
@@ -84,6 +87,10 @@ module.exports = (env, options) =>
           minify: false,
         }),
         new CopyPlugin(copyPluginPatterns),
+        new WebpackBeforeBuildPlugin(function(stats, callback) {
+          generateMetadata();
+          callback();
+        }, ['run', 'watch-run']),
       ],
     };
 };

@@ -2,6 +2,7 @@ node_modules
 dist
 build
 samples/*
+src/metadata/*
 .DS_Store
 !.gitkeep
 !samples/909
