@@ -10,6 +10,7 @@ export interface SelectKnobProps {
   label: string;
   type: 'discrete' | 'numeric';
   value: any;
+  valueFormatter?: (value: any) => string;
   onChange?: (value: any, item?: SelectKnobItem) => void;
   actionMessage?: StateActionMessage;
   items?: SelectKnobItem[];

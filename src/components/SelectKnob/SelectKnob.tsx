@@ -14,6 +14,7 @@ require('./_SelectKnob.scss');
 export const SelectKnob: React.FC<SelectKnobProps> = ({
   type,
   value,
+  valueFormatter = (value) => value,
   items: itemsProp = [],
   label,
   min: minProp = 0,
@@ -53,7 +54,7 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
               return {
                 value: Number(value),
                 key: value,
-                label: `${value}`,
+                label: valueFormatter(value),
               };
             }),
       [itemsProp, minProp, maxProp]

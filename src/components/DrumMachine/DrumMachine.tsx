@@ -18,6 +18,7 @@ import {
   MIDI_MAX_NOTE,
 } from 'components/components.constants';
 import { CHANNEL_TYPE_OPTIONS } from './DrumMachine.constants';
+import { formatNumber, formatPercentage } from 'utils/formatNumber';
 
 export interface DrumMachineProps {
   sequenceId: string;
@@ -255,7 +256,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
                 showDial
               />
               <SelectKnob
-                label={`start: ${((channelConfig.start ?? 0) * 100).toFixed(1)}%`}
+                label={`start: ${formatPercentage(channelConfig.start ?? 0)}`}
+                valueFormatter={formatPercentage}
                 value={channelConfig.start ?? 0}
                 type="numeric"
                 step={0.001}
@@ -264,8 +266,9 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
                 showDial
               />
               <SelectKnob
-                label={`start randomness: ${((channelConfig.startRandomness ?? 0) * 100).toFixed(1)}%`}
+                label={`start rand: ${formatPercentage(channelConfig.startRandomness ?? 0)}`}
                 value={channelConfig.startRandomness ?? 0}
+                valueFormatter={formatPercentage}
                 type="numeric"
                 step={0.001}
                 onChange={(value) => update({ startRandomness: value })}
@@ -273,8 +276,9 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
                 showDial
               />
               <SelectKnob
-                label={`duration: ${((channelConfig.duration ?? 1) * 100).toFixed(1)}%`}
+                label={`duration: ${formatPercentage(channelConfig.duration ?? 1)}`}
                 value={channelConfig.duration ?? 1}
+                valueFormatter={formatPercentage}
                 type="numeric"
                 step={0.001}
                 onChange={(value) => update({ duration: value })}
@@ -284,6 +288,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
               <SelectKnob
                 label={`attack: ${channelConfig.attack ?? 0}s`}
                 value={channelConfig.attack ?? 0}
+                valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
                 type="numeric"
                 min={0}
                 max={5}
@@ -294,6 +299,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
               <SelectKnob
                 label={`release: ${channelConfig.release ?? 0}s`}
                 value={channelConfig.release ?? 0}
+                valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
                 type="numeric"
                 min={0}
                 max={5}
@@ -304,6 +310,7 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
               <SelectKnob
                 label={`reverb decay: ${channelConfig.reverbDecay ?? 0}s`}
                 value={channelConfig.reverbDecay ?? 0}
+                valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
                 type="numeric"
                 min={0}
                 max={5}
@@ -312,8 +319,9 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
                 showDial
               />
               <SelectKnob
-                label={`reverb wetness: ${Math.round((channelConfig.reverbWetness ?? 0) * 100)}%`}
+                label={`reverb wetness: ${formatPercentage(channelConfig.reverbWetness ?? 0)}`}
                 value={channelConfig.reverbWetness ?? 0}
+                valueFormatter={formatPercentage}
                 type="numeric"
                 step={0.05}
                 onChange={(value) => update({ reverbWetness: value })}
@@ -330,8 +338,9 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
                 showDial
               />
               <SelectKnob
-                label={`distortion: ${channelConfig.distortion ?? 0}`}
+                label={`distortion: ${formatPercentage(channelConfig.distortion ?? 0)}`}
                 value={channelConfig.distortion ?? 0}
+                valueFormatter={formatPercentage}
                 type="numeric"
                 step={0.05}
                 onChange={(value) => update({ distortion: value })}

@@ -1,7 +1,6 @@
 .sequencer-channel {
     display: flex;
     flex-direction: column;
-    gap: 4px;
 
     &__inner {
         display: flex;
@@ -38,12 +37,17 @@
     }
 
     &__config {
-        padding: 4px 0;
+        padding: 8px 8px;
+        margin: 0 -8px;
+        width: calc(100% + 16px);
+        border-radius: 8px;
         margin-bottom: 4px;
+        margin-right: 4px;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         grid-row-gap: 8px;
         grid-column-gap: 8px;
+        background: rgba(0, 0, 0, 0.1);
     }
 
     &--is-muted {
