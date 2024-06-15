@@ -1,7 +1,7 @@
-import { StateSequenceDrumMachine } from 'state/state.types';
+import { StateSequenceDrumMachinePreset } from 'state/state.types';
 import { getDefaultDrumMachine } from 'state/state.utils';
 
-export const PRESET_VOLCA_BEATS: StateSequenceDrumMachine = {
+export const PRESET_VOLCA_BEATS: StateSequenceDrumMachinePreset = {
   ...getDefaultDrumMachine(),
   name: 'volca beats',
   channelsConfig: [

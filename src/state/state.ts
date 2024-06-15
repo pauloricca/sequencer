@@ -24,9 +24,9 @@ import { arrayMove } from '@dnd-kit/sortable';
 
 const addSequence: StateAction =
   (set): StateActions['addSequence'] =>
-  (sequence) =>
+  (sequencePreset) =>
     set((state) => {
-      const sequenceName = sequence.name;
+      const sequenceName = sequencePreset.name;
       let sequenceNameDuplicateCount = 1;
       let sequenceNameDuplicateCountAppend = '';
 
@@ -38,11 +38,22 @@ const addSequence: StateAction =
         sequenceNameDuplicateCount += 1;
         sequenceNameDuplicateCountAppend = ` ${sequenceNameDuplicateCount}`;
       }
-      state.sequences.push({
-        ...sequence,
+
+      const newSequence: StateSequence = {
+        ...(sequencePreset.type === 'drum-machine'
+          ? {
+              ...sequencePreset,
+              channelsConfig: sequencePreset.channelsConfig.map((channelConfig) => ({
+                id: nanoid(),
+                ...channelConfig,
+              })),
+            }
+          : sequencePreset),
         id: nanoid(),
         name: `${sequenceName}${sequenceNameDuplicateCountAppend}`,
-      });
+      };
+
+      state.sequences.push(newSequence);
     });
 
 const removeSequence: StateAction =

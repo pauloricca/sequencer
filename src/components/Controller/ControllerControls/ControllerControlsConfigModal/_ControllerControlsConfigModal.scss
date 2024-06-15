@@ -1,12 +1,15 @@
 .controller-controls-config-modal {
 	&__sequences {
-		padding: 100px;
+		border: 1px solid white;
+		border-radius: 8px;
+		display: flex;
+		flex-direction: row;
 	}
 
-	&__presets {
-    display: grid;
-    grid-row-gap: 8px;
-    grid-column-gap: 8px;
-    grid-template-columns: repeat(2, 1fr);
+	&__sequence-presets {
+		padding: 8px;
+		display: flex;
+		gap: 8px;
+		flex-direction: column;
 	}
 }

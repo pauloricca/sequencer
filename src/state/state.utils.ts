@@ -46,6 +46,15 @@ export const migrate = (state: State, version: number) => {
     });
   }
 
+  if (state.version < 5) {
+    // currentPattern is now 1-based index
+    newState.sequences.forEach((sequence) => {
+      if (sequence.type === 'drum-machine') {
+        sequence.channelsConfig.forEach((channelConfig) => (channelConfig.id = nanoid()));
+      }
+    });
+  }
+
   newState.version = INITIAL_STATE.version;
 
   return newState;

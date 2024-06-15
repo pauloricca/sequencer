@@ -27,7 +27,7 @@ export interface State {
 
 export interface StateActions {
   // Global
-  addSequence: (sequence: StateSequence) => void;
+  addSequence: (sequencePreset: StateSequencePreset) => void;
   removeSequence: (sequenceId: string) => void;
   updateSequenceOrder: (oldIndex: number, newIndex: number) => void;
   setIsPlaying: (isPlaying: boolean) => void;
@@ -84,6 +84,7 @@ type StateGetter = () => State & StateActions;
 export type StateAction = (set: StateSetter, get: StateGetter) => any;
 
 export type StateSequence = StateSequenceDrumMachine | StateSequenceSynth;
+export type StateSequencePreset = StateSequenceDrumMachinePreset | StateSequenceSynth;
 
 export interface StateSequenceCommon {
   id: string;
@@ -112,6 +113,16 @@ export interface StateSequenceDrumMachine extends StateSequenceCommon {
   channelsConfig: StateSequenceChannelConfig[];
 }
 
+export interface StateSequenceDrumMachinePreset
+  extends Omit<StateSequenceDrumMachine, 'channelsConfig'> {
+  channelsConfig: StateSequenceChannelConfigPreset[];
+}
+
+export type StateSequenceChannelConfigPreset =
+  | Omit<StateSequenceChannelConfigMidiNote, 'id'>
+  | Omit<StateSequenceChannelConfigMidiCC, 'id'>
+  | Omit<StateSequenceChannelConfigSample, 'id'>;
+
 export interface StateSequenceSynth extends StateSequenceCommon {
   type: 'synth';
   rootNote: number;
@@ -139,6 +150,7 @@ export type StateSequenceChannelConfig =
   | StateSequenceChannelConfigSample;
 
 export interface StateSequenceChannelConfigCommon {
+  id: string;
   name?: string;
   isHidden?: boolean;
   isMuted?: boolean;

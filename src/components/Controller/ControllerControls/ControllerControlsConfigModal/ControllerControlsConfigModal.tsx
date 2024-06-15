@@ -54,27 +54,34 @@ export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'
       {!!props.isOpen && (
         <>
           <div className="controller-controls-config-modal__sequences">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-              modifiers={[restrictToVerticalAxis]}
-            >
-              <SortableContext items={sequences} strategy={verticalListSortingStrategy}>
-                {sequences.map(({ id, name, type }) => (
-                  <ControllerControlsConfigModalSequence key={id} id={id} name={name} type={type} />
-                ))}
-              </SortableContext>
-            </DndContext>
-          </div>
-          <div className="controller-controls-config-modal__presets">
-            {PRESETS.map((preset) => (
-              <Button
-                key={preset.name}
-                text={`add ${preset.name}`}
-                onClick={() => addSequence(preset)}
-              />
-            ))}
+            <div className="controller-controls-config-modal__sequences-list">
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                modifiers={[restrictToVerticalAxis]}
+              >
+                <SortableContext items={sequences} strategy={verticalListSortingStrategy}>
+                  {sequences.map(({ id, name, type }) => (
+                    <ControllerControlsConfigModalSequence
+                      key={id}
+                      id={id}
+                      name={name}
+                      type={type}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            </div>
+            <div className="controller-controls-config-modal__sequence-presets">
+              {PRESETS.map((preset) => (
+                <Button
+                  key={preset.name}
+                  text={`add ${preset.name}`}
+                  onClick={() => addSequence(preset)}
+                />
+              ))}
+            </div>
           </div>
         </>
       )}

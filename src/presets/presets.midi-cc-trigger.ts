@@ -1,7 +1,7 @@
-import { StateSequenceDrumMachine } from 'state/state.types';
+import { StateSequenceDrumMachinePreset } from 'state/state.types';
 import { getDefaultDrumMachine } from 'state/state.utils';
 
-export const PRESET_MIDI_CC_TRIGGER: StateSequenceDrumMachine = {
+export const PRESET_MIDI_CC_TRIGGER: StateSequenceDrumMachinePreset = {
   ...getDefaultDrumMachine(),
   name: 'midi cc trigger',
   stepLength: 16,

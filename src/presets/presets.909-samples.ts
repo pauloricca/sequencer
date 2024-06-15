@@ -1,7 +1,7 @@
-import { StateSequenceDrumMachine } from 'state/state.types';
+import { StateSequenceDrumMachinePreset } from 'state/state.types';
 import { getDefaultDrumMachine } from 'state/state.utils';
 
-export const PRESET_909_SAMPLES: StateSequenceDrumMachine = {
+export const PRESET_909_SAMPLES: StateSequenceDrumMachinePreset = {
   ...getDefaultDrumMachine(),
   name: '909 samples',
   channelsConfig: [
