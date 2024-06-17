@@ -131,6 +131,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = ({
       className={classNames('sequencer-channel', {
         'sequencer-channel--is-muted': channelConfig.isMuted || sequence.isMuted,
         'sequencer-channel--is-highlighted': channelConfig.isHighlighted,
+        'sequencer-channel--has-config-open': isConfigOpen,
       })}
     >
       <div className="sequencer-channel__inner">

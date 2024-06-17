@@ -104,8 +104,8 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
           className="sequencer-channel-step__fill"
           style={
             stepPropertyEditDirection === 'vertical'
-              ? { height: `calc(${Math.max(fillPercentage * 100, 20)}% - 1px)` }
-              : { width: `calc(${Math.max((step?.duration ?? 1) * 100, 20)}% - 1px)` }
+              ? { height: `${fillPercentage * 100}%` }
+              : { width: `${fillPercentage * 100}%` }
           }
         />
       </div>

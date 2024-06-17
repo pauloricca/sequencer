@@ -37,17 +37,11 @@
     }
 
     &__config {
-        padding: 8px 8px;
-        margin: 0 -8px;
-        width: calc(100% + 16px);
-        border-radius: 8px;
-        margin-bottom: 4px;
-        margin-right: 4px;
+        margin-top: 8px;
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         grid-row-gap: 8px;
         grid-column-gap: 8px;
-        background: rgba(0, 0, 0, 0.1);
     }
 
     &--is-muted {
@@ -61,5 +55,12 @@
         .sequencer-channel__name {
             font-weight: 900;
         }
+    }
+
+    &--has-config-open {
+        margin-right: -8px;
+        padding: 8px 8px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
     }
 }
