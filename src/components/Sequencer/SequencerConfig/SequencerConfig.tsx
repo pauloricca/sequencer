@@ -6,6 +6,7 @@ import { SequencerConfigMidiOut } from './SequencerConfigMidiOut/SequencerConfig
 import { ControllerParameter } from 'components/Controller/ControllerParameter/ControllerParameter';
 import { getSequencerConfigParameterConfig } from './SequencerConfig.config';
 import { SequencerConfigProps } from './SequencerConfig.types';
+import { allSoundsOff } from 'utils/midi';
 require('./_SequencerConfig.scss');
 
 export const SequencerConfig: React.FC<SequencerConfigProps> = ({
@@ -19,6 +20,9 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
   const isMuted = useSequencersState(
     (state) => state.sequences.find(({ id }) => id === sequenceId)?.isMuted
   );
+  const midiOutDeviceName = useSequencersState(
+    (state) => state.sequences.find(({ id }) => id === sequenceId)?.midiOutDeviceName
+  );
   const sequenceName = useSequencersState(
     (state) => state.sequences.find(({ id }) => id === sequenceId)?.name || ''
   );
@@ -31,6 +35,10 @@ export const SequencerConfig: React.FC<SequencerConfigProps> = ({
       setIsOpen(false);
     }
   }, [configControls]);
+
+  useEffect(() => {
+    isMuted && allSoundsOff(midiOutDeviceName);
+  }, [isMuted]);
 
   return (
     <div
