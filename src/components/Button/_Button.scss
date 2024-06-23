@@ -11,6 +11,7 @@
 	cursor: pointer;
 	padding: 0 6px;
 	white-space: nowrap;
+	overflow: hidden;
 
 	&:hover:not(&--is-active) {
 		background-color: #0000002b;
@@ -36,6 +37,17 @@
 
 		svg {
 				height: 12px;
+		}
+	}
+
+	&__content {
+		text-overflow: ellipsis;
+    overflow: hidden;
+	}
+
+	&__icon {
+		.bp5-icon {
+			display: block;
 		}
 	}
 }

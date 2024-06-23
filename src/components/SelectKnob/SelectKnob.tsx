@@ -1,6 +1,5 @@
 import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
 import { SelectKnobProps } from './SelectKnob.types';
-import { Icon } from '@blueprintjs/core';
 import { Modal } from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
 import { throttle } from 'lodash';
@@ -166,19 +165,17 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
         <Button
           onClick={() => !isDragging.current && !isListeningForShortcut && setIsOpen(true)}
           isActive={isDragging.current || isListeningForShortcut}
+          icon={
+            type === 'discrete'
+              ? value === items[0]?.value
+                ? 'caret-right'
+                : value === items[items.length - 1]?.value
+                  ? 'caret-left'
+                  : 'double-caret-horizontal'
+              : undefined
+          }
         >
           {label}
-          {type === 'discrete' && (
-            <Icon
-              icon={
-                value === items[0]?.value
-                  ? 'caret-right'
-                  : value === items[items.length - 1]?.value
-                    ? 'caret-left'
-                    : 'double-caret-horizontal'
-              }
-            />
-          )}
           {type === 'numeric' && showDial && (
             <div className="select-knob__dial">
               <div

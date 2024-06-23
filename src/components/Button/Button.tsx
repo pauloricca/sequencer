@@ -69,9 +69,17 @@ export const Button: React.FC<ButtonProps> = ({
       onMouseDown={actionMessage ? onMouseDownHandler : undefined}
       style={style}
     >
-      {text}
-      {children}
-      {icon && <Icon icon={icon} />}
+      {(!!text || !!children) && (
+        <div className="button__content">
+          {text}
+          {children}
+        </div>
+      )}
+      {!!icon && (
+        <div className="button__icon">
+          <Icon icon={icon} />
+        </div>
+      )}
     </div>
   );
 };

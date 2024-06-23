@@ -24,7 +24,6 @@ import {
 } from '@dnd-kit/sortable';
 import { restrictToHorizontalAxis, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { DragToSortItem } from 'components/DragToSortItem/DragToSortItem';
-import { Icon } from '@blueprintjs/core';
 import { getCurrentPattern } from 'state/state.utils';
 require('./_Sequencer.scss');
 
@@ -224,13 +223,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
               {currentPatternPageIds.map((id, pageNumber) => (
                 <DragToSortItem key={id} id={id}>
                   <Button
+                    icon={pageNumber === visiblePage ? 'eye-open' : undefined}
                     className="sequencer__pattern-pagination-page"
                     type="mini"
                     onClick={() => setVisiblePage(pageNumber)}
                     isActive={pageNumber === activePageIndex}
-                  >
-                    {pageNumber === visiblePage && <Icon icon="eye-open" />}
-                  </Button>
+                  />
                 </DragToSortItem>
               ))}
             </SortableContext>
