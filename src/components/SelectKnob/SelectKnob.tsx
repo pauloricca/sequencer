@@ -26,6 +26,7 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
   onChange,
   actionMessage,
   modalColumns = 10,
+  modalDepth,
 }) => {
   const isDragging = useRef(false);
   const [isListeningForShortcut, setIsListeningForShortcut] = useState(false);
@@ -188,7 +189,7 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
           )}
         </Button>
       </div>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} depth={modalDepth}>
         <div
           className={classNames(
             'select-knob__modal-contents',

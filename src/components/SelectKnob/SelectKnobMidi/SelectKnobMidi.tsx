@@ -7,9 +7,15 @@ export interface SelectKnobMidiProps {
   type: MidiType;
   onChange: (deviceName: string) => void;
   value?: string;
+  modalDepth?: number;
 }
 
-export const SelectKnobMidi: React.FC<SelectKnobMidiProps> = ({ type, onChange, value }) => {
+export const SelectKnobMidi: React.FC<SelectKnobMidiProps> = ({
+  type,
+  onChange,
+  value,
+  modalDepth,
+}) => {
   const midiDeviceNames = useMidiDeviceNames(type);
   const [midiOutOptions, setMidiOutOptions] = useState<SelectKnobItem[]>([]);
 
@@ -31,6 +37,7 @@ export const SelectKnobMidi: React.FC<SelectKnobMidiProps> = ({ type, onChange, 
       value={value}
       modalColumns={3}
       clickOnModalButtonClosesModal
+      modalDepth={modalDepth}
     />
   );
 };

@@ -10,7 +10,11 @@ import {
   removeMidiEventListener,
   useMidiDeviceNames,
 } from 'utils/midi';
-import { CC_VALUE_RANGE_MAX, SHORTCUT_TYPE_OPTIONS } from './ShortcutController.constants';
+import {
+  CC_VALUE_RANGE_MAX,
+  SHORTCUT_EDIT_MODAL_DEPTH,
+  SHORTCUT_TYPE_OPTIONS,
+} from './ShortcutController.constants';
 import { getStepFromDecimalPlaces, hasInputInFocus } from './ShortcutController.utils';
 import { SelectKnobMidi } from 'components/SelectKnob/SelectKnobMidi/SelectKnobMidi';
 import { MIDI_MAX_CC, MIDI_MAX_CHANNELS, MIDI_MAX_NOTE } from 'components/components.constants';
@@ -193,7 +197,11 @@ export const ShortcutController: React.FC = () => {
           </label>
         ))}
       </div>
-      <Modal onClose={stopEditingShortcut} isOpen={!!shortcutBeingEdited}>
+      <Modal
+        onClose={stopEditingShortcut}
+        isOpen={!!shortcutBeingEdited}
+        depth={SHORTCUT_EDIT_MODAL_DEPTH}
+      >
         {!!shortcutBeingEdited && (
           <div className="shortcut-controller__modal-contents">
             <p>Press key or change midi controller to save shortcut for:</p>
@@ -205,6 +213,7 @@ export const ShortcutController: React.FC = () => {
                 type="discrete"
                 value={shortcutBeingEdited.type}
                 modalColumns={4}
+                modalDepth={SHORTCUT_EDIT_MODAL_DEPTH + 1}
                 onChange={(value) => updateShortcut(shortcutBeingEdited.id, { type: value })}
                 clickOnModalButtonClosesModal
               />
@@ -228,6 +237,7 @@ export const ShortcutController: React.FC = () => {
                     onChange={(value) =>
                       updateShortcut(shortcutBeingEdited.id, { midiDevice: value })
                     }
+                    modalDepth={SHORTCUT_EDIT_MODAL_DEPTH + 1}
                   />
                   <SelectKnob
                     label={`midi channel: ${shortcutBeingEdited.midiChannel}`}
@@ -238,6 +248,7 @@ export const ShortcutController: React.FC = () => {
                       updateShortcut(shortcutBeingEdited.id, { midiChannel: value })
                     }
                     clickOnModalButtonClosesModal
+                    modalDepth={SHORTCUT_EDIT_MODAL_DEPTH + 1}
                   />
                   {shortcutBeingEdited.type === 'midi-note' && (
                     <SelectKnob
@@ -249,6 +260,7 @@ export const ShortcutController: React.FC = () => {
                         updateShortcut(shortcutBeingEdited.id, { midiNote: value })
                       }
                       clickOnModalButtonClosesModal
+                      modalDepth={SHORTCUT_EDIT_MODAL_DEPTH + 1}
                     />
                   )}
                   {shortcutBeingEdited.type === 'midi-cc' && (
@@ -262,6 +274,7 @@ export const ShortcutController: React.FC = () => {
                           updateShortcut(shortcutBeingEdited.id, { midiControl: value })
                         }
                         clickOnModalButtonClosesModal
+                        modalDepth={SHORTCUT_EDIT_MODAL_DEPTH + 1}
                       />
                       <SelectKnob
                         label={`range min: ${shortcutBeingEdited.valueRangeMin}`}
@@ -276,6 +289,7 @@ export const ShortcutController: React.FC = () => {
                           updateShortcut(shortcutBeingEdited.id, { valueRangeMin: value })
                         }
                         clickOnModalButtonClosesModal
+                        modalDepth={SHORTCUT_EDIT_MODAL_DEPTH + 1}
                       />
                       <SelectKnob
                         label={`range max: ${shortcutBeingEdited.valueRangeMax}`}
@@ -290,6 +304,7 @@ export const ShortcutController: React.FC = () => {
                           updateShortcut(shortcutBeingEdited.id, { valueRangeMax: value })
                         }
                         clickOnModalButtonClosesModal
+                        modalDepth={SHORTCUT_EDIT_MODAL_DEPTH + 1}
                       />
                     </>
                   )}
