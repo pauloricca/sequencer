@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSequencersState } from 'state/state';
+import { sendClockPulse, sendClockStart, sendClockStop } from './midi';
 
 class Metronome {
   private readonly func: (scheduledTime: number) => any;
@@ -59,6 +61,10 @@ class Metronome {
     this.nextAt = this.now;
     this.timeout = this.scheduleNext();
   }
+
+  public getInterval() {
+    return this.interval;
+  }
 }
 
 let clock = -1;
@@ -66,7 +72,24 @@ let clock = -1;
 let metronomeListeners: Array<(clock: number) => void> = [];
 
 const metronome = new Metronome(
-  () => setClock(clock + 1),
+  () => {
+    setClock(clock + 1);
+
+    // Send 6 clock pulses per clock tick (24ppq, pulses per quarter note)
+    let pulseCount = 0;
+    const pulseInterval = setInterval(
+      () =>
+        (async () => {
+          useSequencersState
+            .getState()
+            .midiClockSendDevices.forEach((deviceName) => sendClockPulse(deviceName));
+
+          pulseCount++;
+          if (pulseCount >= 6) clearInterval(pulseInterval);
+        })(),
+      metronome.getInterval() / 6
+    );
+  },
   1000 // arbitrary interval to initialise the metronome by
 );
 
@@ -80,11 +103,19 @@ export const setMetronomeSwing = (swing: number) => {
 
 export const startMetronome = () => {
   metronome.start();
+
+  useSequencersState
+    .getState()
+    .midiClockSendDevices.forEach((deviceName) => sendClockStart(deviceName));
 };
 
 export const stopMetronome = () => {
   metronome.stop();
   setClock(-1);
+
+  useSequencersState
+    .getState()
+    .midiClockSendDevices.forEach((deviceName) => sendClockStop(deviceName));
 };
 
 const setClock = (clockTime: number) => {

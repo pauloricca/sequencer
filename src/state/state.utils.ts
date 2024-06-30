@@ -55,6 +55,10 @@ export const migrate = (state: State, version: number) => {
     });
   }
 
+  if (state.version < 6) {
+    newState.midiClockSendDevices = [];
+  }
+
   newState.version = INITIAL_STATE.version;
 
   return newState;

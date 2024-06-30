@@ -1,7 +1,7 @@
 import { State } from './state.types';
 
 export const INITIAL_STATE: State = {
-  version: 5,
+  version: 6,
   isPlaying: false,
   clockSpeed: 130 * 4,
   swing: 0.5,
@@ -10,4 +10,5 @@ export const INITIAL_STATE: State = {
     shortcuts: [],
     activeMidiInputDevices: [],
   },
+  midiClockSendDevices: [],
 };

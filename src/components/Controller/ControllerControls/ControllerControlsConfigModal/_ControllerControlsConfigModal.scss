@@ -1,4 +1,8 @@
 .controller-controls-config-modal {
+	display: flex;
+	gap: 16px;
+	flex-direction: column;
+
 	&__sequences {
 		border: 1px solid white;
 		border-radius: 8px;

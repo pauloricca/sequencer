@@ -73,6 +73,24 @@ export const allSoundsOff = (deviceName?: string) =>
       (!deviceName || deviceName === device) && midiOutputDevices[device].output.sendAllNotesOff()
   );
 
+export const sendClockStart = (deviceName: string) =>
+  Object.keys(midiOutputDevices).forEach(
+    (device) =>
+      (!deviceName || deviceName === device) && midiOutputDevices[device].output.sendClockStart()
+  );
+
+export const sendClockStop = (deviceName: string) =>
+  Object.keys(midiOutputDevices).forEach(
+    (device) =>
+      (!deviceName || deviceName === device) && midiOutputDevices[device].output.sendClockStop()
+  );
+
+export const sendClockPulse = (deviceName: string) =>
+  Object.keys(midiOutputDevices).forEach(
+    (device) =>
+      (!deviceName || deviceName === device) && midiOutputDevices[device].output.sendClockPulse()
+  );
+
 export const sendMidiMessage = (deviceName: string, message: MidiMessage) => {
   const device = midiOutputDevices[deviceName];
 

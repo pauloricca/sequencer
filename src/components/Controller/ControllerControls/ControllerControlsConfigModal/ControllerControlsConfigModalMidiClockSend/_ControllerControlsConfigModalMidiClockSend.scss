@@ -1,0 +1,14 @@
+.controller-controls-config-modal-midi-clock-send {
+	padding: 8px;
+	border: 1px solid white;
+	border-radius: 8px;
+	display: flex;
+	gap: 8px;
+	flex-direction: column;
+	text-align: left;
+
+	&__item {
+		display: flex;
+    gap: 8px;
+	}
+}

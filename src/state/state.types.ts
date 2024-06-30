@@ -23,6 +23,10 @@ export interface State {
      */
     activeMidiInputDevices: string[];
   };
+  /**
+   * Devices to which we send MIDI clock messages
+   */
+  midiClockSendDevices: string[];
 }
 
 export interface StateActions {
@@ -69,6 +73,8 @@ export interface StateActions {
   removeShortcut: (id: string) => void;
   addActiveMidiInputDevice: (midiInputDevice: string) => void;
   removeActiveMidiInputDevice: (midiInputDevice: string) => void;
+  addMidiClockSendDevice: (midiOutputDevice: string) => void;
+  removeMidiClockSendDevice: (midiOutputDevice: string) => void;
 }
 
 type StateSetter = (

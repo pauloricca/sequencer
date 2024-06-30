@@ -438,7 +438,7 @@ const addActiveMidiInputDevice: StateAction =
     });
 
 const removeActiveMidiInputDevice: StateAction =
-  (set): StateActions['addActiveMidiInputDevice'] =>
+  (set): StateActions['removeActiveMidiInputDevice'] =>
   (midiInputDevice) =>
     set((state) => {
       if (state.controlShortcuts.activeMidiInputDevices.includes(midiInputDevice)) {
@@ -446,6 +446,25 @@ const removeActiveMidiInputDevice: StateAction =
           state.controlShortcuts.activeMidiInputDevices.filter(
             (device) => device !== midiInputDevice
           );
+      }
+    });
+
+const addMidiClockSendDevice: StateAction =
+  (set): StateActions['addMidiClockSendDevice'] =>
+  (midiOutputDevice) =>
+    set((state) => {
+      !state.midiClockSendDevices.includes(midiOutputDevice) &&
+        state.midiClockSendDevices.push(midiOutputDevice);
+    });
+
+const removeMidiClockSendDevice: StateAction =
+  (set): StateActions['removeMidiClockSendDevice'] =>
+  (midiOutputDevice) =>
+    set((state) => {
+      if (state.midiClockSendDevices.includes(midiOutputDevice)) {
+        state.midiClockSendDevices = state.midiClockSendDevices.filter(
+          (device) => device !== midiOutputDevice
+        );
       }
     });
 
@@ -482,6 +501,8 @@ export const useSequencersState = create<State & StateActions>()(
       removeShortcut: removeShortcut(set, get),
       addActiveMidiInputDevice: addActiveMidiInputDevice(set, get),
       removeActiveMidiInputDevice: removeActiveMidiInputDevice(set, get),
+      addMidiClockSendDevice: addMidiClockSendDevice(set, get),
+      removeMidiClockSendDevice: removeMidiClockSendDevice(set, get),
       reset: reset(set, get),
     })),
     {

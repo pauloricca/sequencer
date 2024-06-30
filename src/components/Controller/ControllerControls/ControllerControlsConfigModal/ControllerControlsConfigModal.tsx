@@ -21,6 +21,7 @@ import { ControllerControlsConfigModalSequence } from './ControllerControlsConfi
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { PRESETS } from 'presets/presets';
 import { Button } from 'components/Button/Button';
+import { ControllerControlsConfigModalMidiClockSend } from './ControllerControlsConfigModalMidiClockSend/ControllerControlsConfigModalMidiClockSend';
 require('./_ControllerControlsConfigModal.scss');
 
 export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'>> = (props) => {
@@ -52,7 +53,7 @@ export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'
   return (
     <Modal {...props}>
       {!!props.isOpen && (
-        <>
+        <div className="controller-controls-config-modal">
           <div className="controller-controls-config-modal__sequences">
             <div className="controller-controls-config-modal__sequences-list">
               <DndContext
@@ -83,7 +84,8 @@ export const ControllerControlsConfigModal: React.FC<Omit<ModalProps, 'children'
               ))}
             </div>
           </div>
-        </>
+          <ControllerControlsConfigModalMidiClockSend />
+        </div>
       )}
     </Modal>
   );
