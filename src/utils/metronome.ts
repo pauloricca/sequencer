@@ -75,20 +75,17 @@ const metronome = new Metronome(
   () => {
     setClock(clock + 1);
 
-    // Send 6 clock pulses per clock tick (24ppq, pulses per quarter note)
-    let pulseCount = 0;
-    const pulseInterval = setInterval(
-      () =>
-        (async () => {
-          useSequencersState
-            .getState()
-            .midiClockSendDevices.forEach((deviceName) => sendClockPulse(deviceName));
+    // Send ppq/4 (pulses per quarter note) clock pulses per clock tick
+    useSequencersState.getState().midiClockSend.forEach(({ midiOutputDeviceName, ppq }) => {
+      const tickSubdivisions = ppq / 4;
+      let pulseCount = 0;
 
-          pulseCount++;
-          if (pulseCount >= 6) clearInterval(pulseInterval);
-        })(),
-      metronome.getInterval() / 6
-    );
+      const pulseInterval = setInterval(() => {
+        sendClockPulse(midiOutputDeviceName);
+        pulseCount++;
+        if (pulseCount >= tickSubdivisions) clearInterval(pulseInterval);
+      }, metronome.getInterval() / tickSubdivisions);
+    });
   },
   1000 // arbitrary interval to initialise the metronome by
 );
@@ -106,7 +103,7 @@ export const startMetronome = () => {
 
   useSequencersState
     .getState()
-    .midiClockSendDevices.forEach((deviceName) => sendClockStart(deviceName));
+    .midiClockSend.forEach(({ midiOutputDeviceName }) => sendClockStart(midiOutputDeviceName));
 };
 
 export const stopMetronome = () => {
@@ -115,7 +112,7 @@ export const stopMetronome = () => {
 
   useSequencersState
     .getState()
-    .midiClockSendDevices.forEach((deviceName) => sendClockStop(deviceName));
+    .midiClockSend.forEach(({ midiOutputDeviceName }) => sendClockStop(midiOutputDeviceName));
 };
 
 const setClock = (clockTime: number) => {

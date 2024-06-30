@@ -10,5 +10,5 @@ export const INITIAL_STATE: State = {
     shortcuts: [],
     activeMidiInputDevices: [],
   },
-  midiClockSendDevices: [],
+  midiClockSend: [],
 };

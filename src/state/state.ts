@@ -451,19 +451,23 @@ const removeActiveMidiInputDevice: StateAction =
 
 const addMidiClockSendDevice: StateAction =
   (set): StateActions['addMidiClockSendDevice'] =>
-  (midiOutputDevice) =>
+  (StateClockSendDeviceParams) =>
     set((state) => {
-      !state.midiClockSendDevices.includes(midiOutputDevice) &&
-        state.midiClockSendDevices.push(midiOutputDevice);
+      !state.midiClockSend.find(
+        ({ midiOutputDeviceName }) =>
+          midiOutputDeviceName === StateClockSendDeviceParams.midiOutputDeviceName
+      ) && state.midiClockSend.push(StateClockSendDeviceParams);
     });
 
 const removeMidiClockSendDevice: StateAction =
   (set): StateActions['removeMidiClockSendDevice'] =>
-  (midiOutputDevice) =>
+  (midiOutputDeviceName) =>
     set((state) => {
-      if (state.midiClockSendDevices.includes(midiOutputDevice)) {
-        state.midiClockSendDevices = state.midiClockSendDevices.filter(
-          (device) => device !== midiOutputDevice
+      if (
+        state.midiClockSend.find((params) => midiOutputDeviceName === params.midiOutputDeviceName)
+      ) {
+        state.midiClockSend = state.midiClockSend.filter(
+          (device) => device.midiOutputDeviceName !== midiOutputDeviceName
         );
       }
     });

@@ -4,7 +4,9 @@ import { useMidiDeviceNames } from 'utils/midi';
 require('./_ControllerControlsConfigModalMidiClockSend.scss');
 
 export const ControllerControlsConfigModalMidiClockSend: React.FC = () => {
-  const midiClockSendDevices = useSequencersState((state) => state.midiClockSendDevices);
+  const midiClockSendDevices = useSequencersState((state) => state.midiClockSend).map(
+    ({ midiOutputDeviceName }) => midiOutputDeviceName
+  );
   const addMidiClockSendDevice = useSequencersState((state) => state.addMidiClockSendDevice);
   const removeMidiClockSendDevice = useSequencersState((state) => state.removeMidiClockSendDevice);
   const midiDeviceNames = useMidiDeviceNames('output');
@@ -23,7 +25,7 @@ export const ControllerControlsConfigModalMidiClockSend: React.FC = () => {
               if (midiClockSendDevices.includes(midiDevice)) {
                 removeMidiClockSendDevice(midiDevice);
               } else {
-                addMidiClockSendDevice(midiDevice);
+                addMidiClockSendDevice({ midiOutputDeviceName: midiDevice, ppq: 24 });
               }
             }}
           />

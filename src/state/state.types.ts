@@ -26,7 +26,15 @@ export interface State {
   /**
    * Devices to which we send MIDI clock messages
    */
-  midiClockSendDevices: string[];
+  midiClockSend: StateClockSendDeviceParams[];
+}
+
+export interface StateClockSendDeviceParams {
+  midiOutputDeviceName: string;
+  /**
+   * Pulses per quarter note
+   */
+  ppq: number;
 }
 
 export interface StateActions {
@@ -73,7 +81,7 @@ export interface StateActions {
   removeShortcut: (id: string) => void;
   addActiveMidiInputDevice: (midiInputDevice: string) => void;
   removeActiveMidiInputDevice: (midiInputDevice: string) => void;
-  addMidiClockSendDevice: (midiOutputDevice: string) => void;
+  addMidiClockSendDevice: (params: StateClockSendDeviceParams) => void;
   removeMidiClockSendDevice: (midiOutputDevice: string) => void;
 }
 
