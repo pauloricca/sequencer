@@ -310,6 +310,14 @@ export interface StateShortcut {
    */
   valueRangeMax?: number;
   /**
+   * Original minimum value, to be mapped to 0 when using midi-cc
+   */
+  originalValueRangeMin?: number;
+  /**
+   * Original maximum value, to be mapped to 127 when using midi-cc
+   */
+  originalValueRangeMax?: number;
+  /**
    * How many decimal places the value should be triggered with
    */
   decimalPlaces?: number;

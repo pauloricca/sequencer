@@ -85,6 +85,8 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
             actionMessage: actionMessage,
             valueRangeMin: min,
             valueRangeMax: max,
+            originalValueRangeMin: min,
+            originalValueRangeMax: max,
             decimalPlaces: stepDecimalPlaces,
           });
         }, PRESS_AND_HOLD_TIME)

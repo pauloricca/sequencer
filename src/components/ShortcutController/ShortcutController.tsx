@@ -10,11 +10,7 @@ import {
   removeMidiEventListener,
   useMidiDeviceNames,
 } from 'utils/midi';
-import {
-  CC_VALUE_RANGE_MAX,
-  SHORTCUT_EDIT_MODAL_DEPTH,
-  SHORTCUT_TYPE_OPTIONS,
-} from './ShortcutController.constants';
+import { SHORTCUT_EDIT_MODAL_DEPTH, SHORTCUT_TYPE_OPTIONS } from './ShortcutController.constants';
 import { getStepFromDecimalPlaces, hasInputInFocus } from './ShortcutController.utils';
 import { SelectKnobMidi } from 'components/SelectKnob/SelectKnobMidi/SelectKnobMidi';
 import { MIDI_MAX_CC, MIDI_MAX_CHANNELS, MIDI_MAX_NOTE } from 'components/components.constants';
@@ -102,6 +98,10 @@ export const ShortcutController: React.FC = () => {
           })
         );
     } else {
+      // Workaround for accessing state within callback
+      const activeMidiInputDevices =
+        useSequencersState.getState().controlShortcuts.activeMidiInputDevices;
+
       if (activeMidiInputDevices.includes(event.deviceName)) {
         updateShortcut(shortcutBeingEdited.id, {
           type: event.type === 'note-on' ? 'midi-note' : 'midi-cc',
@@ -280,10 +280,8 @@ export const ShortcutController: React.FC = () => {
                         label={`range min: ${shortcutBeingEdited.valueRangeMin}`}
                         type="numeric"
                         value={shortcutBeingEdited.valueRangeMin}
-                        max={
-                          CC_VALUE_RANGE_MAX /
-                          getStepFromDecimalPlaces(shortcutBeingEdited.decimalPlaces)
-                        }
+                        min={shortcutBeingEdited.originalValueRangeMin}
+                        max={shortcutBeingEdited.originalValueRangeMax}
                         step={getStepFromDecimalPlaces(shortcutBeingEdited.decimalPlaces)}
                         onChange={(value) =>
                           updateShortcut(shortcutBeingEdited.id, { valueRangeMin: value })
@@ -295,10 +293,8 @@ export const ShortcutController: React.FC = () => {
                         label={`range max: ${shortcutBeingEdited.valueRangeMax}`}
                         type="numeric"
                         value={shortcutBeingEdited.valueRangeMax}
-                        max={
-                          CC_VALUE_RANGE_MAX /
-                          getStepFromDecimalPlaces(shortcutBeingEdited.decimalPlaces)
-                        }
+                        min={shortcutBeingEdited.originalValueRangeMin}
+                        max={shortcutBeingEdited.originalValueRangeMax}
                         step={getStepFromDecimalPlaces(shortcutBeingEdited.decimalPlaces)}
                         onChange={(value) =>
                           updateShortcut(shortcutBeingEdited.id, { valueRangeMax: value })
