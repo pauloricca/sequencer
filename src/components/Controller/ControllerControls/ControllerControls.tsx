@@ -43,6 +43,22 @@ export const ControllerControls: React.FC = () => {
     }
   }, [isPlaying]);
 
+  const resetHandler = () => {
+    const wasPLaying = isPlaying;
+
+    if (wasPLaying) {
+      stopMetronome();
+    }
+
+    if (confirm('Are you sure you want to reset sequencer and all settings?')) {
+      resetState();
+    }
+
+    if (wasPLaying) {
+      startMetronome();
+    }
+  };
+
   return (
     <div className="controller-controls">
       {isPlaying && (
@@ -75,7 +91,7 @@ export const ControllerControls: React.FC = () => {
         icon="export"
         onClick={() => uploadJsonFileAsObject<State>((obj) => resetState(obj))}
       />
-      <Button text="reset" icon="delete" onClick={() => resetState()} />
+      <Button text="reset" icon="delete" onClick={resetHandler} />
       <Button icon="cog" onClick={() => setIsConfigOpen(true)} />
       <ControllerControlsConfigModal isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} />
     </div>
