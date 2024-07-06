@@ -380,16 +380,6 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
               }}
               showDial
             />
-            <SelectKnob
-              label={`pan (${!channelConfig.pan ? '|' : channelConfig.pan < 0 ? '<' : '>'}): ${channelConfig.pan ?? 0}`}
-              value={channelConfig.pan ?? 0}
-              type="numeric"
-              min={-1}
-              max={1}
-              step={0.1}
-              onChange={(value) => update({ pan: value })}
-              showDial
-            />
             <ControllerParameter
               labelCallback={(value) => `pan (${!value ? '|' : value < 0 ? '<' : '>'}): ${value}`}
               type="numeric"
