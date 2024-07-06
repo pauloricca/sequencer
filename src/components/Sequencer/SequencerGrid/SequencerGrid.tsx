@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { SequencerChannel, SequencerChannelProps } from '../SequencerChannel/SequencerChannel';
-import { StateSequenceChannelConfigCommon, StateSequenceStepProperties } from 'state/state.types';
+import { StateSequenceDrumMachine, StateSequenceStepProperties } from 'state/state.types';
 import { useMetronome } from 'utils/metronome';
 import { useSequencersState } from 'state/state';
 import { sample, shuffle, uniq } from 'lodash';
@@ -18,7 +18,6 @@ export interface SequencerGridProps
     | 'stepPropertyEditDirection'
   > {
   sequenceId: string;
-  channelsConfig: StateSequenceChannelConfigCommon[];
   visiblePage: number;
   stepPropertyCurrentlyBeingEdited: keyof StateSequenceStepProperties | null;
   activePageIndex: number;
@@ -27,7 +26,6 @@ export interface SequencerGridProps
 
 export const SequencerGrid: React.FC<SequencerGridProps> = ({
   sequenceId,
-  channelsConfig,
   triggerCallback = () => {},
   visiblePage,
   stepPropertyCurrentlyBeingEdited,
@@ -35,15 +33,28 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   setActivePageIndex,
   ...otherSequencerChannelProps
 }) => {
-  const sequence = useSequencersState((state) =>
-    state.sequences.find(({ id }) => id === sequenceId)
+  const sequence = useSequencersState.getState().sequences.find(({ id }) => id === sequenceId);
+
+  const stepLength = useSequencersState(
+    (state) => state.sequences.find(({ id }) => id === sequenceId)?.stepLength ?? 1
   );
+
   const updateStep = useSequencersState((state) => state.updateStep);
-  const tick = useMetronome(sequence?.stepLength ?? 1);
+  const tick = useMetronome(stepLength);
   const lastTick = useRef(-1);
   const activeStepIndex = useRef(-1);
+  const channelsConfig = useSequencersState
+    .getState()
+    .sequences.find(({ id }) => id === sequenceId)?.channelsConfig;
 
-  if (!sequence) return null;
+  // Trigger render if drum machine channel count number changes
+  useSequencersState(
+    (state) =>
+      (state.sequences.find(({ id }) => id === sequenceId) as StateSequenceDrumMachine)
+        ?.channelsConfig.length
+  );
+
+  if (!sequence || !channelsConfig) return null;
 
   if (tick !== lastTick.current) {
     lastTick.current = tick;
@@ -163,11 +174,10 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
     <div className="sequencer-grid">
       {channelsConfig
         .filter(({ isHidden }) => !isHidden)
-        .map((channelConfig, channelIndex) => (
+        .map((_, channelIndex) => (
           <SequencerChannel
             channelIndex={channelIndex}
-            channelConfig={channelConfig}
-            sequence={sequence}
+            sequenceId={sequenceId}
             key={channelIndex}
             activeStepIndex={visiblePage === activePageIndex ? activeStepIndex.current : -1}
             visiblePage={visiblePage}

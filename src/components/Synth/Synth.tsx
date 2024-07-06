@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Sequencer } from 'components/Sequencer/Sequencer';
 import { sendMidiMessage } from 'utils/midi';
 import { Midi, Scale } from 'tonal';
@@ -30,7 +30,11 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
       sequenceName: sequence.name,
     };
   }, isEqual);
-  const [synthChannels, setSynthChannels] = useState<StateSequenceChannelConfigMidiNote[]>([]);
+  const setChannelConfig = useSequencersState((state) => state.setChannelConfig);
+  const channelConfig = useSequencersState(
+    (state) =>
+      (state.sequences.find(({ id }) => id === sequenceId) as StateSequenceSynth).channelsConfig
+  );
 
   useEffect(() => {
     // Get indexes of the scale per channel e.g. [-3, -2, -1, 0, 1, 2, 3]
@@ -42,7 +46,8 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
     );
     const channelNotes = scaleIndexes.map(stepMap).filter((note) => note >= 0);
 
-    setSynthChannels(
+    setChannelConfig(
+      sequenceId,
       channelNotes.map(
         (note) =>
           ({
@@ -60,13 +65,13 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
       const sequence = useSequencersState
         .getState()
         .sequences.find(({ id }) => id === sequenceId) as StateSequenceSynth;
-      const channel = synthChannels[channelIndex];
+      const channel = channelConfig[channelIndex];
       const clockSpeed = useSequencersState.getState().clockSpeed;
 
       if (!channel || !sequence.midiOutDeviceName) return;
 
       sendMidiMessage(sequence.midiOutDeviceName, {
-        note: synthChannels[channelIndex].midiNote,
+        note: channelConfig[channelIndex].midiNote,
         velocity: 127 * (step?.volume ?? 1),
         channel: sequence.midiChannel,
         duration:
@@ -76,7 +81,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
         isMonophonic: !sequence.isPolyphonic,
       });
     },
-    [synthChannels]
+    [channelConfig]
   );
 
   const sequencerConfigCallback: SequencerProps['sequencerConfigCallback'] = () =>
@@ -88,7 +93,6 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
     <div className="synth">
       <Sequencer
         sequenceId={sequenceId}
-        channelsConfig={synthChannels}
         triggerCallback={triggerNote}
         sequencerConfigCallback={sequencerConfigCallback}
       />

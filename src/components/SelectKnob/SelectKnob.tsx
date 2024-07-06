@@ -189,27 +189,29 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
         </Button>
       </div>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} depth={modalDepth}>
-        <div
-          className={classNames(
-            'select-knob__modal-contents',
-            `select-knob__modal-contents--${modalColumns}-columns`
-          )}
-        >
-          {items.map((item) => (
-            <Button
-              onClick={() => {
-                clickOnModalButtonClosesModal && setIsOpen(false);
-                !actionMessage && setNewValue(item.value, item);
-              }}
-              actionMessage={actionMessage ? { ...actionMessage, value: item.value } : undefined}
-              actionMessageDecimalPlaces={stepDecimalPlaces}
-              key={item.key ?? item.label ?? item.value}
-              isActive={item.value === value}
-            >
-              {item.label ?? item.value}
-            </Button>
-          ))}
-        </div>
+        {isOpen && (
+          <div
+            className={classNames(
+              'select-knob__modal-contents',
+              `select-knob__modal-contents--${modalColumns}-columns`
+            )}
+          >
+            {items.map((item) => (
+              <Button
+                onClick={() => {
+                  clickOnModalButtonClosesModal && setIsOpen(false);
+                  !actionMessage && setNewValue(item.value, item);
+                }}
+                actionMessage={actionMessage ? { ...actionMessage, value: item.value } : undefined}
+                actionMessageDecimalPlaces={stepDecimalPlaces}
+                key={item.key ?? item.label ?? item.value}
+                isActive={item.value === value}
+              >
+                {item.label ?? item.value}
+              </Button>
+            ))}
+          </div>
+        )}
       </Modal>
     </>
   );

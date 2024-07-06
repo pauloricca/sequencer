@@ -19,6 +19,8 @@ import {
 } from 'components/components.constants';
 import { CHANNEL_TYPE_OPTIONS } from './DrumMachine.constants';
 import { formatNumber, formatPercentage } from 'utils/formatNumber';
+import { isEqual } from 'lodash';
+import { ControllerParameter } from 'components/Controller/ControllerParameter/ControllerParameter';
 
 export interface DrumMachineProps {
   sequenceId: string;
@@ -29,10 +31,16 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
   const sequenceName = useSequencersState(
     (state) => state.sequences.find(({ id }) => id === sequenceId)?.name || ''
   );
-  const channelsConfig = useSequencersState(
+  const sampleFileNames = useSequencersState(
     (state) =>
-      (state.sequences.find(({ id }) => id === sequenceId) as StateSequenceDrumMachine)
-        .channelsConfig
+      (
+        (
+          state.sequences.find(({ id }) => id === sequenceId) as StateSequenceDrumMachine
+        ).channelsConfig
+          .map((channelConfig) => channelConfig.type === 'sample' && channelConfig.audioFile)
+          .filter(Boolean) as string[]
+      ).sort((a, b) => a.localeCompare(b)),
+    isEqual
   );
   const updateChannelConfig = useSequencersState((state) => state.updateChannelConfig);
 
@@ -47,18 +55,18 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
   const sampleFileOptions = useRef(getSamplesFileOptions());
 
   useEffect(() => {
-    channelsConfig.forEach((channel) => {
-      if (channel.type === 'sample' && !samples.current[channel.audioFile]) {
+    sampleFileNames.forEach((sampleFileName) => {
+      if (!samples.current[sampleFileName]) {
         const reverb = new Tone.Reverb(0.1);
         const pan = new Tone.PanVol(0, 0);
         const distortion = new Tone.Distortion(1);
-        const player = new Tone.Player(`/samples/${channel.audioFile}`);
+        const player = new Tone.Player(`/samples/${sampleFileName}`);
 
         player.chain(distortion, pan, reverb, Tone.Destination);
-        samples.current[channel.audioFile] = { player, reverb, pan, distortion };
+        samples.current[sampleFileName] = { player, reverb, pan, distortion };
       }
     });
-  }, [channelsConfig]);
+  }, [sampleFileNames]);
 
   const triggerSample = useCallback((channelIndex: number, step?: StateSequenceStep) => {
     const sequence = useSequencersState
@@ -76,6 +84,9 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
       const sample = samples.current[channel.audioFile];
 
       if (sample?.player.loaded) {
+        // Don't trigger sample if volume is 0
+        if (volumePercentage <= 0) return;
+
         // on samples we set volume in db, -Infinity to 0, as a Log base 1.1
         const volumeLog20 = Math.log(volumePercentage) / Math.log(1.1);
 
@@ -142,234 +153,293 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
     }
   }, [isPlaying]);
 
-  const getChannelConfigComponents = useCallback(
-    (channelIndex: number) => {
-      const channelConfig = channelsConfig[channelIndex];
-      const update = (newChannelConfig: Partial<StateSequenceChannelConfig>) =>
-        updateChannelConfig(sequenceId, channelIndex, newChannelConfig);
+  const getChannelConfigComponents = useCallback((channelIndex: number) => {
+    const channelConfig = (
+      useSequencersState
+        .getState()
+        .sequences.find(({ id }) => id === sequenceId) as StateSequenceDrumMachine
+    ).channelsConfig[channelIndex];
 
-      return (
-        <>
-          <input
-            type="text"
-            value={channelConfig.name}
-            onChange={(ev) => update({ name: (ev.target as HTMLInputElement).value })}
-          />
+    const update = (newChannelConfig: Partial<StateSequenceChannelConfig>) =>
+      updateChannelConfig(sequenceId, channelIndex, newChannelConfig);
+
+    return (
+      <>
+        <input
+          type="text"
+          value={channelConfig.name}
+          onChange={(ev) => update({ name: (ev.target as HTMLInputElement).value })}
+        />
+        <ControllerParameter
+          labelCallback={() => 'volume'}
+          type="numeric"
+          step={0.05}
+          defaultValue={1}
+          actionMessage={{
+            type: 'Channel Param Change',
+            sequenceName,
+            channelIndex,
+            parameter: 'volume',
+          }}
+          showDial
+        />
+        <SelectKnob
+          label={`${channelConfig.type}`}
+          items={CHANNEL_TYPE_OPTIONS}
+          type="discrete"
+          clickOnModalButtonClosesModal
+          onChange={(value) => update({ type: value })}
+          value={channelConfig.type}
+        />
+        {(channelConfig.type === 'midi' || channelConfig.type === 'midi-cc') && (
           <SelectKnob
-            label="volume"
+            label={`midi channel: ${channelConfig.midiChannel ?? 'none'}`}
+            value={channelConfig.midiChannel}
             type="numeric"
-            step={0.05}
-            actionMessage={{
-              type: 'Channel Param Change',
-              sequenceName,
-              channelIndex,
-              parameter: 'volume',
-            }}
-            value={channelConfig.volume ?? 1}
-            showDial
-          />
-          <SelectKnob
-            label={`${channelConfig.type}`}
-            items={CHANNEL_TYPE_OPTIONS}
-            type="discrete"
+            max={MIDI_MAX_CHANNELS}
             clickOnModalButtonClosesModal
-            onChange={(value) => update({ type: value })}
-            value={channelConfig.type}
+            onChange={(value) => update({ midiChannel: value })}
           />
-          {(channelConfig.type === 'midi' || channelConfig.type === 'midi-cc') && (
+        )}
+        {channelConfig.type === 'midi' && (
+          <SelectKnob
+            label={`midi note: ${channelConfig.midiNote ?? 'none'}`}
+            value={channelConfig.midiNote}
+            type="numeric"
+            max={MIDI_MAX_NOTE}
+            clickOnModalButtonClosesModal
+            onChange={(value) => update({ midiNote: value })}
+          />
+        )}
+        {channelConfig.type === 'midi-cc' && (
+          <>
             <SelectKnob
-              label={`midi channel: ${channelConfig.midiChannel ?? 'none'}`}
-              value={channelConfig.midiChannel}
+              label={`midi cc: ${channelConfig.midiCC ?? 'none'}`}
+              value={channelConfig.midiCC}
               type="numeric"
-              max={MIDI_MAX_CHANNELS}
+              max={MIDI_MAX_CC}
               clickOnModalButtonClosesModal
-              onChange={(value) => update({ midiChannel: value })}
+              onChange={(value) => update({ midiCC: value })}
             />
-          )}
-          {channelConfig.type === 'midi' && (
             <SelectKnob
-              label={`midi note: ${channelConfig.midiNote ?? 'none'}`}
-              value={channelConfig.midiNote}
-              type="numeric"
-              max={MIDI_MAX_NOTE}
+              label={channelConfig.isFixedValue ? 'fixed value' : 'value set by volume'}
+              value={channelConfig.isFixedValue}
+              type="discrete"
+              modalColumns={2}
               clickOnModalButtonClosesModal
-              onChange={(value) => update({ midiNote: value })}
+              items={[
+                { value: true, label: 'fixed value' },
+                { value: false, label: 'value set by volume' },
+              ]}
+              onChange={(value) => update({ isFixedValue: value })}
             />
-          )}
-          {channelConfig.type === 'midi-cc' && (
-            <>
+            {channelConfig.isFixedValue && (
               <SelectKnob
-                label={`midi cc: ${channelConfig.midiCC ?? 'none'}`}
-                value={channelConfig.midiCC}
+                label={`midi cc value: ${channelConfig.midiCCValue ?? 'none'}`}
+                value={channelConfig.midiCCValue}
                 type="numeric"
-                max={MIDI_MAX_CC}
                 clickOnModalButtonClosesModal
-                onChange={(value) => update({ midiCC: value })}
+                max={MIDI_MAX_CC_VALUE}
+                onChange={(value) => update({ midiCCValue: value })}
               />
-              <SelectKnob
-                label={channelConfig.isFixedValue ? 'fixed value' : 'value set by volume'}
-                value={channelConfig.isFixedValue}
-                type="discrete"
-                modalColumns={2}
-                clickOnModalButtonClosesModal
-                items={[
-                  { value: true, label: 'fixed value' },
-                  { value: false, label: 'value set by volume' },
-                ]}
-                onChange={(value) => update({ isFixedValue: value })}
-              />
-              {channelConfig.isFixedValue && (
-                <SelectKnob
-                  label={`midi cc value: ${channelConfig.midiCCValue ?? 'none'}`}
-                  value={channelConfig.midiCCValue}
-                  type="numeric"
-                  clickOnModalButtonClosesModal
-                  max={MIDI_MAX_CC_VALUE}
-                  onChange={(value) => update({ midiCCValue: value })}
-                />
-              )}
-            </>
-          )}
-          {channelConfig.type === 'sample' && (
-            <>
-              <SelectKnob
-                label={channelConfig.audioFile ?? 'audio file'}
-                items={sampleFileOptions.current}
-                type="discrete"
-                modalColumns={2}
-                onChange={(value) => update({ audioFile: value })}
-                value={channelConfig.audioFile}
-              />
-              <SelectKnob
-                label={`pitch: ${channelConfig.pitch ?? 1}`}
-                value={channelConfig.pitch ?? 1}
-                type="numeric"
-                min={0}
-                max={2}
-                step={0.05}
-                actionMessage={{
-                  type: 'Channel Param Change',
-                  sequenceName,
-                  channelIndex,
-                  parameter: 'pitch' as 'name',
-                }}
-                showDial
-              />
-              <SelectKnob
-                label={`start: ${formatPercentage(channelConfig.start ?? 0)}`}
-                valueFormatter={formatPercentage}
-                value={channelConfig.start ?? 0}
-                type="numeric"
-                step={0.001}
-                onChange={(value) => update({ start: value })}
-                speed={3}
-                showDial
-              />
-              <SelectKnob
-                label={`start rand: ${formatPercentage(channelConfig.startRandomness ?? 0)}`}
-                value={channelConfig.startRandomness ?? 0}
-                valueFormatter={formatPercentage}
-                type="numeric"
-                step={0.001}
-                onChange={(value) => update({ startRandomness: value })}
-                speed={3}
-                showDial
-              />
-              <SelectKnob
-                label={`duration: ${formatPercentage(channelConfig.duration ?? 1)}`}
-                value={channelConfig.duration ?? 1}
-                valueFormatter={formatPercentage}
-                type="numeric"
-                step={0.001}
-                onChange={(value) => update({ duration: value })}
-                speed={3}
-                showDial
-              />
-              <SelectKnob
-                label={`attack: ${channelConfig.attack ?? 0}s`}
-                value={channelConfig.attack ?? 0}
-                valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
-                type="numeric"
-                min={0}
-                max={5}
-                step={0.05}
-                onChange={(value) => update({ attack: value })}
-                showDial
-              />
-              <SelectKnob
-                label={`release: ${channelConfig.release ?? 0}s`}
-                value={channelConfig.release ?? 0}
-                valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
-                type="numeric"
-                min={0}
-                max={5}
-                step={0.05}
-                onChange={(value) => update({ release: value })}
-                showDial
-              />
-              <SelectKnob
-                label={`reverb decay: ${channelConfig.reverbDecay ?? 0}s`}
-                value={channelConfig.reverbDecay ?? 0}
-                valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
-                type="numeric"
-                min={0}
-                max={5}
-                step={0.1}
-                onChange={(value) => update({ reverbDecay: value })}
-                showDial
-              />
-              <SelectKnob
-                label={`reverb wetness: ${formatPercentage(channelConfig.reverbWetness ?? 0)}`}
-                value={channelConfig.reverbWetness ?? 0}
-                valueFormatter={formatPercentage}
-                type="numeric"
-                step={0.05}
-                onChange={(value) => update({ reverbWetness: value })}
-                showDial
-              />
-              <SelectKnob
-                label={`pan (${!channelConfig.pan ? '|' : channelConfig.pan < 0 ? '<' : '>'}): ${channelConfig.pan ?? 0}`}
-                value={channelConfig.pan ?? 0}
-                type="numeric"
-                min={-1}
-                max={1}
-                step={0.1}
-                onChange={(value) => update({ pan: value })}
-                showDial
-              />
-              <SelectKnob
-                label={`distortion: ${formatPercentage(channelConfig.distortion ?? 0)}`}
-                value={channelConfig.distortion ?? 0}
-                valueFormatter={formatPercentage}
-                type="numeric"
-                step={0.05}
-                onChange={(value) => update({ distortion: value })}
-                showDial
-              />
-              <SelectKnob
-                label={`direction: ${channelConfig.isReversed ? 'reverse' : 'forward'}`}
-                value={channelConfig.isReversed ?? false}
-                type="discrete"
-                items={[
-                  { value: false, key: 'forward', label: 'forward' },
-                  { value: true, key: 'reverse', label: 'reverse' },
-                ]}
-                onChange={(value) => update({ isReversed: value })}
-                modalColumns={2}
-              />
-            </>
-          )}
-        </>
-      );
-    },
-    [channelsConfig]
-  );
+            )}
+          </>
+        )}
+        {channelConfig.type === 'sample' && (
+          <>
+            <SelectKnob
+              label={channelConfig.audioFile ?? 'audio file'}
+              items={sampleFileOptions.current}
+              type="discrete"
+              modalColumns={2}
+              onChange={(value) => update({ audioFile: value })}
+              value={channelConfig.audioFile}
+            />
+            <ControllerParameter
+              labelCallback={(value) => `pitch: ${value}`}
+              type="numeric"
+              min={0}
+              max={2}
+              step={0.05}
+              defaultValue={1}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'pitch' as 'name',
+              }}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) => `start: ${formatPercentage(value)}`}
+              type="numeric"
+              valueFormatter={formatPercentage}
+              step={0.01}
+              defaultValue={0}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'start' as 'name',
+              }}
+              speed={3}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) => `start rand: ${formatPercentage(value)}`}
+              type="numeric"
+              valueFormatter={formatPercentage}
+              step={0.01}
+              defaultValue={0}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'startRandomness' as 'name',
+              }}
+              speed={3}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) => `duration: ${formatPercentage(value)}`}
+              type="numeric"
+              valueFormatter={formatPercentage}
+              step={0.01}
+              defaultValue={1}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'duration' as 'name',
+              }}
+              speed={3}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) =>
+                `attack: ${formatNumber({ decimalPlaces: 2, suffix: 's' })(value)}`
+              }
+              type="numeric"
+              valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
+              step={0.05}
+              max={5}
+              defaultValue={0}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'attack' as 'name',
+              }}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) =>
+                `release: ${formatNumber({ decimalPlaces: 2, suffix: 's' })(value)}`
+              }
+              type="numeric"
+              valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
+              step={0.05}
+              max={5}
+              defaultValue={0}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'release' as 'name',
+              }}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) =>
+                `reverb decay: ${formatNumber({ decimalPlaces: 2, suffix: 's' })(value)}`
+              }
+              type="numeric"
+              valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
+              step={0.1}
+              max={5}
+              defaultValue={0}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'reverbDecay' as 'name',
+              }}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) => `reverb wetness: ${formatPercentage(value)}`}
+              type="numeric"
+              valueFormatter={formatPercentage}
+              step={0.05}
+              defaultValue={0}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'reverbWetness' as 'name',
+              }}
+              showDial
+            />
+            <SelectKnob
+              label={`pan (${!channelConfig.pan ? '|' : channelConfig.pan < 0 ? '<' : '>'}): ${channelConfig.pan ?? 0}`}
+              value={channelConfig.pan ?? 0}
+              type="numeric"
+              min={-1}
+              max={1}
+              step={0.1}
+              onChange={(value) => update({ pan: value })}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) => `pan (${!value ? '|' : value < 0 ? '<' : '>'}): ${value}`}
+              type="numeric"
+              min={-1}
+              max={1}
+              step={0.1}
+              defaultValue={0}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'pan' as 'name',
+              }}
+              showDial
+            />
+            <ControllerParameter
+              labelCallback={(value) => `distortion: ${formatPercentage(value)}`}
+              type="numeric"
+              valueFormatter={formatPercentage}
+              step={0.05}
+              defaultValue={0}
+              actionMessage={{
+                type: 'Channel Param Change',
+                sequenceName,
+                channelIndex,
+                parameter: 'distortion' as 'name',
+              }}
+              showDial
+            />
+            <SelectKnob
+              label={`direction: ${channelConfig.isReversed ? 'reverse' : 'forward'}`}
+              value={channelConfig.isReversed ?? false}
+              type="discrete"
+              items={[
+                { value: false, key: 'forward', label: 'forward' },
+                { value: true, key: 'reverse', label: 'reverse' },
+              ]}
+              onChange={(value) => update({ isReversed: value })}
+              modalColumns={2}
+            />
+          </>
+        )}
+      </>
+    );
+  }, []);
 
   return (
     <div className="drum-machine controller__instrument">
       <Sequencer
         sequenceId={sequenceId}
-        channelsConfig={channelsConfig}
         triggerCallback={triggerSample}
         showChannelControls={true}
         channelConfigComponents={getChannelConfigComponents}

@@ -225,6 +225,15 @@ const updateChannelConfigAction = (
   }
 };
 
+const setChannelConfig: StateAction =
+  (set): StateActions['setChannelConfig'] =>
+  (sequenceId, channelConfig) =>
+    set((state) => {
+      const sequence = getSequenceById(state.sequences, sequenceId);
+
+      if (sequence) sequence.channelsConfig = channelConfig;
+    });
+
 const updateChannelConfig: StateAction =
   (set): StateActions['updateChannelConfig'] =>
   (sequenceId, channelIndex, newChannelConfig) =>
@@ -493,6 +502,7 @@ export const useSequencersState = create<State & StateActions>()(
       addPage: addPage(set, get),
       removePage: removePage(set, get),
       updatePageOrder: updatePageOrder(set, get),
+      setChannelConfig: setChannelConfig(set, get),
       updateChannelConfig: updateChannelConfig(set, get),
       updateSequence: updateSequence(set, get),
       addSequencePattern: addSequencePattern(set, get),

@@ -2,6 +2,7 @@ import { SelectKnobItem } from 'components/SelectKnob/SelectKnob.types';
 import { StateShortcut } from 'state/state.types';
 
 export const PRESS_AND_HOLD_TIME = 1000;
+export const MIDI_ACTIONS_THROTTLE_TIME = 100;
 
 const shortCutTypeOptionValues: StateShortcut['type'][] = ['keyboard', 'midi-note', 'midi-cc'];
 

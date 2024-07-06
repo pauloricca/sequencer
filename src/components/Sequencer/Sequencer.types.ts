@@ -1,4 +1,3 @@
-import { StateSequenceChannelConfigCommon } from 'state/state.types';
 import { SequencerChannelProps } from './SequencerChannel/SequencerChannel';
 import { SequencerConfigProps } from './SequencerConfig/SequencerConfig.types';
 
@@ -9,5 +8,4 @@ export interface SequencerProps
     >,
     Pick<SequencerConfigProps, 'sequencerConfigCallback'> {
   sequenceId: string;
-  channelsConfig: StateSequenceChannelConfigCommon[];
 }

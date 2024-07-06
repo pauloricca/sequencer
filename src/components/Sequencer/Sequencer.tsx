@@ -29,7 +29,6 @@ require('./_Sequencer.scss');
 
 export const Sequencer: React.FC<SequencerProps> = ({
   sequenceId,
-  channelsConfig,
   triggerCallback = () => {},
   sequencerConfigCallback,
   ...otherSequencerChannelProps
@@ -163,7 +162,6 @@ export const Sequencer: React.FC<SequencerProps> = ({
       <div className="sequencer__body">
         <SequencerGrid
           sequenceId={sequenceId}
-          channelsConfig={channelsConfig}
           visiblePage={visiblePage}
           stepPropertyCurrentlyBeingEdited={stepPropertyCurrentlyBeingEdited}
           stepPropertyEditDirection={

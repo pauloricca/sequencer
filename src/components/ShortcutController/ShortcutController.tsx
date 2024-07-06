@@ -10,10 +10,15 @@ import {
   removeMidiEventListener,
   useMidiDeviceNames,
 } from 'utils/midi';
-import { SHORTCUT_EDIT_MODAL_DEPTH, SHORTCUT_TYPE_OPTIONS } from './ShortcutController.constants';
+import {
+  MIDI_ACTIONS_THROTTLE_TIME,
+  SHORTCUT_EDIT_MODAL_DEPTH,
+  SHORTCUT_TYPE_OPTIONS,
+} from './ShortcutController.constants';
 import { getStepFromDecimalPlaces, hasInputInFocus } from './ShortcutController.utils';
 import { SelectKnobMidi } from 'components/SelectKnob/SelectKnobMidi/SelectKnobMidi';
 import { MIDI_MAX_CC, MIDI_MAX_CHANNELS, MIDI_MAX_NOTE } from 'components/components.constants';
+import { throttle } from 'lodash';
 require('./_ShortcutController.scss');
 
 export const ShortcutController: React.FC = () => {
@@ -32,8 +37,14 @@ export const ShortcutController: React.FC = () => {
     (state) => state.removeActiveMidiInputDevice
   );
   const midiDeviceNames = useMidiDeviceNames('input');
-
   const shortcutBeingEdited = shortcuts.find(({ isBeingEdited }) => isBeingEdited);
+  /**
+   * If we perform all actions from midi callbacks very quickly we affect performance,
+   * but we don't want to throttle them all together as several sliders might be moved at the
+   * same time, for example, and we want the first and last of each of them to be handled,
+   * so we keep throttled callbacks for each of the shortcuts (mapped by their ids).
+   */
+  const throttledMidiActions = useRef<{ [shortcutId: string]: any }>({});
 
   useEffect(() => {
     shortcutsRef.current = shortcuts;
@@ -91,12 +102,20 @@ export const ShortcutController: React.FC = () => {
           ({ type, midiDevice, midiChannel }) =>
             type === 'midi-note' && midiDevice === event.deviceName && midiChannel === event.channel
         )
-        .forEach(({ actionMessage }) =>
-          performAction({
-            ...actionMessage,
-            value: event.note,
-          })
-        );
+        .forEach(({ id, actionMessage }) => {
+          if (!throttledMidiActions.current[id]) {
+            throttledMidiActions.current[id] = throttle(
+              (callback: () => void) => callback(),
+              MIDI_ACTIONS_THROTTLE_TIME
+            );
+          }
+          throttledMidiActions.current[id](() =>
+            performAction({
+              ...actionMessage,
+              value: event.note,
+            })
+          );
+        });
     } else {
       // Workaround for accessing state within callback
       const activeMidiInputDevices =

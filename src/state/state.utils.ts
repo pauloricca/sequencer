@@ -91,6 +91,7 @@ export const getDefaultSynth = (): StateSequenceSynth => ({
   midiChannel: 1,
   patterns: [getDefaultPattern()],
   isPolyphonic: true,
+  channelsConfig: [],
 });
 
 export const getDefaultDrumMachine = (): StateSequenceDrumMachine => ({

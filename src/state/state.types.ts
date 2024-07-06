@@ -63,6 +63,7 @@ export interface StateActions {
   ) => void;
   removePage: (sequenceId: string, pageNumber: number) => void;
   updatePageOrder: (sequenceId: string, oldIndex: number, newIndex: number) => void;
+  setChannelConfig: (sequenceId: string, channelConfig: StateSequenceChannelConfig[]) => void;
   updateChannelConfig: (
     sequenceId: string,
     channelIndex: number,
@@ -146,7 +147,10 @@ export interface StateSequenceSynth extends StateSequenceCommon {
   noteDuration: number;
   midiChannel: number;
   isPolyphonic: boolean;
+  channelsConfig: StateSequenceChannelConfigMidiNote[];
 }
+
+export interface StateSequenceSynthPreset extends Omit<StateSequenceSynth, 'channelsConfig'> {}
 
 export interface StateSequencePattern {
   id: string;
