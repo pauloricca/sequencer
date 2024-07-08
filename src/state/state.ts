@@ -307,7 +307,7 @@ const addSequencePattern: StateAction =
             ? { ...cloneDeep({ ...getCurrentPattern(sequence) }), id: nanoid() }
             : getDefaultPattern(),
         ],
-        currentPattern: sequence.patterns.length,
+        currentPattern: sequence.patterns.length + 1,
       });
     });
 
