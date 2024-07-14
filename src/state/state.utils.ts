@@ -101,6 +101,7 @@ export const getDefaultSynth = (): StateSequenceSynth => ({
   patterns: [getDefaultPattern()],
   isPolyphonic: true,
   channelsConfig: [],
+  sendDelay: 140,
 });
 
 export const getDefaultDrumMachine = (): StateSequenceDrumMachine => ({

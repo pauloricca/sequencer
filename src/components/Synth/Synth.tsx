@@ -70,16 +70,18 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
 
       if (!channel || !sequence.midiOutDeviceName) return;
 
-      sendMidiMessage(sequence.midiOutDeviceName, {
-        note: channelConfig[channelIndex].midiNote,
-        velocity: 127 * (step?.volume ?? 1),
-        channel: sequence.midiChannel,
-        duration:
-          (step?.duration ?? sequence.noteDuration) *
-          getIntervalFromClockSpeed(clockSpeed) *
-          sequence.stepLength,
-        isMonophonic: !sequence.isPolyphonic,
-      });
+      setTimeout(() => {
+        sendMidiMessage(sequence.midiOutDeviceName as string, {
+          note: channelConfig[channelIndex].midiNote,
+          velocity: 127 * (step?.volume ?? 1),
+          channel: sequence.midiChannel,
+          duration:
+            (step?.duration ?? sequence.noteDuration) *
+            getIntervalFromClockSpeed(clockSpeed) *
+            sequence.stepLength,
+          isMonophonic: !sequence.isPolyphonic,
+        });
+      }, sequence.sendDelay ?? 0);
     },
     [channelConfig]
   );

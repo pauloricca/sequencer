@@ -124,6 +124,10 @@ export interface StateSequenceCommon {
    * Amount of mutated steps after each sequence (0/undefined: no steps get mutated, 1: all steps are mutated)
    */
   mutationAmount?: number;
+  /**
+   * Time to delay sending notes by (in milliseconds)
+   */
+  sendDelay?: number;
 }
 
 export interface StateSequenceDrumMachine extends StateSequenceCommon {

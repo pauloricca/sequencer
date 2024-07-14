@@ -130,13 +130,13 @@ export const Sequencer: React.FC<SequencerProps> = ({
             name: 'pitch',
             value: 'pitch',
             icon: 'music',
-            isHidden: sequenceType === 'synth',
+            isHidden: sequenceType !== 'drum-machine',
           },
           {
             name: 'duration',
             value: 'duration',
             icon: 'arrows-horizontal',
-            isHidden: sequenceType !== 'synth',
+            isHidden: sequenceType === 'drum-machine',
           },
           {
             name: 'probability',

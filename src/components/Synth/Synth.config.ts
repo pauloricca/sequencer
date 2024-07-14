@@ -102,4 +102,15 @@ export const getSynthConfigParameterConfig = (sequenceName: string): ControllerP
       },
     ],
   },
+  {
+    actionMessage: {
+      parameter: 'sendDelay',
+      type: 'Sequence Param Change',
+      sequenceName,
+    },
+    labelCallback: (value) => `delay: ${value}ms`,
+    type: 'numeric',
+    min: 1,
+    max: 1000,
+  },
 ];
