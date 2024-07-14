@@ -25,6 +25,7 @@ export const ControllerControls: React.FC = () => {
   const setClockSpeed = useSequencersState((state) => state.setClockSpeed);
   const setSwing = useSequencersState((state) => state.setSwing);
   const resetState = useSequencersState((state) => state.reset);
+  const sequenceCount = useSequencersState((state) => state.sequences.length);
 
   useEffect(() => {
     setMetronomeInterval(getIntervalFromClockSpeed(clockSpeed));
@@ -42,6 +43,10 @@ export const ControllerControls: React.FC = () => {
       stopMetronome();
     }
   }, [isPlaying]);
+
+  useEffect(() => {
+    !sequenceCount && !isConfigOpen && setIsConfigOpen(true);
+  }, [sequenceCount]);
 
   const resetHandler = () => {
     const wasPLaying = isPlaying;

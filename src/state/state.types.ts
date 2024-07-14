@@ -98,8 +98,11 @@ type StateGetter = () => State & StateActions;
 
 export type StateAction = (set: StateSetter, get: StateGetter) => any;
 
-export type StateSequence = StateSequenceDrumMachine | StateSequenceSynth;
-export type StateSequencePreset = StateSequenceDrumMachinePreset | StateSequenceSynth;
+export type StateSequence = StateSequenceDrumMachine | StateSequenceSynth | StateSequenceLineIn;
+export type StateSequencePreset =
+  | StateSequenceDrumMachinePreset
+  | StateSequenceSynth
+  | StateSequenceLineIn;
 
 export interface StateSequenceCommon {
   id: string;
@@ -125,6 +128,11 @@ export interface StateSequenceCommon {
 
 export interface StateSequenceDrumMachine extends StateSequenceCommon {
   type: 'drum-machine';
+  channelsConfig: StateSequenceChannelConfig[];
+}
+
+export interface StateSequenceLineIn extends StateSequenceCommon {
+  type: 'line-in';
   channelsConfig: StateSequenceChannelConfig[];
 }
 
@@ -163,6 +171,7 @@ export interface StateSequencePatternPage {
 }
 
 export type StateSequenceChannelConfig =
+  | StateSequenceChannelLineIn
   | StateSequenceChannelConfigMidiNote
   | StateSequenceChannelConfigMidiCC
   | StateSequenceChannelConfigSample;
@@ -241,6 +250,10 @@ export interface StateSequenceChannelConfigSample extends StateSequenceChannelCo
   pan?: number;
   distortion?: number;
   isReversed?: boolean;
+}
+
+export interface StateSequenceChannelLineIn extends StateSequenceChannelConfigCommon {
+  type: 'line-in';
 }
 
 export interface StateSequenceStep extends StateSequenceStepProperties {

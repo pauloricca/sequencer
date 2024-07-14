@@ -4,6 +4,7 @@ import { PRESET_VOLCA_DRUMS } from './presets.volca-drums';
 import { PRESET_VOLCA_BEATS } from './presets.volca-beats';
 import { PRESET_909_SAMPLES } from './presets.909-samples';
 import { PRESET_MIDI_CC_TRIGGER } from './presets.midi-cc-trigger';
+import { PRESET_LINE_IN } from './presets.line-in';
 
 export const PRESETS: StateSequencePreset[] = [
   PRESET_VOLCA_DRUMS,
@@ -14,4 +15,5 @@ export const PRESETS: StateSequencePreset[] = [
     ...getDefaultSequence('synth'),
     name: 'synth',
   } as StateSequenceSynth,
+  PRESET_LINE_IN,
 ];
