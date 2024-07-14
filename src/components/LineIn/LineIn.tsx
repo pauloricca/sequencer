@@ -43,11 +43,6 @@ export const LineIn: React.FC<LineInProps> = ({ sequenceId }) => {
       } as StateSequenceChannelLineIn,
     ]);
 
-    envelope.current.attack = 0.1;
-    envelope.current.decay = 0.1;
-    envelope.current.sustain = 1;
-    envelope.current.release = 0.1;
-
     lineIn.current.open();
     lineIn.current.chain(envelope.current, Tone.Destination);
   }, []);
@@ -76,8 +71,16 @@ export const LineIn: React.FC<LineInProps> = ({ sequenceId }) => {
 
       const clockSpeed = useSequencersState.getState().clockSpeed;
 
+      envelope.current.attack = sequence.attack ?? 0;
+      envelope.current.decay = sequence.decay ?? 0;
+      envelope.current.sustain = sequence.sustain ?? 1;
+      envelope.current.release = sequence.release ?? 0;
+
       const durationMillis =
-        (step.duration || 1) * getIntervalFromClockSpeed(clockSpeed) * sequence.stepLength;
+        (step.duration || 1) *
+        getIntervalFromClockSpeed(clockSpeed) *
+        sequence.stepLength *
+        (sequence.gate ?? 1);
 
       envelope.current.triggerAttackRelease(durationMillis / 1000, undefined, step.volume ?? 1);
     },

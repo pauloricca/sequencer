@@ -14,7 +14,7 @@ import {
   MIDI_MAX_NOTE,
 } from 'components/components.constants';
 import { getSamplesFileOptions } from '../DrumMachine.utils';
-import { formatNumber, formatPercentage } from 'utils/formatNumber';
+import { formatPercentage, formatSeconds } from 'utils/formatNumber';
 import { isEqual } from 'lodash';
 
 export interface DrumMachineChannelConfigProps {
@@ -235,11 +235,9 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
             showDial
           />
           <ControllerParameter
-            labelCallback={(value) =>
-              `attack: ${formatNumber({ decimalPlaces: 2, suffix: 's' })(value)}`
-            }
+            labelCallback={(value) => `attack: ${formatSeconds(value)}`}
             type="numeric"
-            valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
+            valueFormatter={formatSeconds}
             step={0.05}
             max={5}
             defaultValue={0}
@@ -252,11 +250,9 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
             showDial
           />
           <ControllerParameter
-            labelCallback={(value) =>
-              `release: ${formatNumber({ decimalPlaces: 2, suffix: 's' })(value)}`
-            }
+            labelCallback={(value) => `release: ${formatSeconds(value)}`}
             type="numeric"
-            valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
+            valueFormatter={formatSeconds}
             step={0.05}
             max={5}
             defaultValue={0}
@@ -269,11 +265,9 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
             showDial
           />
           <ControllerParameter
-            labelCallback={(value) =>
-              `reverb decay: ${formatNumber({ decimalPlaces: 2, suffix: 's' })(value)}`
-            }
+            labelCallback={(value) => `reverb decay: ${formatSeconds(value)}`}
             type="numeric"
-            valueFormatter={formatNumber({ decimalPlaces: 2, suffix: 's' })}
+            valueFormatter={formatSeconds}
             step={0.1}
             max={5}
             defaultValue={0}

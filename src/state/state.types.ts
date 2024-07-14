@@ -137,6 +137,26 @@ export interface StateSequenceDrumMachine extends StateSequenceCommon {
 
 export interface StateSequenceLineIn extends StateSequenceCommon {
   type: 'line-in';
+  /**
+   * open gate duration (0 to 1 relative to step duration)
+   */
+  gate?: number;
+  /**
+   * fade in time in seconds
+   */
+  attack?: number;
+  /**
+   * decay time in seconds
+   */
+  decay?: number;
+  /**
+   * sustain amount (0 to 1)
+   */
+  sustain?: number;
+  /**
+   * fade out time in seconds
+   */
+  release?: number;
   channelsConfig: StateSequenceChannelConfig[];
 }
 
@@ -286,7 +306,7 @@ export type StateActionMessage =
 type StateActionMessageSequenceParameterChange = {
   type: 'Sequence Param Change';
   sequenceName: string;
-  parameter: keyof StateSequenceDrumMachine | keyof StateSequenceSynth;
+  parameter: keyof StateSequenceDrumMachine | keyof StateSequenceSynth | keyof StateSequenceLineIn;
   decimalPlaces?: number;
   value?: number | string | boolean;
 };
