@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { Sequencer } from 'components/Sequencer/Sequencer';
 import { useSequencersState } from 'state/state';
 import {
-  StateSequenceChannelLineIn,
+  StateSequenceChannelConfigLineIn,
   StateSequenceLineIn,
   StateSequenceStep,
 } from 'state/state.types';
@@ -40,7 +40,7 @@ export const LineIn: React.FC<LineInProps> = ({ sequenceId }) => {
       {
         type: 'line-in',
         name: 'line in',
-      } as StateSequenceChannelLineIn,
+      } as StateSequenceChannelConfigLineIn,
     ]);
 
     lineIn.current.open();

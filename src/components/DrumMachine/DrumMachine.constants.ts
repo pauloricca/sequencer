@@ -5,4 +5,5 @@ export const CHANNEL_TYPE_OPTIONS: SelectKnobProps['items'] = [
   { value: 'midi' },
   { value: 'midi-cc' },
   { value: 'sample' },
+  { value: 'line-in' },
 ];

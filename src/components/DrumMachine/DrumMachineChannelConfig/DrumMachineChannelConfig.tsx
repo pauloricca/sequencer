@@ -84,7 +84,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
           channelIndex,
           parameter: 'type',
         }}
-        modalColumns={3}
+        modalColumns={4}
       />
       {(channelType === 'midi' || channelType === 'midi-cc') && (
         <ControllerParameter
@@ -235,6 +235,26 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
             showDial
           />
           <ControllerParameter
+            labelCallback={(value) => (value ? 'reverse' : 'forward')}
+            items={[
+              { value: false, key: 'forward', label: 'forward' },
+              { value: true, key: 'reverse', label: 'reverse' },
+            ]}
+            modalColumns={2}
+            type="discrete"
+            clickOnModalButtonClosesModal
+            actionMessage={{
+              type: 'Channel Param Change',
+              sequenceName,
+              channelIndex,
+              parameter: 'isReversed' as 'name',
+            }}
+          />
+        </>
+      )}
+      {(channelType === 'sample' || channelType === 'line-in') && (
+        <>
+          <ControllerParameter
             labelCallback={(value) => `attack: ${formatSeconds(value)}`}
             type="numeric"
             valueFormatter={formatSeconds}
@@ -264,6 +284,53 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
             }}
             showDial
           />
+          {channelType === 'line-in' && (
+            <>
+              <ControllerParameter
+                labelCallback={(value) => `decay: ${formatSeconds(value)}`}
+                type="numeric"
+                valueFormatter={formatSeconds}
+                step={0.05}
+                max={5}
+                defaultValue={0}
+                actionMessage={{
+                  type: 'Channel Param Change',
+                  sequenceName,
+                  channelIndex,
+                  parameter: 'decay' as 'name',
+                }}
+                showDial
+              />
+              <ControllerParameter
+                labelCallback={(value) => `sustain: ${formatPercentage(value)}`}
+                type="numeric"
+                valueFormatter={formatPercentage}
+                step={0.05}
+                defaultValue={1}
+                actionMessage={{
+                  type: 'Channel Param Change',
+                  sequenceName,
+                  channelIndex,
+                  parameter: 'sustain' as 'name',
+                }}
+                showDial
+              />
+              <ControllerParameter
+                labelCallback={(value) => `gate: ${formatPercentage(value)}`}
+                type="numeric"
+                valueFormatter={formatPercentage}
+                step={0.05}
+                defaultValue={1}
+                actionMessage={{
+                  type: 'Channel Param Change',
+                  sequenceName,
+                  channelIndex,
+                  parameter: 'gate' as 'name',
+                }}
+                showDial
+              />
+            </>
+          )}
           <ControllerParameter
             labelCallback={(value) => `reverb decay: ${formatSeconds(value)}`}
             type="numeric"
@@ -321,22 +388,6 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               parameter: 'distortion' as 'name',
             }}
             showDial
-          />
-          <ControllerParameter
-            labelCallback={(value) => (value ? 'reverse' : 'forward')}
-            items={[
-              { value: false, key: 'forward', label: 'forward' },
-              { value: true, key: 'reverse', label: 'reverse' },
-            ]}
-            modalColumns={2}
-            type="discrete"
-            clickOnModalButtonClosesModal
-            actionMessage={{
-              type: 'Channel Param Change',
-              sequenceName,
-              channelIndex,
-              parameter: 'isReversed' as 'name',
-            }}
           />
         </>
       )}

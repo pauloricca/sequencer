@@ -46,6 +46,9 @@ export interface StateActions {
   setClockSpeed: (clockSpeed: number) => void;
   setSwing: (swing: number) => void;
   reset: (state?: State) => void;
+  performAction: (actionMessage: StateActionMessage) => void;
+  addMidiClockSendDevice: (params: StateClockSendDeviceParams) => void;
+  removeMidiClockSendDevice: (midiOutputDevice: string) => void;
 
   // Sequence
   setStep: (sequenceId: string, step: StateSequenceStep, pageNumber: number) => void;
@@ -73,7 +76,6 @@ export interface StateActions {
   addSequencePattern: (sequenceId: string, doDuplicateCurrentPattern?: boolean) => void;
   removeCurrentSequencePattern: (sequenceId: string) => void;
   updateSequencePatternOrder: (sequenceId: string, oldIndex: number, newIndex: number) => void;
-  performAction: (actionMessage: StateActionMessage) => void;
 
   // Control shortcuts
   startEditingShortcut: (shortcut: Omit<StateShortcut, 'id' | 'type' | 'key'>) => void;
@@ -82,8 +84,6 @@ export interface StateActions {
   removeShortcut: (id: string) => void;
   addActiveMidiInputDevice: (midiInputDevice: string) => void;
   removeActiveMidiInputDevice: (midiInputDevice: string) => void;
-  addMidiClockSendDevice: (params: StateClockSendDeviceParams) => void;
-  removeMidiClockSendDevice: (midiOutputDevice: string) => void;
 }
 
 type StateSetter = (
@@ -115,7 +115,7 @@ export interface StateSequenceCommon {
    */
   patterns: StateSequencePattern[];
   /**
-   * How many clock ticks take to advance one tick in this sequence
+   * How many clock ticks takes to advance one tick in this sequence
    */
   stepLength: number;
   midiOutDeviceName?: string;
@@ -195,7 +195,7 @@ export interface StateSequencePatternPage {
 }
 
 export type StateSequenceChannelConfig =
-  | StateSequenceChannelLineIn
+  | StateSequenceChannelConfigLineIn
   | StateSequenceChannelConfigMidiNote
   | StateSequenceChannelConfigMidiCC
   | StateSequenceChannelConfigSample;
@@ -233,25 +233,7 @@ export interface StateSequenceChannelConfigMidiCC extends StateSequenceChannelCo
   midiCCValue?: number;
 }
 
-export interface StateSequenceChannelConfigSample extends StateSequenceChannelConfigCommon {
-  type: 'sample';
-  audioFile: string;
-  /**
-   * 1 pitch is sample played at normal rate, <1 is lower pitch, >1 higher pitch
-   */
-  pitch?: number;
-  /**
-   * play start 0 to 1 (relative to length of track)
-   */
-  start?: number;
-  /**
-   * amount of randomness (positive and negative range) added to the play start. 0 to 1 (relative to length of track)
-   */
-  startRandomness?: number;
-  /**
-   * play duration 0 to 1 (relative to length of track)
-   */
-  duration?: number;
+export interface StateSequenceChannelConfigSampleOrLineIn extends StateSequenceChannelConfigCommon {
   /**
    * fade in time in seconds
    */
@@ -273,11 +255,47 @@ export interface StateSequenceChannelConfigSample extends StateSequenceChannelCo
    */
   pan?: number;
   distortion?: number;
+}
+
+export interface StateSequenceChannelConfigSample extends StateSequenceChannelConfigSampleOrLineIn {
+  type: 'sample';
+  audioFile: string;
+  /**
+   * 1 pitch is sample played at normal rate, <1 is lower pitch, >1 higher pitch
+   */
+  pitch?: number;
+  /**
+   * play start 0 to 1 (relative to length of track)
+   */
+  start?: number;
+  /**
+   * amount of randomness (positive and negative range) added to the play start. 0 to 1 (relative to length of track)
+   */
+  startRandomness?: number;
+  /**
+   * play duration 0 to 1 (relative to length of track)
+   */
+  duration?: number;
+  /**
+   * plays the sample in reverse
+   */
   isReversed?: boolean;
 }
 
-export interface StateSequenceChannelLineIn extends StateSequenceChannelConfigCommon {
+export interface StateSequenceChannelConfigLineIn extends StateSequenceChannelConfigSampleOrLineIn {
   type: 'line-in';
+  /**
+   * decay time in seconds
+   */
+  decay?: number;
+  /**
+   * sustain amount (0 to 1)
+   */
+  sustain?: number;
+  /**
+   * open gate duration (0 to 1 relative to step durati
+   */
+  gate?: number;
 }
 
 export interface StateSequenceStep extends StateSequenceStepProperties {
