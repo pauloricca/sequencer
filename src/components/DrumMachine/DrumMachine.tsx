@@ -70,8 +70,10 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
 
   useEffect(() => {
     sampleOrLineInChannels.forEach((channel) => {
-      if (!soundPlayers.current[channel.id]) {
-        soundPlayers.current[channel.id] = {
+      let soundPlayer = soundPlayers.current[channel.id];
+
+      if (!soundPlayer) {
+        soundPlayer = soundPlayers.current[channel.id] = {
           type: channel.type,
           reverb: new Tone.Reverb(0.1),
           pan: new Tone.PanVol(0, 0),
@@ -80,34 +82,29 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
       }
 
       // Need to load new sample?
-      if (
-        channel.type === 'sample' &&
-        soundPlayers.current[channel.id].audioFile !== channel.audioFile
-      ) {
-        console.log('paulo init sample', channel.id);
-        soundPlayers.current[channel.id].samplePlayer?.stop();
-        soundPlayers.current[channel.id].samplePlayer = new Tone.Player(
-          `/samples/${channel.audioFile}`
-        );
-        soundPlayers.current[channel.id].samplePlayer!.chain(
-          soundPlayers.current[channel.id].distortion,
-          soundPlayers.current[channel.id].pan,
-          soundPlayers.current[channel.id].reverb,
+      if (channel.type === 'sample' && soundPlayer.audioFile !== channel.audioFile) {
+        soundPlayer.type = 'sample';
+        soundPlayer.samplePlayer?.stop();
+        soundPlayer.samplePlayer = new Tone.Player(`/samples/${channel.audioFile}`);
+        soundPlayer.samplePlayer!.chain(
+          soundPlayer.distortion,
+          soundPlayer.pan,
+          soundPlayer.reverb,
           Tone.Destination
         );
       }
 
       // Need to open line-ins?
-      if (channel.type === 'line-in' && !soundPlayers.current[channel.id].userMedia) {
-        console.log('paulo init line in', channel.id);
-        soundPlayers.current[channel.id].userMedia = new Tone.UserMedia();
-        soundPlayers.current[channel.id].envelope = new Tone.AmplitudeEnvelope();
-        soundPlayers.current[channel.id].userMedia!.open();
-        soundPlayers.current[channel.id].userMedia!.chain(
-          soundPlayers.current[channel.id].envelope!,
-          soundPlayers.current[channel.id].distortion,
-          soundPlayers.current[channel.id].pan,
-          soundPlayers.current[channel.id].reverb,
+      if (channel.type === 'line-in' && !soundPlayer.userMedia) {
+        soundPlayer.type = 'line-in';
+        soundPlayer.userMedia = new Tone.UserMedia();
+        soundPlayer.envelope = new Tone.AmplitudeEnvelope();
+        soundPlayer.userMedia!.open();
+        soundPlayer.userMedia!.chain(
+          soundPlayer.envelope!,
+          soundPlayer.distortion,
+          soundPlayer.pan,
+          soundPlayer.reverb,
           Tone.Destination
         );
       }
@@ -118,15 +115,12 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
       const player = soundPlayers.current[channelId];
 
       if (player.type === 'line-in') {
-        console.log('paulo destroy sample...', channelId);
         destroySamplePlayer(player);
       } else {
-        console.log('paulo destroy line in...', channelId);
         destroyLineInPlayer(player);
       }
 
       if (!sampleOrLineInChannels.find(({ id }) => id === channelId)) {
-        console.log('paulo destroy both...', channelId);
         destroySamplePlayer(player);
         destroyLineInPlayer(player);
         delete soundPlayers.current[channelId];
@@ -134,7 +128,15 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
     });
   }, [sampleOrLineInChannels]);
 
-  // TODO: dispose all samples when removing component
+  // destroy all samples when removing component
+  useEffect(
+    () => () =>
+      Object.keys(soundPlayers.current).forEach((channelId) => {
+        destroySamplePlayer(soundPlayers.current[channelId]);
+        destroyLineInPlayer(soundPlayers.current[channelId]);
+      }),
+    []
+  );
 
   const triggerSample = useCallback((channelIndex: number, step?: StateSequenceStep) => {
     const sequence = useSequencersState
