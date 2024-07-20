@@ -7,6 +7,7 @@ import {
   StateSequenceChannelConfigMidiNote,
   StateSequenceStep,
   StateSequenceSynth,
+  useTemporalStore,
 } from 'state/state.types';
 import { isEqual } from 'lodash';
 import { getSynthConfigParameterConfig } from './Synth.config';
@@ -35,6 +36,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
     (state) =>
       (state.sequences.find(({ id }) => id === sequenceId) as StateSequenceSynth).channelsConfig
   );
+  const { pause, resume } = useTemporalStore(({ pause, resume }) => ({ pause, resume }));
 
   useEffect(() => {
     // Get indexes of the scale per channel e.g. [-3, -2, -1, 0, 1, 2, 3]
@@ -46,6 +48,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
     );
     const channelNotes = scaleIndexes.map(stepMap).filter((note) => note >= 0);
 
+    pause();
     setChannelConfig(
       sequenceId,
       channelNotes.map(
@@ -58,6 +61,7 @@ export const Synth: React.FC<SynthProps> = ({ sequenceId }) => {
           }) as StateSequenceChannelConfigMidiNote
       )
     );
+    resume();
   }, [rootNote, range, scale, transpose]);
 
   const triggerNote = useCallback(

@@ -21,6 +21,7 @@ import { Draft } from 'immer';
 import { cloneDeep } from 'lodash';
 import { nanoid } from 'nanoid';
 import { arrayMove } from '@dnd-kit/sortable';
+import { temporal } from 'zundo';
 
 const addSequence: StateAction =
   (set): StateActions['addSequence'] =>
@@ -487,43 +488,54 @@ const reset: StateAction =
     set(() => migrate(state, state.version));
 
 export const useSequencersState = create<State & StateActions>()(
-  persist(
-    immer((set, get) => ({
-      ...INITIAL_STATE,
-      addSequence: addSequence(set, get),
-      removeSequence: removeSequence(set, get),
-      updateSequenceOrder: updateSequenceOrder(set, get),
-      setIsPlaying: setIsPlaying(set, get),
-      setClockSpeed: setClockSpeed(set, get),
-      setSwing: setSwing(set, get),
-      setStep: setStep(set, get),
-      removeStep: removeStep(set, get),
-      updateStep: updateStep(set, get),
-      addPage: addPage(set, get),
-      removePage: removePage(set, get),
-      updatePageOrder: updatePageOrder(set, get),
-      setChannelConfig: setChannelConfig(set, get),
-      updateChannelConfig: updateChannelConfig(set, get),
-      updateSequence: updateSequence(set, get),
-      addSequencePattern: addSequencePattern(set, get),
-      removeCurrentSequencePattern: removeCurrentSequencePattern(set, get),
-      updateSequencePatternOrder: updateSequencePatternOrder(set, get),
-      performAction: performAction(set, get),
-      startEditingShortcut: startListeningToNewShortcut(set, get),
-      stopEditingShortcut: stopEditingShortcut(set, get),
-      updateShortcut: updateShortcut(set, get),
-      removeShortcut: removeShortcut(set, get),
-      addActiveMidiInputDevice: addActiveMidiInputDevice(set, get),
-      removeActiveMidiInputDevice: removeActiveMidiInputDevice(set, get),
-      addMidiClockSendDevice: addMidiClockSendDevice(set, get),
-      removeMidiClockSendDevice: removeMidiClockSendDevice(set, get),
-      reset: reset(set, get),
-    })),
+  temporal(
+    persist(
+      immer((set, get) => ({
+        ...INITIAL_STATE,
+        addSequence: addSequence(set, get),
+        removeSequence: removeSequence(set, get),
+        updateSequenceOrder: updateSequenceOrder(set, get),
+        setIsPlaying: setIsPlaying(set, get),
+        setClockSpeed: setClockSpeed(set, get),
+        setSwing: setSwing(set, get),
+        setStep: setStep(set, get),
+        removeStep: removeStep(set, get),
+        updateStep: updateStep(set, get),
+        addPage: addPage(set, get),
+        removePage: removePage(set, get),
+        updatePageOrder: updatePageOrder(set, get),
+        setChannelConfig: setChannelConfig(set, get),
+        updateChannelConfig: updateChannelConfig(set, get),
+        updateSequence: updateSequence(set, get),
+        addSequencePattern: addSequencePattern(set, get),
+        removeCurrentSequencePattern: removeCurrentSequencePattern(set, get),
+        updateSequencePatternOrder: updateSequencePatternOrder(set, get),
+        performAction: performAction(set, get),
+        startEditingShortcut: startListeningToNewShortcut(set, get),
+        stopEditingShortcut: stopEditingShortcut(set, get),
+        updateShortcut: updateShortcut(set, get),
+        removeShortcut: removeShortcut(set, get),
+        addActiveMidiInputDevice: addActiveMidiInputDevice(set, get),
+        removeActiveMidiInputDevice: removeActiveMidiInputDevice(set, get),
+        addMidiClockSendDevice: addMidiClockSendDevice(set, get),
+        removeMidiClockSendDevice: removeMidiClockSendDevice(set, get),
+        reset: reset(set, get),
+      })),
+      {
+        name: 'sequencers', // name of the item in the storage (must be unique)
+        version: INITIAL_STATE.version,
+        migrate: migrate as () => State & StateActions,
+        // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+      }
+    ),
     {
-      name: 'sequencers', // name of the item in the storage (must be unique)
-      version: INITIAL_STATE.version,
-      migrate: migrate as () => State & StateActions,
-      // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
+      // Set which fields we want to not be included in undo/redo
+      partialize: (state) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { isPlaying, ...others } = state;
+
+        return others;
+      },
     }
   )
 );

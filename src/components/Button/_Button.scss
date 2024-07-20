@@ -21,6 +21,11 @@
 		background-color: rgb(116, 195, 0);
 	}
 
+	&--is-disabled {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+
 	&--style-normal {
 		min-width: 30px;
 

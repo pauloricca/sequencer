@@ -1,4 +1,7 @@
 import { Draft } from 'immer';
+import { TemporalState } from 'zundo';
+import { useSequencersState } from './state';
+import { useStore } from 'zustand';
 
 export interface State {
   /**
@@ -28,6 +31,11 @@ export interface State {
    */
   midiClockSend: StateClockSendDeviceParams[];
 }
+
+export const useTemporalStore = <T>(
+  selector: (state: TemporalState<State & StateActions>) => T,
+  equality?: (a: T, b: T) => boolean
+) => useStore(useSequencersState.temporal, selector as any, equality);
 
 export interface StateClockSendDeviceParams {
   midiOutputDeviceName: string;

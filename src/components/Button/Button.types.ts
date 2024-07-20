@@ -8,6 +8,7 @@ export interface ButtonProps extends Pick<HTMLAttributes<HTMLDivElement>, 'style
   icon?: string;
   onClick?: () => void;
   isActive?: boolean;
+  isDisabled?: boolean | undefined;
   actionMessage?: StateActionMessage;
   actionMessageDecimalPlaces?: number;
   type?: 'normal' | 'mini';

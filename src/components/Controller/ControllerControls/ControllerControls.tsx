@@ -10,7 +10,7 @@ import {
 import { getIntervalFromClockSpeed } from 'state/state.utils';
 import { allSoundsOff } from 'utils/midi';
 import uploadJsonFileAsObject from 'utils/uploadJsonFileAsObject';
-import { State } from 'state/state.types';
+import { State, useTemporalStore } from 'state/state.types';
 import downloadObjectAsJson from 'utils/downloadObjectAsJson';
 import { Button } from 'components/Button/Button';
 import { ControllerControlsConfigModal } from './ControllerControlsConfigModal/ControllerControlsConfigModal';
@@ -26,6 +26,9 @@ export const ControllerControls: React.FC = () => {
   const setSwing = useSequencersState((state) => state.setSwing);
   const resetState = useSequencersState((state) => state.reset);
   const sequenceCount = useSequencersState((state) => state.sequences.length);
+  const { undo, redo, pastStates, futureStates } = useTemporalStore(
+    ({ undo, redo, pastStates, futureStates }) => ({ undo, redo, pastStates, futureStates })
+  );
 
   useEffect(() => {
     setMetronomeInterval(getIntervalFromClockSpeed(clockSpeed));
@@ -96,6 +99,8 @@ export const ControllerControls: React.FC = () => {
         icon="export"
         onClick={() => uploadJsonFileAsObject<State>((obj) => resetState(obj))}
       />
+      <Button icon="undo" onClick={undo} isDisabled={!pastStates.length} />
+      <Button icon="redo" onClick={redo} isDisabled={!futureStates.length} />
       <Button text="reset" icon="delete" onClick={resetHandler} />
       <Button icon="cog" onClick={() => setIsConfigOpen(true)} />
       <ControllerControlsConfigModal isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} />

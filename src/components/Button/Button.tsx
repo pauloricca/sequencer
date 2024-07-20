@@ -13,6 +13,7 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   onClick,
   isActive,
+  isDisabled,
   actionMessage,
   actionMessageDecimalPlaces,
   type = 'normal',
@@ -62,11 +63,12 @@ export const Button: React.FC<ButtonProps> = ({
         'button',
         `button--style-${type}`,
         { 'button--is-active': isActive },
+        { 'button--is-disabled': isDisabled },
         { 'button--icon-only': !children && !text && icon },
         className
       )}
-      onClick={!isListeningForShortcut ? onClickHandler : undefined}
-      onMouseDown={actionMessage ? onMouseDownHandler : undefined}
+      onClick={!isDisabled && !isListeningForShortcut ? onClickHandler : undefined}
+      onMouseDown={!isDisabled && actionMessage ? onMouseDownHandler : undefined}
       style={style}
     >
       {(!!text || !!children) && (
