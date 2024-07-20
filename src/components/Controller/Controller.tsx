@@ -6,7 +6,6 @@ import { DrumMachine } from 'components/DrumMachine/DrumMachine';
 import { Synth } from 'components/Synth/Synth';
 import { ControllerControls } from './ControllerControls/ControllerControls';
 import { ErrorBoundary } from 'components/ErrorBoundary/ErrorBoundary';
-import { LineIn } from 'components/LineIn/LineIn';
 require('./_Controller.scss');
 
 export const Controller: React.FC = () => {
@@ -26,7 +25,6 @@ export const Controller: React.FC = () => {
             <Fragment key={id}>
               {type === 'drum-machine' && <DrumMachine sequenceId={id} />}
               {type === 'synth' && <Synth sequenceId={id} />}
-              {type === 'line-in' && <LineIn sequenceId={id} />}
             </Fragment>
           ))}
           <ShortcutController />

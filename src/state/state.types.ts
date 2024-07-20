@@ -106,11 +106,8 @@ type StateGetter = () => State & StateActions;
 
 export type StateAction = (set: StateSetter, get: StateGetter) => any;
 
-export type StateSequence = StateSequenceDrumMachine | StateSequenceSynth | StateSequenceLineIn;
-export type StateSequencePreset =
-  | StateSequenceDrumMachinePreset
-  | StateSequenceSynth
-  | StateSequenceLineIn;
+export type StateSequence = StateSequenceDrumMachine | StateSequenceSynth;
+export type StateSequencePreset = StateSequenceDrumMachinePreset | StateSequenceSynth;
 
 export interface StateSequenceCommon {
   id: string;
@@ -143,31 +140,6 @@ export interface StateSequenceDrumMachine extends StateSequenceCommon {
   channelsConfig: StateSequenceChannelConfig[];
 }
 
-export interface StateSequenceLineIn extends StateSequenceCommon {
-  type: 'line-in';
-  /**
-   * open gate duration (0 to 1 relative to step duration)
-   */
-  gate?: number;
-  /**
-   * fade in time in seconds
-   */
-  attack?: number;
-  /**
-   * decay time in seconds
-   */
-  decay?: number;
-  /**
-   * sustain amount (0 to 1)
-   */
-  sustain?: number;
-  /**
-   * fade out time in seconds
-   */
-  release?: number;
-  channelsConfig: StateSequenceChannelConfig[];
-}
-
 export interface StateSequenceDrumMachinePreset
   extends Omit<StateSequenceDrumMachine, 'channelsConfig'> {
   channelsConfig: StateSequenceChannelConfigPreset[];
@@ -176,7 +148,8 @@ export interface StateSequenceDrumMachinePreset
 export type StateSequenceChannelConfigPreset =
   | Omit<StateSequenceChannelConfigMidiNote, 'id'>
   | Omit<StateSequenceChannelConfigMidiCC, 'id'>
-  | Omit<StateSequenceChannelConfigSample, 'id'>;
+  | Omit<StateSequenceChannelConfigSample, 'id'>
+  | Omit<StateSequenceChannelConfigLineIn, 'id'>;
 
 export interface StateSequenceSynth extends StateSequenceCommon {
   type: 'synth';
@@ -332,7 +305,7 @@ export type StateActionMessage =
 type StateActionMessageSequenceParameterChange = {
   type: 'Sequence Param Change';
   sequenceName: string;
-  parameter: keyof StateSequenceDrumMachine | keyof StateSequenceSynth | keyof StateSequenceLineIn;
+  parameter: keyof StateSequenceDrumMachine | keyof StateSequenceSynth;
   decimalPlaces?: number;
   value?: number | string | boolean;
 };

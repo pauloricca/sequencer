@@ -4,7 +4,6 @@ import {
   State,
   StateSequence,
   StateSequenceDrumMachine,
-  StateSequenceLineIn,
   StateSequencePattern,
   StateSequencePatternPage,
   StateSequenceSynth,
@@ -80,8 +79,6 @@ export const getDefaultSequence = (type: StateSequence['type']) => {
       return getDefaultDrumMachine();
     case 'synth':
       return getDefaultSynth();
-    case 'line-in':
-      return getDefaultLineIn();
   }
 };
 
@@ -114,23 +111,6 @@ export const getDefaultDrumMachine = (): StateSequenceDrumMachine => ({
   patterns: [getDefaultPattern()],
   channelsConfig: [],
 });
-
-export const getDefaultLineIn = (): StateSequenceLineIn => {
-  const pattern = getDefaultPattern();
-
-  pattern.pages[0].steps = [{ channel: 0, stepIndex: 0, duration: 16 }];
-
-  return {
-    type: 'line-in',
-    id: nanoid(),
-    name: 'line in',
-    nSteps: 16,
-    stepLength: 1,
-    currentPattern: 1,
-    patterns: [pattern],
-    channelsConfig: [],
-  };
-};
 
 export const getDefaultPattern = (): StateSequencePattern => ({
   id: nanoid(),

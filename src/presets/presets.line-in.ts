@@ -1,7 +1,13 @@
-import { StateSequenceLineIn } from 'state/state.types';
-import { getDefaultLineIn } from 'state/state.utils';
+import { StateSequenceDrumMachinePreset } from 'state/state.types';
+import { getDefaultDrumMachine } from 'state/state.utils';
 
-export const PRESET_LINE_IN: StateSequenceLineIn = {
-  ...getDefaultLineIn(),
+export const PRESET_LINE_IN: StateSequenceDrumMachinePreset = {
+  ...getDefaultDrumMachine(),
   name: 'line in',
+  channelsConfig: [
+    {
+      type: 'line-in',
+      name: 'line in',
+    },
+  ],
 };
