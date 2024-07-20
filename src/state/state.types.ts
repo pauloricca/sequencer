@@ -314,7 +314,11 @@ type StateActionMessageChannelParameterChange = {
   type: 'Channel Param Change';
   sequenceName: string;
   channelIndex: number;
-  parameter: keyof StateSequenceChannelConfig;
+  parameter:
+    | keyof StateSequenceChannelConfigLineIn
+    | keyof StateSequenceChannelConfigMidiNote
+    | keyof StateSequenceChannelConfigMidiCC
+    | keyof StateSequenceChannelConfigSample;
   value?: number | string | boolean;
 };
 

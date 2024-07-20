@@ -96,7 +96,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
             type: 'Channel Param Change',
             sequenceName,
             channelIndex,
-            parameter: 'midiChannel' as 'name',
+            parameter: 'midiChannel',
           }}
         />
       )}
@@ -110,7 +110,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
             type: 'Channel Param Change',
             sequenceName,
             channelIndex,
-            parameter: 'midiNote' as 'name',
+            parameter: 'midiNote',
           }}
         />
       )}
@@ -125,7 +125,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'midiCC' as 'name',
+              parameter: 'midiCC',
             }}
           />
           <ControllerParameter
@@ -141,7 +141,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'isFixedValue' as 'name',
+              parameter: 'isFixedValue',
             }}
           />
           {isFixedValue && (
@@ -154,7 +154,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
                 type: 'Channel Param Change',
                 sequenceName,
                 channelIndex,
-                parameter: 'midiCCValue' as 'name',
+                parameter: 'midiCCValue',
               }}
             />
           )}
@@ -171,7 +171,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'audioFile' as 'name',
+              parameter: 'audioFile',
             }}
           />
           <ControllerParameter
@@ -185,7 +185,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'pitch' as 'name',
+              parameter: 'pitch',
             }}
             showDial
           />
@@ -199,7 +199,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'start' as 'name',
+              parameter: 'start',
             }}
             speed={3}
             showDial
@@ -214,7 +214,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'startRandomness' as 'name',
+              parameter: 'startRandomness',
             }}
             speed={3}
             showDial
@@ -229,7 +229,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'duration' as 'name',
+              parameter: 'duration',
             }}
             speed={3}
             showDial
@@ -247,7 +247,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'isReversed' as 'name',
+              parameter: 'isReversed',
             }}
           />
         </>
@@ -265,7 +265,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'attack' as 'name',
+              parameter: 'attack',
             }}
             showDial
           />
@@ -280,7 +280,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'release' as 'name',
+              parameter: 'release',
             }}
             showDial
           />
@@ -297,7 +297,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
                   type: 'Channel Param Change',
                   sequenceName,
                   channelIndex,
-                  parameter: 'decay' as 'name',
+                  parameter: 'decay',
                 }}
                 showDial
               />
@@ -311,7 +311,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
                   type: 'Channel Param Change',
                   sequenceName,
                   channelIndex,
-                  parameter: 'sustain' as 'name',
+                  parameter: 'sustain',
                 }}
                 showDial
               />
@@ -325,7 +325,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
                   type: 'Channel Param Change',
                   sequenceName,
                   channelIndex,
-                  parameter: 'gate' as 'name',
+                  parameter: 'gate',
                 }}
                 showDial
               />
@@ -342,7 +342,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'reverbDecay' as 'name',
+              parameter: 'reverbDecay',
             }}
             showDial
           />
@@ -356,7 +356,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'reverbWetness' as 'name',
+              parameter: 'reverbWetness',
             }}
             showDial
           />
@@ -371,7 +371,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'pan' as 'name',
+              parameter: 'pan',
             }}
             showDial
           />
@@ -385,7 +385,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               type: 'Channel Param Change',
               sequenceName,
               channelIndex,
-              parameter: 'distortion' as 'name',
+              parameter: 'distortion',
             }}
             showDial
           />
