@@ -97,11 +97,11 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
           'sequencer-channel-step--is-toggled': isToggled,
           'sequencer-channel-step--is-active': isActive,
         })}
-        onMouseDown={onMouseDownHandler}
-        onMouseEnter={onMouseEnterHandler}
       >
         <div
           className="sequencer-channel-step__fill"
+          onMouseDown={onMouseDownHandler}
+          onMouseEnter={onMouseEnterHandler}
           style={
             stepPropertyEditDirection === 'vertical'
               ? { height: `${fillPercentage * 100}%` }
