@@ -1,10 +1,23 @@
 .sequencer-channel-step {
     border: 1px solid white;
+    border-right-width: 0;
     width: 16px;
     height: 16px;
     margin-right: -1px;
     margin-bottom: -1px;
     position: relative;
+    z-index: 0;
+
+    &::after {
+        content: '';
+        border-right: 1px solid white;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        pointer-events: none;
+    }
 
     &__fill {
         position: absolute;
@@ -15,12 +28,6 @@
         z-index: 1;
         min-height: 1px;
         min-width: 1px;
-    }
-
-    &:last-of-type {
-        .sequencer-channel-step__fill {
-            width: 100%;
-        }
     }
 
     &--is-toggled {
@@ -36,14 +43,6 @@
             .sequencer-channel-step__fill {
                 background-color: white;
             }
-        }
-    }
-}
-
-.sequencer-channel {
-    &:last-of-type {
-        .sequencer-channel-step__fill {
-            bottom: 0;
         }
     }
 }
