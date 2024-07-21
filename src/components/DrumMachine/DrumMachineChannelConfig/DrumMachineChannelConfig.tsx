@@ -27,9 +27,11 @@ let samplePlayer: Tone.Player;
 
 const playSample = (audioFile: string) => {
   samplePlayer?.stop();
-  samplePlayer = new Tone.Player(`/samples/${audioFile}`);
-  samplePlayer.connect(Tone.Destination);
-  samplePlayer.autostart = true;
+  if (!useSequencersState.getState().isPlaying) {
+    samplePlayer = new Tone.Player(`/samples/${audioFile}`);
+    samplePlayer.connect(Tone.Destination);
+    samplePlayer.autostart = true;
+  }
 };
 
 'click mousedown keydown touchstart'
