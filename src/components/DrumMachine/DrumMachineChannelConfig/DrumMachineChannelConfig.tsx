@@ -1,4 +1,5 @@
 import { ControllerParameter } from 'components/Controller/ControllerParameter/ControllerParameter';
+import * as Tone from 'tone';
 import React, { useRef } from 'react';
 import { useSequencersState } from 'state/state';
 import {
@@ -21,6 +22,19 @@ export interface DrumMachineChannelConfigProps {
   sequenceId: string;
   channelIndex: number;
 }
+
+let samplePlayer: Tone.Player;
+
+const playSample = (audioFile: string) => {
+  samplePlayer?.stop();
+  samplePlayer = new Tone.Player(`/samples/${audioFile}`);
+  samplePlayer.connect(Tone.Destination);
+  samplePlayer.autostart = true;
+};
+
+'click mousedown keydown touchstart'
+  .split(' ')
+  .forEach((ev) => document.addEventListener(ev, () => samplePlayer?.stop()));
 
 export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> = ({
   sequenceId,
@@ -174,6 +188,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               channelIndex,
               parameter: 'audioFile',
             }}
+            onChange={playSample}
           />
           <ControllerParameter
             labelCallback={(value) => `pitch: ${value}`}

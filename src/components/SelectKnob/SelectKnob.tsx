@@ -193,10 +193,6 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
       }
     });
 
-    console.log('paulo currentPath', currentPath);
-    console.log('paulo directoriesInPath', directoriesInPath);
-    console.log('paulo fileItemsInPath', fileItemsInPath);
-
     return (
       <>
         {directoriesInPath.map((dirName) => (
@@ -221,6 +217,7 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
       onClick={() => {
         clickOnModalButtonClosesModal && setIsOpen(false);
         !actionMessage && setNewValue(item.value, item);
+        !!actionMessage && onChange && onChange(item.value, item);
       }}
       actionMessage={actionMessage ? { ...actionMessage, value: item.value } : undefined}
       actionMessageDecimalPlaces={stepDecimalPlaces}
