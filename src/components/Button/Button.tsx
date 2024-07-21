@@ -11,6 +11,7 @@ export const Button: React.FC<ButtonProps> = ({
   text,
   className,
   icon,
+  isIconOnTheLeft,
   onClick,
   isActive,
   isDisabled,
@@ -64,6 +65,7 @@ export const Button: React.FC<ButtonProps> = ({
         `button--style-${type}`,
         { 'button--is-active': isActive },
         { 'button--is-disabled': isDisabled },
+        { 'button--is-icon-on-the-left': isIconOnTheLeft },
         { 'button--icon-only': !children && !text && icon },
         className
       )}

@@ -5,7 +5,7 @@ import { StateActionMessage, StateSequence, StateSequenceChannelConfig } from 's
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
 
 export interface ControllerParameterProps
-  extends Omit<SelectKnobProps, 'label' | 'value' | 'onChange' | 'actionMessage'> {
+  extends Omit<SelectKnobProps, 'label' | 'value' | 'actionMessage'> {
   actionMessage: StateActionMessage;
   labelCallback: (value: any) => string;
   defaultValue?: SelectKnobProps['value'];

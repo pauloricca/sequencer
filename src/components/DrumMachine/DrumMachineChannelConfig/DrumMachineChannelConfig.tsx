@@ -165,6 +165,7 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
           <ControllerParameter
             labelCallback={(value) => value ?? 'audio file'}
             items={sampleFileOptions.current}
+            isItemsHierarchical
             type="discrete"
             modalColumns={2}
             actionMessage={{

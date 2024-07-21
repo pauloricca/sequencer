@@ -45,6 +45,10 @@
 		}
 	}
 
+	&--is-icon-on-the-left {
+		flex-direction: row-reverse;
+	}
+
 	&__content {
 		text-overflow: ellipsis;
     overflow: hidden;

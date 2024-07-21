@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
-import { SelectKnobProps } from './SelectKnob.types';
+import { SelectKnobItem, SelectKnobProps } from './SelectKnob.types';
 import { Modal } from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
 import { throttle } from 'lodash';
@@ -15,6 +15,7 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
   value,
   valueFormatter = (value) => value,
   items: itemsProp = [],
+  isItemsHierarchical,
   label,
   min: minProp = 0,
   max: maxProp = 1,
@@ -33,6 +34,9 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
   const [_, setTriggerRender] = useState(false);
   const performAction = useSequencersState((state) => state.performAction);
   const startListeningToNewShortcut = useSequencersState((state) => state.startEditingShortcut);
+  const [currentPath, setCurrentPath] = useState(
+    value?.substring?.(0, value.lastIndexOf?.('/') + 1)
+  );
 
   // Keep a copy of the value prop in ref to be accessible inside event handlers
   const valueRef = useRef(value);
@@ -161,6 +165,72 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
     window.addEventListener('mouseup', mouseUpHandler);
   };
 
+  const goToParentPath = () =>
+    setCurrentPath(
+      currentPath.substring(
+        0,
+        currentPath.substring(0, currentPath.length - 1).lastIndexOf('/') + 1
+      )
+    );
+
+  const getDirectoryItemsInPath = () => {
+    const directoriesInPath: string[] = [];
+    const fileItemsInPath: SelectKnobItem[] = [];
+
+    items.forEach((item) => {
+      const path = item.value as string;
+
+      if (path.startsWith(currentPath)) {
+        const relPath = path.substring(currentPath.length);
+
+        if (relPath.indexOf('/') < 0) {
+          fileItemsInPath.push(item);
+        } else {
+          const dirName = relPath.substring(0, relPath.indexOf('/'));
+
+          if (!directoriesInPath.includes(dirName)) directoriesInPath.push(dirName);
+        }
+      }
+    });
+
+    console.log('paulo currentPath', currentPath);
+    console.log('paulo directoriesInPath', directoriesInPath);
+    console.log('paulo fileItemsInPath', fileItemsInPath);
+
+    return (
+      <>
+        {directoriesInPath.map((dirName) => (
+          <Button
+            onClick={() => setCurrentPath(`${currentPath}${dirName}/`)}
+            icon="folder-close"
+            isIconOnTheLeft
+            key={dirName}
+          >
+            {dirName}
+          </Button>
+        ))}
+        {fileItemsInPath.map((item) =>
+          getItemModalButton(item, item.value.substring(item.value.lastIndexOf('/') + 1))
+        )}
+      </>
+    );
+  };
+
+  const getItemModalButton = (item: SelectKnobItem, label?: string) => (
+    <Button
+      onClick={() => {
+        clickOnModalButtonClosesModal && setIsOpen(false);
+        !actionMessage && setNewValue(item.value, item);
+      }}
+      actionMessage={actionMessage ? { ...actionMessage, value: item.value } : undefined}
+      actionMessageDecimalPlaces={stepDecimalPlaces}
+      key={item.key ?? item.label ?? item.value}
+      isActive={item.value === value}
+    >
+      {label ?? item.label ?? item.value}
+    </Button>
+  );
+
   return (
     <>
       <div className="select-knob" onMouseDown={onMouseDownHandler}>
@@ -196,20 +266,17 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
               `select-knob__modal-contents--${modalColumns}-columns`
             )}
           >
-            {items.map((item) => (
-              <Button
-                onClick={() => {
-                  clickOnModalButtonClosesModal && setIsOpen(false);
-                  !actionMessage && setNewValue(item.value, item);
-                }}
-                actionMessage={actionMessage ? { ...actionMessage, value: item.value } : undefined}
-                actionMessageDecimalPlaces={stepDecimalPlaces}
-                key={item.key ?? item.label ?? item.value}
-                isActive={item.value === value}
-              >
-                {item.label ?? item.value}
-              </Button>
-            ))}
+            {!isItemsHierarchical && items.map((item) => getItemModalButton(item))}
+            {isItemsHierarchical && (
+              <>
+                {currentPath !== '' && (
+                  <Button onClick={goToParentPath} icon="arrow-left" isIconOnTheLeft>
+                    back
+                  </Button>
+                )}
+                {getDirectoryItemsInPath()}
+              </>
+            )}
           </div>
         )}
       </Modal>

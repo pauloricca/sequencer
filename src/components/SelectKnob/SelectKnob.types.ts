@@ -14,6 +14,10 @@ export interface SelectKnobProps {
   onChange?: (value: any, item?: SelectKnobItem) => void;
   actionMessage?: StateActionMessage;
   items?: SelectKnobItem[];
+  /**
+   * when true, values with "/" character will be treated as directory hierarchy
+   */
+  isItemsHierarchical?: boolean;
   min?: number;
   max?: number;
   speed?: number;

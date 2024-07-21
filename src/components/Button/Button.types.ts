@@ -6,6 +6,7 @@ export interface ButtonProps extends Pick<HTMLAttributes<HTMLDivElement>, 'style
   text?: ReactNode;
   className?: string;
   icon?: string;
+  isIconOnTheLeft?: boolean;
   onClick?: () => void;
   isActive?: boolean;
   isDisabled?: boolean | undefined;
