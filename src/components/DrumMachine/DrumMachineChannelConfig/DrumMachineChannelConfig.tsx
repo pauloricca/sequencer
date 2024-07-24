@@ -7,7 +7,11 @@ import {
   StateSequenceChannelConfigMidiCC,
   StateSequenceDrumMachine,
 } from 'state/state.types';
-import { CHANNEL_TYPE_OPTIONS } from '../DrumMachine.constants';
+import {
+  CHANNEL_TYPE_OPTIONS,
+  HIGHEST_FREQUENCY,
+  LOWEST_FREQUENCY,
+} from '../DrumMachine.constants';
 import {
   MIDI_MAX_CC,
   MIDI_MAX_CC_VALUE,
@@ -406,6 +410,55 @@ export const DrumMachineChannelConfig: React.FC<DrumMachineChannelConfigProps> =
               parameter: 'distortion',
             }}
             showDial
+          />
+          <ControllerParameter
+            labelCallback={(value) => `low pass: ${value}hz`}
+            type="numeric"
+            step={100}
+            min={LOWEST_FREQUENCY}
+            max={HIGHEST_FREQUENCY}
+            defaultValue={HIGHEST_FREQUENCY}
+            actionMessage={{
+              type: 'Channel Param Change',
+              sequenceName,
+              channelIndex,
+              parameter: 'lowPassFilterFrequency',
+            }}
+            showDial
+          />
+          <ControllerParameter
+            labelCallback={(value) => `high pass: ${value}hz`}
+            type="numeric"
+            step={100}
+            min={LOWEST_FREQUENCY}
+            max={HIGHEST_FREQUENCY}
+            defaultValue={0}
+            actionMessage={{
+              type: 'Channel Param Change',
+              sequenceName,
+              channelIndex,
+              parameter: 'highPassFilterFrequency',
+            }}
+            showDial
+          />
+          <ControllerParameter
+            labelCallback={(value) => `velocity: ${value}`}
+            items={[
+              { value: 'vol' },
+              { value: 'vol+lpf' },
+              { value: 'vol+hpf' },
+              { value: 'lpf' },
+              { value: 'hpf' },
+            ]}
+            modalColumns={1}
+            defaultValue="vol"
+            type="discrete"
+            actionMessage={{
+              type: 'Channel Param Change',
+              sequenceName,
+              channelIndex,
+              parameter: 'velocityStrategy',
+            }}
           />
         </>
       )}

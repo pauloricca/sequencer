@@ -13,6 +13,7 @@ import { getAdjustedPitch } from './DrumMachine.utils';
 import { isEqual } from 'lodash';
 import { DrumMachineChannelConfig } from './DrumMachineChannelConfig/DrumMachineChannelConfig';
 import { getIntervalFromClockSpeed } from 'state/state.utils';
+import { HIGHEST_FREQUENCY } from './DrumMachine.constants';
 
 export interface DrumMachineProps {
   sequenceId: string;
@@ -24,6 +25,8 @@ export interface DrumMachineSoundPlayer {
   audioFile?: string;
   userMedia?: Tone.UserMedia;
   envelope?: Tone.AmplitudeEnvelope;
+  lowPassFilter: Tone.Filter;
+  highPassFilter: Tone.Filter;
   reverb: Tone.Reverb;
   distortion: Tone.Distortion;
   pan: Tone.PanVol;
@@ -78,6 +81,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
           reverb: new Tone.Reverb(0.1),
           pan: new Tone.PanVol(0, 0),
           distortion: new Tone.Distortion(1),
+          lowPassFilter: new Tone.Filter(HIGHEST_FREQUENCY, 'lowpass'),
+          highPassFilter: new Tone.Filter(0, 'highpass'),
         };
       }
 
@@ -88,6 +93,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
         soundPlayer.samplePlayer = new Tone.Player(`/samples/${channel.audioFile}`);
         soundPlayer.samplePlayer!.chain(
           soundPlayer.distortion,
+          soundPlayer.lowPassFilter,
+          soundPlayer.highPassFilter,
           soundPlayer.pan,
           soundPlayer.reverb,
           Tone.Destination
@@ -103,6 +110,8 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
         soundPlayer.userMedia!.chain(
           soundPlayer.envelope!,
           soundPlayer.distortion,
+          soundPlayer.lowPassFilter,
+          soundPlayer.highPassFilter,
           soundPlayer.pan,
           soundPlayer.reverb,
           Tone.Destination
@@ -147,12 +156,17 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
 
     if (!channel) return;
 
-    const volumePercentage =
+    let volumePercentage =
       (sequence.channelsConfig[channelIndex].volume ?? 1) * (step?.volume ?? 1);
 
     if (channel.type === 'sample' || channel.type === 'line-in') {
       // Don't trigger sample if volume is 0
       if (volumePercentage <= 0) return;
+
+      // If we only use filters as velocity strategy, we should remove the step volume from influencing the volume
+      if (channel.velocityStrategy === 'hpf' || channel.velocityStrategy === 'lpf') {
+        volumePercentage /= step?.volume ?? 1;
+      }
 
       const player = soundPlayers.current[channel.id];
 
@@ -167,10 +181,22 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
       player.reverb.wet.value = channel.reverbWetness ?? 0;
       // decay must be > 0
       player.reverb.decay = 0.01 + (channel.reverbDecay ?? 0);
-
       player.pan.pan.value = channel.pan ?? 0;
-
       player.distortion.wet.value = channel.distortion ?? 0;
+      player.lowPassFilter.frequency.value = channel.lowPassFilterFrequency ?? HIGHEST_FREQUENCY;
+      player.highPassFilter.frequency.value = channel.highPassFilterFrequency ?? 0;
+
+      if (channel.velocityStrategy === 'lpf' || channel.velocityStrategy === 'vol+lpf') {
+        player.lowPassFilter.frequency.value *= step?.volume ?? 1;
+      }
+
+      if (channel.velocityStrategy === 'hpf' || channel.velocityStrategy === 'vol+hpf') {
+        player.highPassFilter.frequency.value =
+          HIGHEST_FREQUENCY -
+          (HIGHEST_FREQUENCY - player.highPassFilter.frequency.value) * (step?.volume ?? 1);
+      }
+
+      // console.log(player.lowPassFilter.frequency.value);
 
       if (player.type === 'sample' && player.samplePlayer?.loaded) {
         player.samplePlayer.state === 'started' && player.samplePlayer.stop();

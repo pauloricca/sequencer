@@ -236,6 +236,19 @@ export interface StateSequenceChannelConfigSampleOrLineIn extends StateSequenceC
    */
   pan?: number;
   distortion?: number;
+  /**
+   * 20 - 20.000
+   */
+  lowPassFilterFrequency?: number;
+  /**
+   * 20 - 20.000
+   */
+  highPassFilterFrequency?: number;
+  /**
+   * What velocity translates to. By default velocity affects 'volume', but we can choose if it
+   * also (or only) affects a low-pass filter or a high-pass filter
+   */
+  velocityStrategy?: 'vol' | 'vol+hpf' | 'vol+lpf' | 'hpf' | 'lpf';
 }
 
 export interface StateSequenceChannelConfigSample extends StateSequenceChannelConfigSampleOrLineIn {
