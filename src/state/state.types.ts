@@ -92,6 +92,7 @@ export interface StateActions {
   removeShortcut: (id: string) => void;
   addActiveMidiInputDevice: (midiInputDevice: string) => void;
   removeActiveMidiInputDevice: (midiInputDevice: string) => void;
+  updateShortcutOrder: (oldIndex: number, newIndex: number) => void;
 }
 
 type StateSetter = (

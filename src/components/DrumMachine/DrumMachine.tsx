@@ -196,8 +196,6 @@ export const DrumMachine: React.FC<DrumMachineProps> = ({ sequenceId }) => {
           (HIGHEST_FREQUENCY - player.highPassFilter.frequency.value) * (step?.volume ?? 1);
       }
 
-      // console.log(player.lowPassFilter.frequency.value);
-
       if (player.type === 'sample' && player.samplePlayer?.loaded) {
         player.samplePlayer.state === 'started' && player.samplePlayer.stop();
         player.samplePlayer.volume.value = volumeLog20;

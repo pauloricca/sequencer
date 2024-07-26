@@ -459,6 +459,17 @@ const removeActiveMidiInputDevice: StateAction =
       }
     });
 
+const updateShortcutOrder: StateAction =
+  (set): StateActions['updateShortcutOrder'] =>
+  (oldIndex, newIndex) =>
+    set((state) => {
+      state.controlShortcuts.shortcuts = arrayMove(
+        state.controlShortcuts.shortcuts,
+        oldIndex,
+        newIndex
+      );
+    });
+
 const addMidiClockSendDevice: StateAction =
   (set): StateActions['addMidiClockSendDevice'] =>
   (StateClockSendDeviceParams) =>
@@ -517,6 +528,7 @@ export const useSequencersState = create<State & StateActions>()(
         removeShortcut: removeShortcut(set, get),
         addActiveMidiInputDevice: addActiveMidiInputDevice(set, get),
         removeActiveMidiInputDevice: removeActiveMidiInputDevice(set, get),
+        updateShortcutOrder: updateShortcutOrder(set, get),
         addMidiClockSendDevice: addMidiClockSendDevice(set, get),
         removeMidiClockSendDevice: removeMidiClockSendDevice(set, get),
         reset: reset(set, get),

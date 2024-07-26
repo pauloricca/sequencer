@@ -1,7 +1,7 @@
 import { Icon } from '@blueprintjs/core';
 import { Modal } from 'components/Modal/Modal';
 import { SelectKnob } from 'components/SelectKnob/SelectKnob';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSequencersState } from 'state/state';
 import { StateShortcut } from 'state/state.types';
 import {
@@ -19,6 +19,23 @@ import { getStepFromDecimalPlaces, hasInputInFocus } from './ShortcutController.
 import { SelectKnobMidi } from 'components/SelectKnob/SelectKnobMidi/SelectKnobMidi';
 import { MIDI_MAX_CC, MIDI_MAX_CHANNELS, MIDI_MAX_NOTE } from 'components/components.constants';
 import { throttle } from 'lodash';
+import classNames from 'classnames';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { DragToSortItem } from 'components/DragToSortItem/DragToSortItem';
 require('./_ShortcutController.scss');
 
 export const ShortcutController: React.FC = () => {
@@ -45,6 +62,8 @@ export const ShortcutController: React.FC = () => {
    * so we keep throttled callbacks for each of the shortcuts (mapped by their ids).
    */
   const throttledMidiActions = useRef<{ [shortcutId: string]: any }>({});
+  const [lastActivatedShortcuts, setLastActivatedShortcuts] = useState<string[]>([]);
+  const updateShortcutOrder = useSequencersState((state) => state.updateShortcutOrder);
 
   useEffect(() => {
     shortcutsRef.current = shortcuts;
@@ -60,6 +79,28 @@ export const ShortcutController: React.FC = () => {
     };
   }, []);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 4,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = shortcuts.findIndex(({ id }) => id === active.id);
+      const newIndex = shortcuts.findIndex(({ id }) => id === over?.id);
+
+      updateShortcutOrder(oldIndex, newIndex);
+    }
+  };
+
   const midiEventHandler: MidiEventHandler = useCallback((event) => {
     if (event.type !== 'note-on' && event.type !== 'cc') {
       return;
@@ -68,6 +109,8 @@ export const ShortcutController: React.FC = () => {
     const shortcutBeingEdited = shortcutsRef.current.find(({ isBeingEdited }) => isBeingEdited);
 
     if (!shortcutBeingEdited) {
+      const activatedShortcutIds: string[] = [];
+
       // CC
       shortcutsRef.current
         .filter(
@@ -77,7 +120,7 @@ export const ShortcutController: React.FC = () => {
             midiChannel === event.channel &&
             midiControl === event.control
         )
-        .forEach(({ actionMessage, valueRangeMin: min, valueRangeMax: max, decimalPlaces }) => {
+        .forEach(({ id, actionMessage, valueRangeMin: min, valueRangeMax: max, decimalPlaces }) => {
           let value = actionMessage.value;
 
           // Don't do anything if this is meant to be controlled by a pad (action should come with a value)
@@ -94,6 +137,8 @@ export const ShortcutController: React.FC = () => {
             ...actionMessage,
             value,
           });
+
+          activatedShortcutIds.push(id);
         });
 
       // Note
@@ -115,7 +160,11 @@ export const ShortcutController: React.FC = () => {
               value: event.note,
             })
           );
+
+          activatedShortcutIds.push(id);
         });
+
+      setLastActivatedShortcuts(activatedShortcutIds);
     } else {
       // Workaround for accessing state within callback
       const activeMidiInputDevices =
@@ -145,9 +194,16 @@ export const ShortcutController: React.FC = () => {
     );
 
     if (!shortcutCurrentlyBeingEdited) {
+      const activatedShortcutIds: string[] = [];
+
       shortcutsRef.current
         .filter(({ type, key }) => type === 'keyboard' && key === pressedKey)
-        .forEach(({ actionMessage }) => performAction(actionMessage));
+        .forEach(({ actionMessage, id }) => {
+          activatedShortcutIds.push(id);
+          performAction(actionMessage);
+        });
+
+      setLastActivatedShortcuts(activatedShortcutIds);
     } else {
       updateShortcut(shortcutCurrentlyBeingEdited?.id, {
         actionMessage: {
@@ -179,21 +235,37 @@ export const ShortcutController: React.FC = () => {
     <div className="shortcut-controller">
       <div className="shortcut-controller__section">
         <p className="shortcut-controller__section-header">shortcuts</p>
-        {shortcuts.map((shortcut) => (
-          <p className="shortcut-controller__item" key={shortcut.id}>
-            <Icon
-              icon="trash"
-              className="shortcut-controller__remove-shortcut-button"
-              onClick={() => removeShortcut(shortcut.id)}
-            />
-            <button
-              className="link-button"
-              onClick={() => updateShortcut(shortcut.id, { isBeingEdited: true })}
-            >
-              {getTriggerDecription(shortcut)} – {getActionDecription(shortcut)}
-            </button>
-          </p>
-        ))}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+          modifiers={[restrictToVerticalAxis]}
+        >
+          <SortableContext items={shortcuts} strategy={verticalListSortingStrategy}>
+            {shortcuts.map((shortcut) => (
+              <DragToSortItem key={shortcut.id} id={shortcut.id}>
+                <p
+                  className={classNames('shortcut-controller__item', {
+                    'shortcut-controller__item--has-been-activated':
+                      lastActivatedShortcuts.includes(shortcut.id),
+                  })}
+                >
+                  <Icon
+                    icon="trash"
+                    className="shortcut-controller__remove-shortcut-button"
+                    onClick={() => removeShortcut(shortcut.id)}
+                  />
+                  <button
+                    className="link-button"
+                    onClick={() => updateShortcut(shortcut.id, { isBeingEdited: true })}
+                  >
+                    {getTriggerDecription(shortcut)} – {getActionDecription(shortcut)}
+                  </button>
+                </p>
+              </DragToSortItem>
+            ))}
+          </SortableContext>
+        </DndContext>
       </div>
       <div className="shortcut-controller__section">
         <p className="shortcut-controller__section-header">
