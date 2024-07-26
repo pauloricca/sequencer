@@ -21,3 +21,11 @@ Get up and running with these simple steps:
 ## Samples
 
 Place audio files in samples directory. App will refresh automatically loading the new samples.
+
+Some samples have been included from:
+1. https://blackoctopus-sound.com/product/free-1gb-of-black-octopus-samples/
+1. https://99sounds.org/drum-samples/
+1. https://www.musicradar.com/news/drums/1000-free-drum-samples
+1. https://www.iwantthatsound.com/gratis
+1. https://reverb.com/software/samples-and-loops/reverb/3514-reverb-drum-machines-the-complete-collection?gspk=dG9taXNsYXZ6bGF0aWM&gsxid=399IcZVP9FWVge&ps_partner_key=dG9taXNsYXZ6bGF0aWM&ps_xid=399IcZVP9FWVge&utm_campaign=tomislavzlatic&utm_medium=affiliate&utm_source=partnerstack
+1. 909 samples by Rob Roy

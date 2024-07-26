@@ -6,3 +6,17 @@ src/metadata/*.json
 .DS_Store
 !.gitkeep
 !samples/909
+!samples/cinematic
+!samples/claps
+!samples/cowbells
+!samples/effects
+!samples/hats
+!samples/instruments
+!samples/kicks
+!samples/other-percussion
+!samples/pads
+!samples/rides
+!samples/risers-and-fallers
+!samples/snares
+!samples/toms
+!samples/voices
