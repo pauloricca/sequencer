@@ -1,8 +1,10 @@
+@import '/src/variables';
+
 .sequencer-channel-step {
     border: 1px solid white;
     border-right-width: 0;
-    width: 16px;
-    height: 16px;
+    width: $grid-size;
+    height: $grid-size;
     margin-right: -1px;
     margin-bottom: -1px;
     position: relative;

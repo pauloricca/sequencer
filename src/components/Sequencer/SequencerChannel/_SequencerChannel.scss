@@ -1,3 +1,5 @@
+@import '/src/variables';
+
 .sequencer-channel {
     display: flex;
     flex-direction: column;
@@ -6,12 +8,13 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
+        align-items: center;
         gap: 8px;
     }
 
     &__name {
         font-size: 0.7rem;
-        padding-top: 2px;
+        padding-top: 1px;
         text-align: right;
         cursor: pointer;
         white-space: nowrap;
@@ -19,16 +22,17 @@
 
     &__controls {
         display: flex;
+        padding-top: 1px;
         gap: 8px;
         align-items: center;
 
-        >* {
+        > * {
             cursor: pointer;
         }
 
         svg {
-            width: 12px;
-            height: 12px;
+            width: $grid-size * .6;
+            height: $grid-size * .6;
         }
     }
 
