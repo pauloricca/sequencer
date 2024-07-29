@@ -1,4 +1,11 @@
-import React, { MouseEventHandler, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  MouseEventHandler,
+  TouchEventHandler,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { SelectKnobItem, SelectKnobProps } from './SelectKnob.types';
 import { Modal } from 'components/Modal/Modal';
 import { Button } from 'components/Button/Button';
@@ -77,13 +84,19 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
       });
   };
 
-  const onMouseDownHandler: MouseEventHandler = (ev) => {
-    let lastMouseX = ev.screenX;
-    let lastMouseY = ev.screenY;
+  const getInteractionCoords = (ev: MouseEvent | TouchEvent) => ({
+    x: (ev as MouseEvent).screenX ?? (ev as TouchEvent).touches[0].screenX,
+    y: (ev as MouseEvent).screenY ?? (ev as TouchEvent).touches[0].screenY,
+  });
+
+  const onMouseDownHandler = (ev: MouseEvent | TouchEvent) => {
+    document.body.classList.add('do-not-scroll-while-interacting');
+
+    let { x: lastMouseX, y: lastMouseY } = getInteractionCoords(ev);
 
     const pressAndHoldCounterTimeout = actionMessage
       ? setTimeout(() => {
-          window.removeEventListener('mousemove', mouseMoveHandler);
+          removeAllEventListeners();
           setIsListeningForShortcut(true);
           startListeningToNewShortcut({
             actionMessage: actionMessage,
@@ -96,17 +109,18 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
         }, PRESS_AND_HOLD_TIME)
       : -1;
 
-    const mouseMoveHandler = throttle((ev: MouseEvent) => {
+    const mouseMoveHandler = throttle((ev: MouseEvent | TouchEvent) => {
       clearInterval(pressAndHoldCounterTimeout);
+      const { x, y } = getInteractionCoords(ev);
 
       isDragging.current = true;
 
-      const mouseDif = (lastMouseY - ev.screenY + ev.screenX - lastMouseX) * speed;
+      const mouseDif = (lastMouseY - y + x - lastMouseX) * speed;
       const movementAmount = (mouseDif * step) / 10;
 
       if (Math.abs(movementAmount) >= step) {
-        lastMouseX = ev.screenX;
-        lastMouseY = ev.screenY;
+        lastMouseX = x;
+        lastMouseY = y;
 
         let currentValueOrIndex: number = 0;
 
@@ -157,12 +171,23 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
         setTriggerRender((prev) => !prev);
       }, 100);
 
-      window.removeEventListener('mousemove', mouseMoveHandler);
-      window.removeEventListener('mouseup', mouseUpHandler);
+      removeAllEventListeners();
     };
 
     window.addEventListener('mousemove', mouseMoveHandler);
+    window.addEventListener('touchmove', mouseMoveHandler);
     window.addEventListener('mouseup', mouseUpHandler);
+    window.addEventListener('touchend', mouseUpHandler);
+    window.addEventListener('touchcancel', mouseUpHandler);
+
+    const removeAllEventListeners = () => {
+      document.body.classList.remove('do-not-scroll-while-interacting');
+      window.removeEventListener('mousemove', mouseMoveHandler);
+      window.removeEventListener('touchmove', mouseMoveHandler);
+      window.removeEventListener('mouseup', mouseUpHandler);
+      window.removeEventListener('touchend', mouseUpHandler);
+      window.removeEventListener('touchcancel', mouseUpHandler);
+    };
   };
 
   const goToParentPath = () =>
@@ -230,7 +255,11 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
 
   return (
     <>
-      <div className="select-knob" onMouseDown={onMouseDownHandler}>
+      <div
+        className="select-knob"
+        onMouseDown={onMouseDownHandler as any as MouseEventHandler}
+        onTouchStart={onMouseDownHandler as any as TouchEventHandler}
+      >
         <Button
           onClick={() => !isDragging.current && !isListeningForShortcut && setIsOpen(true)}
           isActive={isDragging.current || isListeningForShortcut}
