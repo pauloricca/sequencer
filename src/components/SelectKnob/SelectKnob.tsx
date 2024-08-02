@@ -15,6 +15,7 @@ import { countDecimalPlaces } from 'utils/countDecimalPlaces';
 import { useSequencersState } from 'state/state';
 import { PRESS_AND_HOLD_TIME } from 'components/ShortcutController/ShortcutController.constants';
 import classNames from 'classnames';
+import { getInteractionCoords, lockPageScroll, unlockPageScroll } from 'utils/touch.utils';
 require('./_SelectKnob.scss');
 
 export const SelectKnob: React.FC<SelectKnobProps> = ({
@@ -84,13 +85,8 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
       });
   };
 
-  const getInteractionCoords = (ev: MouseEvent | TouchEvent) => ({
-    x: (ev as MouseEvent).screenX ?? (ev as TouchEvent).touches[0].screenX,
-    y: (ev as MouseEvent).screenY ?? (ev as TouchEvent).touches[0].screenY,
-  });
-
   const onMouseDownHandler = (ev: MouseEvent | TouchEvent) => {
-    document.body.classList.add('do-not-scroll-while-interacting');
+    lockPageScroll();
 
     let { x: lastMouseX, y: lastMouseY } = getInteractionCoords(ev);
 
@@ -110,6 +106,8 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
       : -1;
 
     const mouseMoveHandler = throttle((ev: MouseEvent | TouchEvent) => {
+      ev.preventDefault();
+
       clearInterval(pressAndHoldCounterTimeout);
       const { x, y } = getInteractionCoords(ev);
 
@@ -159,6 +157,8 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
           setNewValue(items[newValue]?.value, items[newValue]);
         }
       }
+
+      return false;
     }, MOUSE_MOVE_THROTTLE);
 
     const mouseUpHandler = () => {
@@ -175,13 +175,13 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
     };
 
     window.addEventListener('mousemove', mouseMoveHandler);
-    window.addEventListener('touchmove', mouseMoveHandler);
+    window.addEventListener('touchmove', mouseMoveHandler, { passive: false });
     window.addEventListener('mouseup', mouseUpHandler);
     window.addEventListener('touchend', mouseUpHandler);
     window.addEventListener('touchcancel', mouseUpHandler);
 
     const removeAllEventListeners = () => {
-      document.body.classList.remove('do-not-scroll-while-interacting');
+      unlockPageScroll();
       window.removeEventListener('mousemove', mouseMoveHandler);
       window.removeEventListener('touchmove', mouseMoveHandler);
       window.removeEventListener('mouseup', mouseUpHandler);

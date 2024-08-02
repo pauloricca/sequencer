@@ -1,7 +1,9 @@
 import classnames from 'classnames';
 import { throttle } from 'lodash';
-import React, { MouseEventHandler, memo, useEffect, useState } from 'react';
+import React, { MouseEventHandler, TouchEventHandler, memo, useEffect, useState } from 'react';
 import { StateSequenceStep } from 'state/state.types';
+import { isTouchDevice } from 'utils/isTouchDevice';
+import { getInteractionCoords, lockPageScroll, unlockPageScroll } from 'utils/touch.utils';
 require('./_SequencerChannelStep.scss');
 
 const MOUSE_DRAG_RANGE = 50;
@@ -54,34 +56,49 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
       }
     }, [internalFillValue]);
 
-    const onMouseDownHandler: MouseEventHandler = (ev) => {
+    const onMouseDownHandler = (ev: MouseEvent | TouchEvent) => {
+      const { x, y } = getInteractionCoords(ev);
+
       if (!isControllingFillPercentage) {
         onToggle(stepIndex, step);
         onDragStart();
       } else {
-        let lastMouseX = ev.screenX;
-        let lastMouseY = ev.screenY;
-        let mouseHasMoved = false;
-        const mouseMoveHandler = throttle((ev: MouseEvent) => {
-          const mouseYDif = lastMouseY - ev.screenY + ev.screenX - lastMouseX;
+        lockPageScroll();
 
-          lastMouseX = ev.screenX;
-          lastMouseY = ev.screenY;
+        let lastMouseX = x;
+        let lastMouseY = y;
+        let mouseHasMoved = false;
+
+        const mouseMoveHandler = throttle((ev: MouseEvent | TouchEvent) => {
+          ev.preventDefault();
+
+          const { x, y } = getInteractionCoords(ev);
+          const mouseYDif = lastMouseY - y + x - lastMouseX;
+
+          lastMouseX = x;
+          lastMouseY = y;
           setInternalFillValue((prevValue) =>
             Math.max(0, Math.min(fillPercentageMax, prevValue + mouseYDif / MOUSE_DRAG_RANGE))
           );
           mouseHasMoved = true;
         }, MOUSE_MOUSE_THROTTLE);
         const mouseUpHandler = () => {
+          unlockPageScroll();
           window.removeEventListener('mousemove', mouseMoveHandler);
+          window.removeEventListener('touchmove', mouseMoveHandler);
           window.removeEventListener('mouseup', mouseUpHandler);
+          window.removeEventListener('touchend', mouseUpHandler);
+          window.removeEventListener('touchcancel', mouseUpHandler);
           if (!mouseHasMoved) {
             onToggle(stepIndex, step);
           }
         };
 
         window.addEventListener('mousemove', mouseMoveHandler);
+        window.addEventListener('touchmove', mouseMoveHandler, { passive: false });
         window.addEventListener('mouseup', mouseUpHandler);
+        window.addEventListener('touchend', mouseUpHandler);
+        window.addEventListener('touchcancel', mouseUpHandler);
       }
     };
 
@@ -97,7 +114,10 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
           'sequencer-channel-step--is-toggled': isToggled,
           'sequencer-channel-step--is-active': isActive,
         })}
-        onMouseDown={onMouseDownHandler}
+        onMouseDown={
+          !isTouchDevice() ? (onMouseDownHandler as any as MouseEventHandler) : undefined
+        }
+        onTouchStart={onMouseDownHandler as any as TouchEventHandler}
         onMouseEnter={onMouseEnterHandler}
       >
         <div
