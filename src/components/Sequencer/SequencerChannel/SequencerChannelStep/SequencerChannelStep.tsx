@@ -82,6 +82,7 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
           );
           mouseHasMoved = true;
         }, MOUSE_MOUSE_THROTTLE);
+
         const mouseUpHandler = () => {
           unlockPageScroll();
           window.removeEventListener('mousemove', mouseMoveHandler);
@@ -89,6 +90,7 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
           window.removeEventListener('mouseup', mouseUpHandler);
           window.removeEventListener('touchend', mouseUpHandler);
           window.removeEventListener('touchcancel', mouseUpHandler);
+
           if (!mouseHasMoved) {
             onToggle(stepIndex, step);
           }
@@ -118,7 +120,7 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
           !isTouchDevice() ? (onMouseDownHandler as any as MouseEventHandler) : undefined
         }
         onTouchStart={onMouseDownHandler as any as TouchEventHandler}
-        onMouseEnter={onMouseEnterHandler}
+        onMouseEnter={!isTouchDevice() ? onMouseEnterHandler : undefined}
       >
         <div
           className="sequencer-channel-step__fill"
