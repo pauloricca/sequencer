@@ -186,6 +186,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
               {patternIds.map((id, patternIndex) => (
                 <DragToSortItem key={id} id={id}>
                   <Button
+                    className="draggable"
                     text={patternIndex + 1}
                     actionMessage={{
                       type: 'Sequence Param Change',
@@ -222,7 +223,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 <DragToSortItem key={id} id={id}>
                   <Button
                     icon={pageNumber === visiblePage ? 'eye-open' : undefined}
-                    className="sequencer__pattern-pagination-page"
+                    className="sequencer__pattern-pagination-page draggable"
                     type="mini"
                     onClick={() => setVisiblePage(pageNumber)}
                     isActive={pageNumber === activePageIndex}

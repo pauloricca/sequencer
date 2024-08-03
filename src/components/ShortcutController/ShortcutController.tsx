@@ -245,7 +245,7 @@ export const ShortcutController: React.FC = () => {
             {shortcuts.map((shortcut) => (
               <DragToSortItem key={shortcut.id} id={shortcut.id}>
                 <p
-                  className={classNames('shortcut-controller__item', {
+                  className={classNames('shortcut-controller__item draggable', {
                     'shortcut-controller__item--has-been-activated':
                       lastActivatedShortcuts.includes(shortcut.id),
                   })}

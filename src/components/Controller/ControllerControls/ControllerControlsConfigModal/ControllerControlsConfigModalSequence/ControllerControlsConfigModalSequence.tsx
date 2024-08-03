@@ -41,7 +41,7 @@ export const ControllerControlsConfigModalSequence: React.FC<
 
   return (
     <div
-      className="controller-controls-config-modal-sequence"
+      className="controller-controls-config-modal-sequence draggable"
       ref={setNodeRef}
       style={style}
       {...attributes}

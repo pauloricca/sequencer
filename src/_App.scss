@@ -127,7 +127,6 @@ html, body {
 	overscroll-behavior: none;
 }
 
-.do-not-scroll-while-interacting {
-  overflow: hidden;
-  touch-action:none;
+.draggable {
+	touch-action: none;
 }

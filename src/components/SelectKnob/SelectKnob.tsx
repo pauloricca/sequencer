@@ -15,7 +15,7 @@ import { countDecimalPlaces } from 'utils/countDecimalPlaces';
 import { useSequencersState } from 'state/state';
 import { PRESS_AND_HOLD_TIME } from 'components/ShortcutController/ShortcutController.constants';
 import classNames from 'classnames';
-import { getInteractionCoords, lockPageScroll, unlockPageScroll } from 'utils/touch.utils';
+import { getInteractionCoords } from 'utils/touch.utils';
 require('./_SelectKnob.scss');
 
 export const SelectKnob: React.FC<SelectKnobProps> = ({
@@ -86,8 +86,6 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
   };
 
   const onMouseDownHandler = (ev: MouseEvent | TouchEvent) => {
-    lockPageScroll();
-
     let { x: lastMouseX, y: lastMouseY } = getInteractionCoords(ev);
 
     const pressAndHoldCounterTimeout = actionMessage
@@ -181,7 +179,6 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
     window.addEventListener('touchcancel', mouseUpHandler);
 
     const removeAllEventListeners = () => {
-      unlockPageScroll();
       window.removeEventListener('mousemove', mouseMoveHandler);
       window.removeEventListener('touchmove', mouseMoveHandler);
       window.removeEventListener('mouseup', mouseUpHandler);
@@ -256,7 +253,7 @@ export const SelectKnob: React.FC<SelectKnobProps> = ({
   return (
     <>
       <div
-        className="select-knob"
+        className="select-knob draggable"
         onMouseDown={onMouseDownHandler as any as MouseEventHandler}
         onTouchStart={onMouseDownHandler as any as TouchEventHandler}
       >

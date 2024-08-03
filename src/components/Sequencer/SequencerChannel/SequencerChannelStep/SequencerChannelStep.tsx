@@ -3,7 +3,7 @@ import { throttle } from 'lodash';
 import React, { MouseEventHandler, TouchEventHandler, memo, useEffect, useState } from 'react';
 import { StateSequenceStep } from 'state/state.types';
 import { isTouchDevice } from 'utils/isTouchDevice';
-import { getInteractionCoords, lockPageScroll, unlockPageScroll } from 'utils/touch.utils';
+import { getInteractionCoords } from 'utils/touch.utils';
 require('./_SequencerChannelStep.scss');
 
 const MOUSE_DRAG_RANGE = 50;
@@ -63,8 +63,6 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
         onToggle(stepIndex, step);
         onDragStart();
       } else {
-        lockPageScroll();
-
         let lastMouseX = x;
         let lastMouseY = y;
         let mouseHasMoved = false;
@@ -84,7 +82,6 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
         }, MOUSE_MOUSE_THROTTLE);
 
         const mouseUpHandler = () => {
-          unlockPageScroll();
           window.removeEventListener('mousemove', mouseMoveHandler);
           window.removeEventListener('touchmove', mouseMoveHandler);
           window.removeEventListener('mouseup', mouseUpHandler);
@@ -112,7 +109,7 @@ export const SequencerChannelStep: React.FC<SequencerChannelStepProps> = memo(
 
     return (
       <div
-        className={classnames('sequencer-channel-step', {
+        className={classnames('sequencer-channel-step draggable', {
           'sequencer-channel-step--is-toggled': isToggled,
           'sequencer-channel-step--is-active': isActive,
         })}
