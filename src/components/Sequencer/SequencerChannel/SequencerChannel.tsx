@@ -47,7 +47,7 @@ export const SequencerChannel: React.FC<SequencerChannelProps> = memo(
 
       if (!sequence) return [];
 
-      return getCurrentPattern(sequence).pages[visiblePage].steps;
+      return getCurrentPattern(sequence).pages[visiblePage]?.steps || [];
     });
     const isSequenceMuted = useSequencersState(
       (state) => state.sequences.find(({ id }) => sequenceId === id)?.isMuted

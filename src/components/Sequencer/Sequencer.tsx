@@ -194,6 +194,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
                       value: patternIndex + 1,
                       sequenceName,
                     }}
+                    onClick={() => {
+                      setActivePageIndex(0);
+                      setVisiblePage(0);
+                    }}
                     isActive={currentPattern === patternIndex + 1}
                   />
                 </DragToSortItem>
@@ -202,9 +206,23 @@ export const Sequencer: React.FC<SequencerProps> = ({
           </DndContext>
         </div>
         <div className="sequencer__pattern-tools">
-          <Button icon="plus" onClick={() => addSequencePattern(sequenceId)} />
+          <Button
+            icon="plus"
+            onClick={() => {
+              setActivePageIndex(0);
+              setVisiblePage(0);
+              addSequencePattern(sequenceId);
+            }}
+          />
           <Button icon="duplicate" onClick={() => addSequencePattern(sequenceId, true)} />
-          <Button icon="trash" onClick={() => removeCurrentSequencePattern(sequenceId)} />
+          <Button
+            icon="trash"
+            onClick={() => {
+              setActivePageIndex(0);
+              setVisiblePage(0);
+              removeCurrentSequencePattern(sequenceId);
+            }}
+          />
         </div>
       </div>
       <div className="sequencer__footer">

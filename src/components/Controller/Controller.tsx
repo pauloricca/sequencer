@@ -20,7 +20,7 @@ export const Controller: React.FC = () => {
         <ControllerControls />
       </div>
       <div className="controller__sequences">
-        <ErrorBoundary error="Saved state not compatible with current version. Please press reset and refresh the page.">
+        <ErrorBoundary error="An error occured or the saved state not compatible with current version. Please press reset and refresh the page.">
           {sequences.map(({ id, type }) => (
             <Fragment key={id}>
               {type === 'drum-machine' && <DrumMachine sequenceId={id} />}

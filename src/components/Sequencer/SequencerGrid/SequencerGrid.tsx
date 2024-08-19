@@ -66,7 +66,8 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
     } else if (activeStepIndex.current === 0) {
       const nextPage = (activePageIndex + 1) % getCurrentPattern(sequence).pages.length;
 
-      setActivePageIndex(nextPage);
+      // Update active page index outside of the render loop
+      setTimeout(() => setActivePageIndex(nextPage));
 
       // Restarting the pattern and need to mutate it?
       if (nextPage === 0 && (sequence.mutationAmount || 0) > 0) {
